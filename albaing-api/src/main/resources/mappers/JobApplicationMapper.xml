@@ -2,6 +2,21 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.jobjob.albaing.mapper.JobApplicationMapper">
+    <select id="findByJobPostId" parameterType="int" resultType="JobApplication">
+        SELECT * FROM job_application WHERE job_post_id = #{jobPostId}
+    </select>
 
+    <select id="findById" parameterType="int" resultType="JobApplication">
+        SELECT * FROM job_application WHERE id = #{id}
+    </select>
+
+    <insert id="save" parameterType="JobApplication">
+        INSERT INTO job_application (job_post_id, applicant_name, status)
+        VALUES (#{jobPostId}, #{applicantName}, 'pending')
+    </insert>
+
+    <update id="updateStatus">
+        UPDATE job_application SET status = #{status} WHERE id = #{id}
+    </update>
 
 </mapper>
