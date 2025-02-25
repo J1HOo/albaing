@@ -2,6 +2,7 @@ package com.jobjob.albaing.mapper;
 
 import com.jobjob.albaing.dto.JobPost;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 import java.util.Map;
