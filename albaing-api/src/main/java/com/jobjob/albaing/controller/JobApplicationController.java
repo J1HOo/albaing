@@ -3,6 +3,7 @@ package com.jobjob.albaing.controller;
 import com.jobjob.albaing.dto.JobApplication;
 import com.jobjob.albaing.service.JobApplicationService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -15,15 +16,17 @@ public class JobApplicationController {
     private JobApplicationService jobApplicationService;
 
     @GetMapping("/{jobPostId}")
-    public List<JobApplication> getApplicationsByJobPost(@PathVariable int jobPostId) {
+    public List<JobApplication> getApplicationsByJobPost(@PathVariable long jobPostId) {
         return jobApplicationService.getApplicationsByJobPost(jobPostId);
     }
 
     @PutMapping("/{applicationId}/status")
-    public void updateApplicationStatus(
-            @PathVariable int applicationId,
+    public ResponseEntity<Void> updateApplicationStatus(
+            @PathVariable long applicationId,
             @RequestParam String status
     ) {
-        jobApplicationService.updateApplicationStatus(applicationId, status);
+        JobApplication.ApplicationStatus applicationStatus = JobApplication.ApplicationStatus.fromString(status); // 변경됨
+        jobApplicationService.updateApplicationStatus(applicationId, applicationStatus);
+        return ResponseEntity.ok().build();
     }
 }

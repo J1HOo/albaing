@@ -11,9 +11,21 @@ import java.time.LocalDateTime;
 @ToString
 @NoArgsConstructor
 public class JobApplication {
-    private int jobApplicationId;
-    private int jobPostId;
-    private int resumeId;
+    private long jobApplicationId;
+    private long jobPostId;
+    private long resumeId;
     private LocalDateTime applicationAt;
-    private String approveStatus;
+    private ApplicationStatus approveStatus;
+
+    public enum ApplicationStatus {
+        APPROVED, APPROVING, DENIED;
+
+        public static ApplicationStatus fromString(String status) {
+            try {
+                return ApplicationStatus.valueOf(status.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException("Invalid status value: " + status);
+            }
+        }
+    }
 }

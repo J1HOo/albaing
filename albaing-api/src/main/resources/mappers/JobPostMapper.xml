@@ -37,11 +37,12 @@
                    #{jobPostWorkPlace},
                    #{jobPostStatus},
                    #{jobPostDueDate},
-                    NOW(),
-                    NOW()
+                   NOW(),
+                   NOW()
                )
     </insert>
 
+    <!-- 특정 공고 조회 -->
     <select id="selectJobPostById">
         SELECT *
         FROM job_posts
@@ -50,6 +51,9 @@
 
     <sql id="searchCriteria">
         <where>
+            <if test="companyId != null">
+                company_id = #{companyId}
+            </if>
             <if test="jobCategory != null and jobCategory != ''">
                 AND job_post_job_category = #{jobCategory}
             </if>
@@ -70,6 +74,7 @@
         </where>
     </sql>
 
+    <!-- 채용 공고 목록 조회 -->
     <select id="selectJobPostList">
         SELECT *
         FROM job_posts
@@ -78,6 +83,7 @@
         LIMIT #{limit} OFFSET #{offset}
     </select>
 
+    <!-- 공고 업데이트 -->
     <update id="updateJobPost">
         UPDATE job_posts
         SET
@@ -95,9 +101,10 @@
             job_post_due_date = #{jobPostDueDate},
             job_post_updated_at = NOW()
         WHERE job_post_id = #{jobPostId}
+          AND company_id = #{companyId}
     </update>
 
-    <!-- 채용공고 상태 변경 -->
+    <!-- 공고 상태 변경 -->
     <update id="updateJobPostStatus">
         UPDATE job_posts
         SET
@@ -107,10 +114,9 @@
     </update>
 
     <!-- 채용공고 총 개수 조회 -->
-    <select id="countJobPost">
+    <select id="countJobPost" resultType="int">
         SELECT COUNT(*)
         FROM job_posts
         <include refid="searchCriteria" />
     </select>
-
 </mapper>
