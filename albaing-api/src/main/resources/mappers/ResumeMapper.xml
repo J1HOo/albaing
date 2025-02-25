@@ -65,8 +65,8 @@
                 #{resume.resumeIntroduction})
     </insert>
 
-<!--    -->
-    <insert id="createResumeForUser" useGeneratedKeys="true" keyProperty="resumeId">
+<!--    회원가입시 이력서 자동 생성 -->
+    <insert id="createResumeForUser">
         INSERT INTO RESUMES (
             user_id,
             resume_title,

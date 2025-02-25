@@ -17,45 +17,44 @@ public class ResumeServiceImpl implements ResumeService {
     @Override
     public void createResumeForUser(User user){
 
-// 이력서 기본 데이터 생성
-        Resume resume = new Resume();
-        resume.setUserId(user.getUserId().intValue()); // userId를 int로 변환
-        resume.setResumeTitle(user.getUserName() + "의 이력서");
-        resume.setResumeLocation("");
-        resume.setResumeJobCategory("");
-        resume.setResumeJobType("");
-        resume.setResumeJobDuration("");
-        resume.setResumeWorkSchedule("");
-        resume.setResumeWorkTime("");
-        resume.setResumeJobSkill("");
-        resume.setResumeIntroduction("");
+            // 1. 이력서 기본 정보 생성
+            Resume resume = new Resume();
+            resume.setUserId(Math.toIntExact(user.getUserId()));  // 이미 userId는 존재
+            resume.setResumeTitle(user.getUserName() + "의 이력서");
+            resume.setResumeLocation("");
+            resume.setResumeJobCategory("");
+            resume.setResumeJobType("");
+            resume.setResumeJobDuration("");
+            resume.setResumeWorkSchedule("");
+            resume.setResumeWorkTime("");
+            resume.setResumeJobSkill("");
+            resume.setResumeIntroduction("");
 
-        // 이력서 저장
-        resumeMapper.createResumeForUser(resume);
+            // 2. 이력서 저장
+            resumeMapper.createResumeForUser(resume);
 
-        // 이력서 ID 획득 (MyBatis의 selectKey를 통해 자동으로 설정됨)
-        int resumeId = resume.getResumeId();
 
-        // 기본 학력 정보 생성
-        EducationHistory educationHistory = new EducationHistory();
-        educationHistory.setResumeId(resumeId);
-        educationHistory.setEduDegree("");
-        educationHistory.setEduStatus("");
-        educationHistory.setEduSchool("");
-        educationHistory.setEduMajor("");
-        educationHistory.setEduAdmissionYear("");
-        educationHistory.setEduGraduationYear("");
-        resumeMapper.createDefaultEducation(educationHistory);
+            // 3. 기본 학력 정보 생성
+            EducationHistory educationHistory = new EducationHistory();
+            educationHistory.setResumeId(resume.getResumeId());
+            educationHistory.setEduDegree("");
+            educationHistory.setEduStatus("");
+            educationHistory.setEduSchool("");
+            educationHistory.setEduMajor("");
+            educationHistory.setEduAdmissionYear("");
+            educationHistory.setEduGraduationYear("");
+            resumeMapper.createDefaultEducation(educationHistory);
 
-        // 기본 경력 정보 생성
-        CareerHistory careerHistory = new CareerHistory();
-        careerHistory.setResumeId(resumeId);
-        careerHistory.setCareerCompanyName("");
-        careerHistory.setCareerJoinDate("");
-        careerHistory.setCareerQuitDate("");
-        careerHistory.setCareerJobDescription("");
-        careerHistory.setCareerIsCareer("신입");
-        resumeMapper.createDefaultCareer(careerHistory);
+            // 4. 기본 경력 정보 생성
+            CareerHistory careerHistory = new CareerHistory();
+            careerHistory.setResumeId(resume.getResumeId());
+            careerHistory.setCareerCompanyName("");
+            careerHistory.setCareerJoinDate("");
+            careerHistory.setCareerQuitDate("");
+            careerHistory.setCareerJobDescription("");
+            careerHistory.setCareerIsCareer("신입");
+            resumeMapper.createDefaultCareer(careerHistory);
+
     }
 
     //user 정보 불러오기 - 사진,이름,생년월일,이메일, 프로필이미지
