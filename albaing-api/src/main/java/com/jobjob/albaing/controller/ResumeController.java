@@ -1,7 +1,7 @@
 package com.jobjob.albaing.controller;
 
 import com.jobjob.albaing.dto.*;
-import com.jobjob.albaing.service.ResumeService;
+
 import com.jobjob.albaing.service.ResumeServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

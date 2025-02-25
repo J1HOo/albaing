@@ -4,9 +4,6 @@
 <mapper namespace="com.jobjob.albaing.mapper.ResumeMapper">
 
 
-    <!--이력서 자동 생성-->
-
-
 <!--    user 불러오기-->
     <select id="getUserById">
         SELECT *
