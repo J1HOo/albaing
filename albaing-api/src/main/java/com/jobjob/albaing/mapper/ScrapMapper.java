@@ -7,13 +7,13 @@ import java.util.List;
 @Mapper
 public interface ScrapMapper {
 
-    //scrap한 공고 insert
+    //scrap한 공고 저장
     void insertScrap(int userId, int jobPostId);
 
     //scrap 공고 삭제
     void deleteScrap(int scrapId);
 
-    //scrap 공고 조회
+    //scrap 공고 조회(get)
     List<Scrap> getScrapsByUser(int userId);
 
 }
