@@ -4,6 +4,7 @@ import com.jobjob.albaing.dto.*;
 import com.jobjob.albaing.mapper.ResumeMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -15,6 +16,7 @@ public class ResumeServiceImpl implements ResumeService {
 
     // 회원가입시 이력서 생성
     @Override
+    @Transactional
     public void createResumeForUser(User user){
 
             // 1. 이력서 기본 정보 생성
@@ -22,11 +24,11 @@ public class ResumeServiceImpl implements ResumeService {
             resume.setUserId(Math.toIntExact(user.getUserId()));  // 이미 userId는 존재
             resume.setResumeTitle(user.getUserName() + "의 이력서");
             resume.setResumeLocation("");
-            resume.setResumeJobCategory("");
-            resume.setResumeJobType("");
-            resume.setResumeJobDuration("");
-            resume.setResumeWorkSchedule("");
-            resume.setResumeWorkTime("");
+            resume.setResumeJobCategory("유통/판매");
+            resume.setResumeJobType("정규직");
+            resume.setResumeJobDuration("무관");
+            resume.setResumeWorkSchedule("무관");
+            resume.setResumeWorkTime("무관");
             resume.setResumeJobSkill("");
             resume.setResumeIntroduction("");
 
@@ -38,7 +40,7 @@ public class ResumeServiceImpl implements ResumeService {
             EducationHistory educationHistory = new EducationHistory();
             educationHistory.setResumeId(resume.getResumeId());
             educationHistory.setEduDegree("");
-            educationHistory.setEduStatus("");
+            educationHistory.setEduStatus("졸업");
             educationHistory.setEduSchool("");
             educationHistory.setEduMajor("");
             educationHistory.setEduAdmissionYear("");
