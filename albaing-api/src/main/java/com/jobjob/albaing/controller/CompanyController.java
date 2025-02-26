@@ -10,6 +10,9 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/account/auth")
 public class CompanyController {
 
+    @Autowired
+    private CompanyServiceImpl companyService;
+
     // 기업 회원가입
     @PostMapping("/register-company")
     public void registerCompany(@RequestBody Company company) {
@@ -17,7 +20,7 @@ public class CompanyController {
     }
 
     //회사 상세 정보 불러오기
-    @GetMapping("/company_name/detail/${company_id}")
+    @GetMapping("/{companyId}")
     public String companyDetail(@PathVariable("companyId") long companyId, Model model) {
         Company company = companyService.companyDetail(companyId);
 

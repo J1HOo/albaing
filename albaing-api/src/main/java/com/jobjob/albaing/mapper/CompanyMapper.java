@@ -1,7 +1,9 @@
 package com.jobjob.albaing.mapper;
 
 import com.jobjob.albaing.dto.Company;
+import com.jobjob.albaing.dto.User;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.Map;
 

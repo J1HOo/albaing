@@ -4,6 +4,7 @@ import com.jobjob.albaing.dto.JobPost;
 import com.jobjob.albaing.service.JobPostService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -45,7 +46,7 @@ public class JobPostController {
     }
   
       //상세 페이지 기업 채용 공고 출력
-    @GetMapping("페이지네이션")
+    @GetMapping("/company/{companyId}")
     public String showPosts(@PathVariable("companyId") long companyId, Model model) {
         List<JobPost> jobPosts = jobPostService.showPosts(companyId);
 

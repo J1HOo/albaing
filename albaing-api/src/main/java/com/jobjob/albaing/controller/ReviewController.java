@@ -12,14 +12,14 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/company_name/detail")
+@RequestMapping("/api/company/detail")
 public class ReviewController {
 
     @Autowired
     private ReviewServiceImpl reviewService;
 
     //전체 리뷰 보여주기
-    @GetMapping("/company_name/detail/${company_id}/review")
+    @GetMapping("/{companyId}/review")
     public String showReviews(@PathVariable("companyId") long companyId, Model model) {
         List<Review> reviews = reviewService.showReviews(companyId);
 
@@ -30,14 +30,14 @@ public class ReviewController {
     }
 
     //리뷰 등록
-    @PostMapping("모델창")
+    @PostMapping("/{companyId}/review")
     public void addReview(@PathVariable long companyId, @RequestBody Review review) {
         review.setCompanyId(companyId);
         reviewService.addReview(review);
     }
 
     //리뷰 조회
-    @GetMapping("${company_id}/review/${post_id}")
+    @GetMapping("/{companyId}/review/{reviewId}")
     public String reviewCheck(@PathVariable("reviewId") long reviewId, Model model, HttpServletRequest request) {
         Review review = reviewService.reviewCheck(reviewId);
 
@@ -51,20 +51,20 @@ public class ReviewController {
     }
 
     //댓글 등록
-    @PostMapping("${company_id}/review/${post_id}")
+    @PostMapping("/{companyId}/review/{reviewId}/comment")
     public void addComment(@PathVariable long commentId, @RequestBody Comment comment) {
         comment.setCommentId(commentId);
         reviewService.addComment(comment);
     }
 
     //리뷰 삭제
-    @DeleteMapping("마이페이지주소")
+    @DeleteMapping("/{companyId}/review/{reviewId}")
     public void deleteReview(@PathVariable long reviewId, @RequestParam long userId) {
         reviewService.deleteReview(reviewId, userId);
     }
 
     //댓글 삭제
-    @DeleteMapping("마이페이지주소")
+    @DeleteMapping("/{companyId}/review/{reviewId}/comment/{commentId}")
     public void deleteComment(@PathVariable long commentId, @RequestParam long userId) {
         reviewService.deleteComment(commentId, userId);
     }
