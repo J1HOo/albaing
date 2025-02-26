@@ -23,12 +23,27 @@ public class ResumeController {
     }
 
     // 2. 이력서 수정
+//    @PutMapping("/resume/update/{resumeId}")
+//    public void updateResume(
+//            @PathVariable int resumeId,
+//            @RequestBody Resume resume) {
+//        resumeService.updateResume(resume);
+//    }
+//    @PutMapping("/resume/update/{resumeId}")
+//    public void updateResume(
+//            @PathVariable int resumeId) {
+//        resumeService.updateResumes(updateRequest);
+//        resumeService.updateEducation(updateEducation);
+//        resumeService.updateCareer(careerHistory);
+//        resumeService.updateResume(resume);
+//    }
+
     @PutMapping("/resume/update/{resumeId}")
-    public void updateResume(
-            @PathVariable int resumeId,
-            @RequestBody ResumeUpdateRequest resumeUpdateRequest) {
-        resumeService.updateResume(resumeUpdateRequest);
+    public void updateResumeForUser(@PathVariable int resumeId,
+                                    @RequestBody ResumeUpdateRequest updateRequest) {
+        resumeService.updateResumes(updateRequest);
     }
+
 
     // 3. 이력서 조회
     @GetMapping("/resume/{resumeId}")
@@ -49,12 +64,6 @@ public class ResumeController {
                            @RequestParam("userAddress") String userAddress,
                            @RequestParam("userProfileImage") String userProfileImage) {
         resumeService.updateUser(userId,userEmail,userAddress,userProfileImage);
-    }
-
-    //6. 이력서 최종 저장
-    @PostMapping("/resume/save")
-    public void insertResume(@RequestBody ResumeUpdateRequest resumeUpdateRequest) {
-        resumeService.insertResume(resumeUpdateRequest);
     }
 }
 

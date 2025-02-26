@@ -14,12 +14,19 @@ public interface ResumeService {
 
     //내 정보 수정
     void updateUser(int userId, String userEmail, String userAddress, String userProfileImage);
+    //이력서 수정
+    void updateResumes(ResumeUpdateRequest resumeUpdateRequest);
+
+
+    void updateResume(Resume resume);
+    void updateEducation(EducationHistory educationHistory);
+    void updateCareer(CareerHistory careerHistory);
+
 
     //이력서 조회
     Resume resumeDetails(int resumeId);
 
-    //이력서 수정
-    void updateResume(ResumeUpdateRequest resumeUpdateRequest);
+
 
 
 

@@ -21,6 +21,9 @@ public class CareerHistory {
     private String careerJoinDate;
     private String careerQuitDate;
     private String careerJobDescription;
-    private String careerIsCareer;
+    public enum careerHistoryType {
+        신입,경력
+    }
+    private careerHistoryType careerIsCareer;//enum 설정
 
 }

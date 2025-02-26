@@ -43,7 +43,8 @@
             c.career_company_name,
             c.career_join_date,
             c.career_quit_date,
-            c.career_job_description
+            c.career_job_description,
+            c.career_is_career
         FROM RESUMES r
                  LEFT JOIN EDUCATION_HISTORIES e ON r.resume_id = e.resume_id
                  LEFT JOIN CAREER_HISTORIES c ON r.resume_id = c.resume_id
@@ -99,7 +100,7 @@
     </insert>
 
     <!-- 기본 경력 정보 생성 -->
-    <insert id="createDefaultCareer">
+    <insert id="createDefaultCareer" parameterType="com.jobjob.albaing.dto.CareerHistory">
         INSERT INTO CAREER_HISTORIES (
             resume_id,
             career_company_name,
@@ -120,7 +121,7 @@
 
 
 <!--    //이력서 수정 -->
-<update id="updateResume">
+<update id="updateResumes" parameterType="com.jobjob.albaing.dto.ResumeUpdateRequest">
     UPDATE RESUMES
     SET
         resume_title = #{resume.resumeTitle},
@@ -133,10 +134,10 @@
         resume_job_skill= #{resume.resumeJobSkill},
         resume_introduction = #{resume.resumeIntroduction}
     WHERE resume_id = #{resume.resumeId}
-
+</update>
 
     <!-- 이력서 수정 (학력) -->
-
+    <update id="updateEducation" parameterType="com.jobjob.albaing.dto.EducationHistory">
         UPDATE EDUCATION_HISTORIES
         SET
             edu_degree = #{eduDegree},
@@ -146,7 +147,9 @@
             edu_admission_year = #{eduAdmissionYear},
             edu_graduation_year = #{eduGraduationYear}
         WHERE resume_id = #{resumeId}
+    </update>
 
+    <update id="updateCareer" parameterType="com.jobjob.albaing.dto.CareerHistory">
 <!--    이력서 수정 ( 경력) -->
         UPDATE CAREER_HISTORIES
         SET
@@ -157,11 +160,5 @@
             career_is_career = #{careerIsCareer}
         WHERE resume_id = #{resumeId}
     </update>
-
-<!--    학력 삭제 -->
-
-
-<!--    경력 삭제 -->
-
 
 </mapper>
