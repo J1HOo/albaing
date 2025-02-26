@@ -145,11 +145,10 @@
         resume_job_skill= #{resume.resumeJobSkill},
         resume_introduction = #{resume.resumeIntroduction}
     WHERE resume_id = #{resume.resumeId}
-</update>
 
 
     <!-- 이력서 수정 (학력) -->
-    <update id="updateEducation">
+
         UPDATE EDUCATION_HISTORIES
         SET
             edu_degree = #{eduDegree},
@@ -159,11 +158,8 @@
             edu_admission_year = #{eduAdmissionYear},
             edu_graduation_year = #{eduGraduationYear}
         WHERE resume_id = #{resumeId}
-    </update>
-
 
 <!--    이력서 수정 ( 경력) -->
-    <update id="updateCareer">
         UPDATE CAREER_HISTORIES
         SET
             career_company_name = #{careerCompanyName},
