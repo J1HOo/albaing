@@ -77,12 +77,6 @@ public class ResumeServiceImpl implements ResumeService {
         return resumeMapper.resumeDetails(resumeId);
     }
 
-    //이력서 post
-    @Override
-    public void insertResume(ResumeUpdateRequest resumeUpdateRequest) {
-        resumeMapper.insertResume(resumeUpdateRequest);
-    }
-
     //이력서 수정
     @Override
     public void updateResume(ResumeUpdateRequest resumeUpdateRequest) {

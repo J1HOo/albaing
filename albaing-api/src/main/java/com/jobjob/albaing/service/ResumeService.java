@@ -18,9 +18,6 @@ public interface ResumeService {
     //이력서 조회
     Resume resumeDetails(int resumeId);
 
-    //이력서 post
-    void insertResume(ResumeUpdateRequest resumeUpdateRequest);
-
     //이력서 수정
     void updateResume(ResumeUpdateRequest resumeUpdateRequest);
 

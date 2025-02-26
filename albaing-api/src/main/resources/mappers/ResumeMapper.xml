@@ -50,18 +50,6 @@
         WHERE r.resume_id = #{resumeId}
     </select>
 
-<!--    //이력서 insert-->
-    <insert id="insertResume" parameterType="com.jobjob.albaing.dto.ResumeUpdateRequest">
-        INSERT INTO RESUMES (user_id,resume_title, resume_location,
-                            resume_job_category, resume_job_type, resume_job_duration,
-                            resume_work_schedule, resume_work_time, resume_job_skill,
-                            resume_introduction)
-        VALUES (#{resume.userId},#{resume.resumeTitle}, #{resume.resumeLocation},
-                #{resume.resumeJobCategory}, #{resume.resumeJobType}, #{resume.resumeJobDuration},
-                #{resume.resumeWorkSchedule}, #{resume.resumeWorkTime}, #{resume.resumeJobSkill},
-                #{resume.resumeIntroduction})
-    </insert>
-
 <!--    회원가입시 이력서 자동 생성 -->
     <insert id="createResumeForUser">
         INSERT INTO RESUMES (
