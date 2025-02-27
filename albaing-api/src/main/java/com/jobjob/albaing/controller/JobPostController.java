@@ -1,7 +1,7 @@
 package com.jobjob.albaing.controller;
 
 import com.jobjob.albaing.dto.JobPost;
-import com.jobjob.albaing.service.JobPostService;
+import com.jobjob.albaing.service.JobPostServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
@@ -13,7 +13,7 @@ import java.util.List;
 public class JobPostController {
 
     @Autowired
-    private JobPostService jobPostService;
+    private JobPostServiceImpl jobPostService;
 
     @PostMapping
     public ResponseEntity<JobPost> createJobPost(@RequestBody JobPost jobPost) {
