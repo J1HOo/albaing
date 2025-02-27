@@ -118,16 +118,16 @@
 
     <!-- 리뷰 조회 + 작성된 댓글 출력 + 총 댓글 개수 표시 -->
     <select id="reviewCheck">
-          SELECT reviews.review_title, reviews.review_content,
-                 reviews.user_id,
-                  reviews.review_created_at,
-                  COUNT(comments.comment_id) AS comment_count, comments.comment_id,
-                  comments.comment_content, comments.comment_created_at
-          FROM reviews
-          JOIN users ON reviews.user_id = users.user_id
-          LEFT JOIN comments ON reviews.review_id = comments.review_id
-          GROUP BY reviews.review_id
-          ORDER BY comments.comment_created_at IS NULL, comments.comment_created_at ASC
+        SELECT reviews.review_id, reviews.review_title, reviews.review_content,
+               reviews.user_id, reviews.review_created_at,
+               COUNT(comments.comment_id) AS comment_count,
+               comments.comment_id, comments.comment_content, comments.comment_created_at
+        FROM reviews
+        LEFT JOIN comments ON reviews.review_id = comments.review_id
+        LEFT JOIN users ON reviews.user_id = users.user_id
+        WHERE reviews.review_id = #{reviewId}
+        GROUP BY reviews.review_id, comments.comment_id, comments.comment_content, comments.comment_created_at
+        ORDER BY comments.comment_created_at ASC;
     </select>
 
     <!-- 댓글 작성 -->
