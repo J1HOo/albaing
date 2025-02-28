@@ -21,7 +21,7 @@ import JobpostDetail from './pages/jobpost/JobpostDetail';
 import JobpostEdit from './pages/jobpost/JobpostEdit';
 import JobpostList from './pages/jobpost/JobpostList';
 
-import Login from './pages/login/Login';
+import Login2 from './pages/login/Login2';
 
 import MyApplication from './pages/mypage/MyApplication';
 import MyPage from './pages/mypage/MyPage';
@@ -47,7 +47,7 @@ function PathRoute() {
                 <Route path="/" element={<Home/>} />
 
                 {/* 로그인 관련 페이지 */}
-                <Route path="/login" element={<Login/>} />
+                <Route path="/login" element={<Login2/>} />
 
                 {/* 회사 관련 페이지 */}
                 <Route path="/company" element={<CompanyMain/>} />
