@@ -79,7 +79,7 @@ function PathRoute() {
                 <Route path="/jobs" element={<MainLayout><JobpostList /></MainLayout>} /> {/* 채용공고 목록 페이지 */}
                 <Route path="/jobs/:id" element={<MainLayout><JobpostDetail /></MainLayout>} /> {/* 채용공고 상세 페이지 */}
                 <Route path="/jobs/new" element={<MainLayout><JobpostAdd /></MainLayout>} /> {/* 채용공고 등록 페이지 */}
-                <Route path="/jobs/:id/edit" element={<MainLayout><JobpostEdit /></MainLayout>} /> {/* 채용공고 수정 페이지 */}
+                <Route path="/jobs/:jobPostId/edit" element={<MainLayout><JobpostEdit /></MainLayout>}/> {/* 채용공고 수정 페이지 */}
                 {/*<Route path="/jobs/:id/applications" element={<MainLayout><JobApplicationManager /></MainLayout>} /> /!* 채용공고 지원자 관리 페이지 *!/*/}
 
 
