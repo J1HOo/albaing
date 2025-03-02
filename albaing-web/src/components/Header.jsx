@@ -186,7 +186,9 @@ export default function Header() {
                                 </Link>
                                 <span className="text-gray-300">|</span>
                                 <Link to="/register/person" className="text-sm font-semibold text-gray-900">
-                                    회원가입
+                                    유저 회원가입
+                                </Link><Link to="/register/company" className="text-sm font-semibold text-gray-900">
+                                    기업 회원가입
                                 </Link>
                             </>
                         )}

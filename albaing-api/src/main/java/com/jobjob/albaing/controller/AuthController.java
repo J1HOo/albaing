@@ -25,35 +25,63 @@ public class AuthController {
 
     // 유저 로그인
     @PostMapping("/login-person")
-    public ResponseEntity<Map<String, Object>> loginPerson(@RequestBody User user,
-                                                           HttpSession session) {
-        Map<String, Object> loginResult = authService.loginUser(user.getUserEmail(), user.getUserPassword());
+    public ResponseEntity<Map<String, Object>> loginPerson(@RequestBody User user, HttpSession session) {
+        Map<String, Object> response = new HashMap<>();
 
-        if ("success".equals(loginResult.get("status"))) {
-            User loggedInUser = (User) loginResult.get("user");
-            session.setAttribute("userSession", loggedInUser);
-            return ResponseEntity.ok(loginResult);
+        try {
+            Map<String, Object> loginResult = authService.loginUser(user.getUserEmail(), user.getUserPassword());
 
-        } else {
-            return ResponseEntity.status(401).body(loginResult);
+            if ("success".equals(loginResult.get("status"))) {
+                User loggedInUser = (User) loginResult.get("user");
+
+                // 세션에 저장 (선택 사항)
+                session.setAttribute("userSession", loggedInUser);
+
+                response.put("status", "success");
+                response.put("user", loggedInUser); // JSON 변환 가능하도록 직접 추가
+                return ResponseEntity.ok(response);
+            } else {
+                response.put("status", "fail");
+                response.put("message", "이메일 또는 비밀번호가 올바르지 않습니다.");
+                return ResponseEntity.status(401).body(response);
+            }
+        } catch (Exception e) {
+            response.put("status", "error");
+            response.put("message", "로그인 중 오류가 발생했습니다: " + e.getMessage());
+            return ResponseEntity.status(500).body(response);
         }
     }
 
     // 기업 로그인
     @PostMapping("/login-company")
-    public ResponseEntity<Map<String, Object>> loginCompany(@RequestBody Company company,
-                                                            HttpSession session) {
-        Map<String, Object> loginResult = authService.loginCompany(company.getCompanyEmail(), company.getCompanyPassword());
+    public ResponseEntity<Map<String, Object>> loginCompany(@RequestBody Company company, HttpSession session) {
+        Map<String, Object> response = new HashMap<>();
 
-        if ("success".equals(loginResult.get("status"))) {
-            Company loggedInCompany = (Company) loginResult.get("company");
-            session.setAttribute("companySession", loggedInCompany);
-            return ResponseEntity.ok(loginResult);
+        try {
+            Map<String, Object> loginResult = authService.loginCompany(company.getCompanyEmail(), company.getCompanyPassword());
 
-        } else {
-            return ResponseEntity.status(401).body(loginResult);
+            if ("success".equals(loginResult.get("status"))) {
+                Company loggedInCompany = (Company) loginResult.get("company");
+
+                // 세션에 저장 (선택 사항)
+                session.setAttribute("companySession", loggedInCompany);
+
+                response.put("status", "success");
+                response.put("company", loggedInCompany); // JSON 변환 가능하도록 직접 추가
+                return ResponseEntity.ok(response);
+            } else {
+                response.put("status", "fail");
+                response.put("message", "이메일 또는 비밀번호가 올바르지 않습니다.");
+                return ResponseEntity.status(401).body(response);
+            }
+        } catch (Exception e) {
+            response.put("status", "error");
+            response.put("message", "로그인 중 오류가 발생했습니다: " + e.getMessage());
+            return ResponseEntity.status(500).body(response);
         }
     }
+
+
 
     // 계정 로그아웃
     @PostMapping("/logout")
