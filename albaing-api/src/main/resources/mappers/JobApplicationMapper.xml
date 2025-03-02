@@ -2,38 +2,27 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.jobjob.albaing.mapper.JobApplicationMapper">
-
-<!--    사용자 공고 지원-->
-    <insert id="userApplyForJob">
-    INSERT INTO JOB_APPLICATIONS (
-        job_application_id,
-        job_post_id,
-        resume_id,
-        application_at,
-        approve_status
-    ) VALUES (
-              #{jobApplicationId},
-                     #{jobPostId},
-                     #{resumeId},
-                    #{applicationAt},
-                    #{approveStatus}
-                 )
-    </insert>
-
-
-<!--    지원한 공고 조회 -->
-    <select id="getJobApplications">
-        SELECT *
+    <select id="findByJobPostId" resultType="JobApplication">
+        SELECT
+            job_application_id,
+            job_post_id,
+            resume_id,
+            application_at,
+            approve_status
         FROM JOB_APPLICATIONS
-        WHERE resume_id = #{resumeId}
+        WHERE job_post_id = #{jobPostId}
     </select>
 
-
-<!--    지원 상태별 조회-->
-    <select id="getJobApplicationStatus">
+    <!--    //user가 지원한 공고 불러오기-->
+    <select id="getJobApplicationsByUserId">
         SELECT *
-        FROM JOB_APPLICATIONS
-        WHERE resume_id = #{resumeId}
-        AND approve_status = #{approveStatus}
+        FROM job_application
+        WHERE job_application_id = #{userId}
     </select>
+
+    <update id="updateStatus">
+        UPDATE JOB_APPLICATIONS
+        SET approve_status = #{status}
+        WHERE job_application_id = #{applicationId}
+    </update>
 </mapper>

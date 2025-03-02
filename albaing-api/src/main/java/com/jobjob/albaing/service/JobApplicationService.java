@@ -6,8 +6,6 @@ import java.util.List;
 
 public interface JobApplicationService {
 
-    List<JobApplication> getJobApplications(int resumeId);
-
-    void userApplyForJob(JobApplication jobApplication);
-
+    List<JobApplication> getApplicationsByJobPost(int jobPostId);
+    void updateApplicationStatus(int applicationId, String status);
 }
