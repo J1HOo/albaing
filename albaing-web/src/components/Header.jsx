@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import {
     Dialog,
     DialogPanel,
@@ -18,7 +19,6 @@ import {
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
 import albaingLogo from '../assets/svg/albaing_logo.svg';
 
-// 카테고리 메뉴 구성
 const categories = [
     {
         name: '채용정보',
@@ -50,56 +50,56 @@ export default function Header() {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [userType, setUserType] = useState(null); // 'user' or 'company'
+    const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
 
-    // 로그인 상태 확인 (실제 구현 시에는 JWT 토큰이나 세션 확인 로직으로 대체)
     useEffect(() => {
-        // API 호출로 로그인 상태 확인
-        const checkLoginStatus = async () => {
-            try {
-                const response = await fetch('/api/account/auth/checkLogin', {
-                    credentials: 'include',
-                });
-
-                if (response.ok) {
-                    const data = await response.json();
-                    setIsLoggedIn(true);
-                    // 유저 타입 확인 (회사인지 개인인지)
-                    if (data.userId) {
-                        setUserType('user');
-                    } else if (data.companyId) {
-                        setUserType('company');
-                    }
-                } else {
-                    setIsLoggedIn(false);
-                    setUserType(null);
-                }
-            } catch (error) {
-                console.error('Login check failed:', error);
-                setIsLoggedIn(false);
-                setUserType(null);
-            }
-        };
-
         checkLoginStatus();
     }, []);
 
-    // 로그아웃 처리
-    const handleLogout = async () => {
-        try {
-            const response = await fetch('/api/account/auth/logout', {
-                method: 'POST',
-                credentials: 'include',
-            });
+    const checkLoginStatus = () => {
+        setLoading(true);
 
-            if (response.ok) {
+        axios.get('/api/account/auth/checkLogin', { withCredentials: true })
+            .then(response => {
+                if (response.data) {
+                    setIsLoggedIn(true);
+                    // 유저 타입 확인 (회사인지 개인인지)
+                    if (response.data.userId) {
+                        setUserType('user');
+                    } else if (response.data.companyId) {
+                        setUserType('company');
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Login check failed:', error);
                 setIsLoggedIn(false);
                 setUserType(null);
-                navigate('/');
-            }
-        } catch (error) {
-            console.error('Logout failed:', error);
-        }
+
+                // 인증이 필요한 페이지의 경우 로그인 페이지로 리디렉션 로직을 여기에 추가할 수 있습니다
+                // 예: if (window.location.pathname.startsWith('/mypage')) navigate('/login');
+            })
+            .finally(() => {
+                setLoading(false);
+            });
+    };
+
+    const handleLogout = () => {
+        axios.post('/api/account/auth/logout', {}, { withCredentials: true })
+            .then(response => {
+                setIsLoggedIn(false);
+                setUserType(null);
+
+                localStorage.removeItem('userInfo');
+                sessionStorage.removeItem('userInfo');
+
+                window.location.href = '/';
+            })
+            .catch(error => {
+                console.error('Logout failed:', error);
+                alert('로그아웃 처리 중 오류가 발생했습니다. 다시 시도해주세요.');
+            });
     };
 
     return (
@@ -127,7 +127,6 @@ export default function Header() {
                         </button>
                     </div>
 
-                    {/* PC 메뉴 */}
                     <PopoverGroup className="hidden lg:flex lg:gap-x-8">
                         {categories.map((category) => (
                             category.submenu ? (
@@ -165,36 +164,36 @@ export default function Header() {
                         ))}
                     </PopoverGroup>
 
-                    {/* 로그인/회원가입 또는 마이페이지/로그아웃 버튼 */}
-                    <div className="hidden lg:flex lg:flex-1 lg:justify-end lg:gap-x-4">
-                        {isLoggedIn ? (
-                            <>
-                                <Link to={userType === 'company' ? "/company/mypage" : "/mypage"} className="text-sm font-semibold text-gray-900">
-                                    마이페이지
-                                </Link>
-                                <button
-                                    onClick={handleLogout}
-                                    className="text-sm font-semibold text-gray-900"
-                                >
-                                    로그아웃
-                                </button>
-                            </>
-                        ) : (
-                            <>
-                                <Link to="/login" className="text-sm font-semibold text-gray-900">
-                                    로그인
-                                </Link>
-                                <span className="text-gray-300">|</span>
-                                <Link to="/register/person" className="text-sm font-semibold text-gray-900">
-                                    회원가입
-                                </Link>
-                            </>
-                        )}
-                    </div>
+                    {!loading && (
+                        <div className="hidden lg:flex lg:flex-1 lg:justify-end lg:gap-x-4">
+                            {isLoggedIn ? (
+                                <>
+                                    <Link to={userType === 'company' ? "/company/mypage" : "/mypage"} className="text-sm font-semibold text-gray-900">
+                                        마이페이지
+                                    </Link>
+                                    <button
+                                        onClick={handleLogout}
+                                        className="text-sm font-semibold text-gray-900"
+                                    >
+                                        로그아웃
+                                    </button>
+                                </>
+                            ) : (
+                                <>
+                                    <Link to="/login" className="text-sm font-semibold text-gray-900">
+                                        로그인
+                                    </Link>
+                                    <span className="text-gray-300">|</span>
+                                    <Link to="/register/person" className="text-sm font-semibold text-gray-900">
+                                        회원가입
+                                    </Link>
+                                </>
+                            )}
+                        </div>
+                    )}
                 </nav>
             </div>
 
-            {/* 모바일 메뉴 */}
             <Dialog open={mobileMenuOpen} onClose={setMobileMenuOpen} className="lg:hidden">
                 <div className="fixed inset-0 z-10" />
                 <DialogPanel className="fixed inset-y-0 right-0 z-10 w-full overflow-y-auto bg-white px-6 py-6 sm:max-w-sm sm:ring-1 sm:ring-gray-900/10">
@@ -252,46 +251,47 @@ export default function Header() {
                                 ))}
                             </div>
 
-                            {/* 모바일 로그인/회원가입 또는 마이페이지/로그아웃 버튼 */}
-                            <div className="py-6">
-                                {isLoggedIn ? (
-                                    <>
-                                        <Link
-                                            to={userType === 'company' ? "/company/mypage" : "/mypage"}
-                                            className="-mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold text-gray-900 hover:bg-gray-50"
-                                            onClick={() => setMobileMenuOpen(false)}
-                                        >
-                                            마이페이지
-                                        </Link>
-                                        <button
-                                            onClick={() => {
-                                                handleLogout();
-                                                setMobileMenuOpen(false);
-                                            }}
-                                            className="-mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold text-gray-900 hover:bg-gray-50 w-full text-left"
-                                        >
-                                            로그아웃
-                                        </button>
-                                    </>
-                                ) : (
-                                    <>
-                                        <Link
-                                            to="/login"
-                                            className="-mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold text-gray-900 hover:bg-gray-50"
-                                            onClick={() => setMobileMenuOpen(false)}
-                                        >
-                                            로그인
-                                        </Link>
-                                        <Link
-                                            to="/register/person"
-                                            className="-mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold text-gray-900 hover:bg-gray-50"
-                                            onClick={() => setMobileMenuOpen(false)}
-                                        >
-                                            회원가입
-                                        </Link>
-                                    </>
-                                )}
-                            </div>
+                            {!loading && (
+                                <div className="py-6">
+                                    {isLoggedIn ? (
+                                        <>
+                                            <Link
+                                                to={userType === 'company' ? "/company/mypage" : "/mypage"}
+                                                className="-mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold text-gray-900 hover:bg-gray-50"
+                                                onClick={() => setMobileMenuOpen(false)}
+                                            >
+                                                마이페이지
+                                            </Link>
+                                            <button
+                                                onClick={() => {
+                                                    handleLogout();
+                                                    setMobileMenuOpen(false);
+                                                }}
+                                                className="-mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold text-gray-900 hover:bg-gray-50 w-full text-left"
+                                            >
+                                                로그아웃
+                                            </button>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Link
+                                                to="/login"
+                                                className="-mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold text-gray-900 hover:bg-gray-50"
+                                                onClick={() => setMobileMenuOpen(false)}
+                                            >
+                                                로그인
+                                            </Link>
+                                            <Link
+                                                to="/register/person"
+                                                className="-mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold text-gray-900 hover:bg-gray-50"
+                                                onClick={() => setMobileMenuOpen(false)}
+                                            >
+                                                회원가입
+                                            </Link>
+                                        </>
+                                    )}
+                                </div>
+                            )}
                         </div>
                     </div>
                 </DialogPanel>
