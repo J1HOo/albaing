@@ -45,12 +45,12 @@ const Resume = () => {
             </div>
 
             <div className="resume-title">
-                <h2>이력서 제목</h2>
+                <h2>이력서 제목 *</h2>
                 <input type="text"></input>
             </div>
 
             <div className="education-info">
-                <h2>학력</h2>
+                <h2>학력 *</h2>
                 <ul>
                     {educationList.map(
                         (school, index) => (
