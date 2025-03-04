@@ -16,36 +16,22 @@ const Resume = () => {
     const handleAddSchool = (school) => {
         setEducationList((prev) => [
             ...prev,
-            { ...school, major: null, startDate: null, endDate: null },
+            {...school, major: null, startDate: null, endDate: null},
         ]);
         setShowModal(false);
     };
 
     const handleAddMajor = (index, major) => {
         setEducationList((prev) =>
-            prev.map((school, i) => (i === index ? { ...school, major: major.name } : school))
+            prev.map((school, i) => (i === index ? {...school, major: major.name} : school))
         );
         setShowMajorModal(null);
     };
 
 
-
-
-
-
-
-
-
-    useEffect(() => {
-        // useEffect 로 뜨게 할 것들 작성하기
-        // apiResumeService.getUserInfoById(userId,setUser); // user정보
-
-    }, []);
-
-
     return (
         <div>
-            <div className="resume-top">이력서 작성</div>
+            <h1>이력서</h1>
             <div className="user-info">
                 <div key={user.userId}>
                     <p>{user.userProfileImage}</p>
@@ -66,46 +52,47 @@ const Resume = () => {
             <div className="education-info">
                 <h2>학력</h2>
                 <ul>
-                {educationList.map(
-                    (school, index) => (
-                        <li key={index} style={{marginBottom: "15px"}}>
-                            <div style={{display: "flex", alignItems: "center", gap: "10px"}}>
-                                <DatePicker
-                                    selected={school.startDate}
-                                    onChange={(date) => handleAddMajor(index, date, "startDate")}
-                                    dateFormat="yyyy.MM"
-                                    showMonthYearPicker
-                                    placeholderText="YYYY.MM"
-                                />
-                                ~
-                                <DatePicker
-                                    selected={school.endDate}
-                                    onChange={(date) => handleAddMajor(index, date, "endDate")}
-                                    dateFormat="yyyy.MM"
-                                    showMonthYearPicker
-                                    placeholderText="YYYY.MM"
-                                />
-                            </div>
+                    {educationList.map(
+                        (school, index) => (
+                            <li key={index} style={{marginBottom: "15px"}}>
+                                <div style={{display: "flex", alignItems: "center", gap: "10px"}}>
+                                    <DatePicker
+                                        selected={school.startDate}
+                                        onChange={(date) => handleAddMajor(index, date, "startDate")}
+                                        dateFormat="yyyy.MM"
+                                        showMonthYearPicker
+                                        placeholderText="YYYY.MM"
+                                    />
+                                    ~
+                                    <DatePicker
+                                        selected={school.endDate}
+                                        onChange={(date) => handleAddMajor(index, date, "endDate")}
+                                        dateFormat="yyyy.MM"
+                                        showMonthYearPicker
+                                        placeholderText="YYYY.MM"
+                                    />
+                                </div>
 
-                            <div>
-                                {school.name} ({school.type})
-                                <button onClick={() => setShowMajorModal(index)} style={buttonStyle}>
-                                    전공 추가
-                                </button>
-                                {school.major && <p>전공: {school.major}</p>}
-                            </div>
-                        </li>
-                    ))}
-            </ul>
+                                <div>
+                                    {school.name} ({school.type})
+                                    <button onClick={() => setShowMajorModal(index)} style={buttonStyle}>
+                                        전공 추가
+                                    </button>
+                                    {school.major && <p>전공: {school.major}</p>}
+                                </div>
+                            </li>
+                        ))}
+                </ul>
 
-            {showModal && <Select onClose={() => setShowModal(false)} onSelect={handleAddSchool}/>}
-            {showMajorModal !== null && (
-                <Major
-                    schoolType={educationList[showMajorModal].type}
-                    onClose={() => setShowMajorModal(null)}
-                    onSelect={(major) => handleAddMajor(showMajorModal, major)}
-                />
-            )}
+                {showModal && <Select onClose={() => setShowModal(false)} onSelect={handleAddSchool}/>}
+                {showMajorModal !== null && (
+                    <Major
+                        schoolType={educationList[showMajorModal].type}
+                        onClose={() => setShowMajorModal(null)}
+                        onSelect={(major) => handleAddMajor(showMajorModal, major)}
+                    />
+                )}
+            </div>
 
             <div className="career-info">
                 <h2>경력</h2>
