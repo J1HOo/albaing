@@ -5,12 +5,12 @@ const API_RESUME_URL = "http://localhost:8080/api/resume";
 
 const apiResumeService = {
 
-    //user 정보 get 해오기
-    getUserInfo : function (setUser){
-        axios.get("http://localhost:8080/api/resume")
+    //user 정보 get
+    getUserInfoById : function (userId,setUser){
+        axios.get(`http://localhost:8080/api/user/${userId}`)
             .then(
                 (res)=> {
-                    setUser(res.data)
+                    setUser(res.data);
                     console.log("백엔드 연결 성공");
                 }
             )
@@ -53,6 +53,8 @@ const apiResumeService = {
             })
 
     },
+
+
 
     //이력서 조회
     resumeDetails:function (resumeId, setResumes){
