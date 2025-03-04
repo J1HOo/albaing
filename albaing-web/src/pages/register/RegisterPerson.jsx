@@ -18,7 +18,7 @@ const RegisterPerson = () => {
 
     const navigate = useNavigate();
 
-    // Load OAuth data if available from URL parameters..
+    // Load OAuth data if available from URL parameters
     useEffect(() => {
         const params = new URLSearchParams(window.location.search);
 

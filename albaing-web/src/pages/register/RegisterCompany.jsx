@@ -19,7 +19,7 @@ const RegisterCompany = () => {
 
     const navigate = useNavigate();
 
-    // 이메일 인증 코드 요청..
+    // 이메일 인증 코드 요청
     const requestVerificationCode = async () => {
         try {
             const response = await fetch("http://localhost:8080/api/auth/sendCode", {
