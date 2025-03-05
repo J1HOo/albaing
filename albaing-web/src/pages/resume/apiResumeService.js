@@ -99,7 +99,7 @@ const apiResumeService = {
             .then(
                 (res)=>{
                     if(res.data){
-                        alert(callback);
+                      callback();
                     } else {
                         alert("변경된 내용이 없습니다.");
                     }

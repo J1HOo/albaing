@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { getAllSchools } from "./apiservice";
+import {getAllSchools} from "./apiResumeService";
 
 const SchoolSelector = ({ onClose, onSelect }) => {
     const [searchTerm, setSearchTerm] = useState("");
