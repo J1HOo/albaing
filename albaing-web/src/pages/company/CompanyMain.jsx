@@ -48,26 +48,41 @@ const CompanyMain = () => {
             return;
         }
 
-        axios.get(`/api/companies/${companyId}`)
+        axios
+            .get(`http://localhost:8080/api/companies/${companyId}`)
             .then((companyRes) => {
                 setCompanyData(companyRes.data);
-                return axios.get(`/api/jobs/company/${companyId}`);
+
+                // 2) 채용공고 가져오기 (없을 수 있으므로 실패 시 빈 배열)
+                return axios
+                    .get(`http://localhost:8080/api/jobs/company/${companyId}`)
+                    .then((jobsRes) => {
+                        setJobPosts(jobsRes.data);
+                    })
+                    .catch(() => {
+                        setJobPosts([]);
+                    });
             })
-            .then((jobsRes) => {
-                setJobPosts(jobsRes.data);
-                return axios.get(`/api/applications/company/${companyId}`);
+            .then(() => {
+                // 3) 지원자 데이터 가져오기 (없을 수 있으므로 실패 시 빈 배열)
+                return axios
+                    .get(`http://localhost:8080/api/applications/company/${companyId}`)
+                    .then((appsRes) => {
+                        setApplications(appsRes.data);
+                    })
+                    .catch(() => {
+                        setApplications([]);
+                    });
             })
-            .then((appsRes) => {
-                setApplications(appsRes.data);
-                setLoading(false);
+            .catch(() => {
+                // 회사 정보 불러오기 실패 시 전체 에러 처리
+                setError('Failed to load company data. Please try again later.');
             })
-            .catch((err) => {
-                console.error("API 요청 오류:", err);
-                setError('데이터를 불러오는 중 오류가 발생했습니다.');
+            .finally(() => {
+                // 모든 요청이 끝난 후 로딩 종료
                 setLoading(false);
             });
-
-    }, [companyId, navigate]);
+    }, [companyId]);
 
     const handleTabChange = (tab) => {
         setActiveTab(tab);
