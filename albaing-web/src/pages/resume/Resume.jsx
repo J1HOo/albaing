@@ -9,10 +9,10 @@ const Resume = () => {
 
     // const [user, setUser] = useState([]);
 
-    const initialData = {
+    const initialResumeData = {
         resume: {
-            resumeId: "",
-            userId: "",
+            resumeId: "1",
+            userId: "1",
             resumeTitle: "",
             resumeLocation: "",
             resumeJobCategory: "",
@@ -26,7 +26,7 @@ const Resume = () => {
         career: [
             {
                 careerId: "",
-                resumeId: "",
+                resumeId: "1",
                 careerCompanyName: "",
                 careerJoinDate: "",
                 careerQuitDate: "",
@@ -37,7 +37,7 @@ const Resume = () => {
         education: [
             {
                 educationId: "",
-                resumeId: "",
+                resumeId: "1",
                 eduDegree: "",
                 eduStatus: "",
                 eduSchool: "",
@@ -47,7 +47,8 @@ const Resume = () => {
             }
         ]
     }
-    const [resumeData, setResumeData] = useState(initialData);
+
+    const [resumeData, setResumeData] = useState(initialResumeData);
 
     // 입력값 변경 핸들러
     const handleChange = (section, index, e) => {
@@ -66,7 +67,8 @@ const Resume = () => {
 
     // 이력서 수정 API 호출
     const handleUpdate = () => {
-        apiResumeService.updateResume(resumeData.resume.resumeId, resumeData, () => {
+        apiResumeService.updateResume(resumeData.resume.resumeId, resumeData,
+            () => {
             alert("이력서가 수정되었습니다.");
         });
     };
@@ -226,8 +228,7 @@ const Resume = () => {
             </div>
 
 
-            <button onClick={handleUpdate}>이력서 저장
-            </button>
+            <button onClick={handleUpdate}>이력서 저장</button>
 
         </div>
     )
