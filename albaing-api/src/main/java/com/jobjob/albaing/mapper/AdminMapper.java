@@ -1,11 +1,21 @@
 package com.jobjob.albaing.mapper;
 
+import com.jobjob.albaing.dto.*;
+import org.apache.ibatis.annotations.Mapper;
 
+import java.util.List;
+
+@Mapper
 public interface AdminMapper {
 
-    // 개인 회원 조회 : 전체 목록
+    List<User> adminSearchUsers(String userName, String userEmail, String userPhone);
 
-    // 개인 회원 조회 : 이름으로 검색
+    List<Resume> adminSearchResumes(String resumeTitle, String resumeJobCategory, String resumeJobType);
 
-    // 개인 회원 조회 : 이메일로 검색
+    List<JobApplication> adminSearchJobApplications(String userName, String companyName, String jobPostTitle);
+
+    List<Company> adminSearchCompanies(String companyName, String companyOwnerName, String companyPhone, String companyRegistrationNumber);
+
+    List<JobPost> adminSearchJobPosts(String companyName, String jobPostTitle, String jobPostStatus);
+
 }

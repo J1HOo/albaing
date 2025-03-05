@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/company")
+@RequestMapping("/api/companies")
 public class CompanyController {
 
     @Autowired
@@ -15,9 +15,7 @@ public class CompanyController {
 
     //회사 상세 정보 불러오기
     @GetMapping("/{companyId}")
-    public String companyDetail(@PathVariable("companyId") long companyId, Model model) {
-        Company company = companyService.companyDetail(companyId);
-        model.addAttribute("company", company);
-        return "company/companyDetail";
+    public Company companyDetail(@PathVariable("companyId") long companyId) {
+        return companyService.companyDetail(companyId);
     }
 }

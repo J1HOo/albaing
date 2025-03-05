@@ -33,4 +33,8 @@ public class User {
     public enum Gender {
         male, female
     }
+
+    public String getUserEmail() {
+        return userEmail;
+    }
 }

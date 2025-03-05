@@ -8,4 +8,9 @@ public interface VerificationService {
     void saveEmailCode(String email, String code);
     boolean verifyCodeWithVO(VerificationRequest request);
     void sendVerificationEmail();
+
+    // 추가할 인터페이스 메소드
+    void markEmailAsVerified(String email);
+    boolean isEmailVerified(String email);
+    void removeEmailVerification(String email);
 }

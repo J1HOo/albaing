@@ -102,5 +102,12 @@
         WHERE comment_id = #{commentId}
     </delete>
 
+    <!-- 기업 상세 정보 불러오기 -->
+    <select id="companyDetail">
+        SELECT *
+        FROM COMPANIES
+        WHERE company_id = #{companyId}
+    </select>
+
 
 </mapper>

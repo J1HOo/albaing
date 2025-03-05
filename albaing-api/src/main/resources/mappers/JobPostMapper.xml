@@ -113,4 +113,11 @@
         <include refid="searchCriteria" />
     </select>
 
+    <select id="getJobPostsByCompanyId">
+        SELECT *
+        FROM job_posts
+        WHERE company_id = #{companyId}
+        ORDER BY job_post_due_date ASC
+    </select>
+
 </mapper>

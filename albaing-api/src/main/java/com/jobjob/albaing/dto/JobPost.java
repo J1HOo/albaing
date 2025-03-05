@@ -11,8 +11,8 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class JobPost {
-    private int jobPostId;                  // 공고 등록 번호
-    private int companyId;                  // 기업 등록 번호
+    private long jobPostId;                  // 공고 등록 번호
+    private long companyId;                  // 기업 등록 번호
     private String jobPostTitle;             // 공고 제목
     private String jobPostOptionalImage;     // 공고 내용 이미지 주소
     private String jobPostContactNumber;     // 담당자(기업) 연락처

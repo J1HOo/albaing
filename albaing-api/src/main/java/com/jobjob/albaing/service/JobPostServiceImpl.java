@@ -21,9 +21,8 @@ public class JobPostServiceImpl implements JobPostService {
         jobPostMapper.insertJobPost(jobPost);
         return jobPost;
     }
-
     @Override
-    public JobPost getJobPost(int jobPostId) {
+    public JobPost getJobPost(long jobPostId) {
         return jobPostMapper.selectJobPostById(jobPostId);
     }
 
@@ -42,13 +41,14 @@ public class JobPostServiceImpl implements JobPostService {
     }
 
     @Override
-    public JobPost updateJobPost(JobPost jobPost) {
-        jobPostMapper.updateJobPost(jobPost);
-        return jobPost;
+    public JobPost updateJobPost(long jobPostId, JobPost updatedJobPost) {
+        updatedJobPost.setJobPostId(jobPostId);
+        jobPostMapper.updateJobPost(updatedJobPost);
+        return jobPostMapper.selectJobPostById(jobPostId);
     }
 
     @Override
-    public void updateJobPostStatus(int jobPostId, boolean status) {
+    public void updateJobPostStatus(long jobPostId, boolean status) {
         jobPostMapper.updateJobPostStatus(jobPostId, status);
     }
 
@@ -62,9 +62,9 @@ public class JobPostServiceImpl implements JobPostService {
 
         return jobPostMapper.countJobPost(params);
     }
-    //특정 회사 전체 공고 출력
+
     @Override
-    public List<JobPost> showPosts(long companyId) {
-        return jobPostMapper.showPosts(companyId);
+    public List<JobPost> getJobPostsByCompanyId(long companyId) {
+        return jobPostMapper.getJobPostsByCompanyId(companyId);
     }
 }

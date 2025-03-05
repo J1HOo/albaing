@@ -6,48 +6,62 @@ export default function Footer() {
     return (
         <footer className="border-t border-gray-200 text-sm bg-white mt-auto w-screen">
             <div className="max-w-[1200px] mx-auto py-8 px-4">
-                <div className="grid grid-cols-1 gap-8 md:grid-cols-4">
-                    <div>
-                        <Link to="/">
-                            <img src={albaingLogo} alt="알바잉 로고" className="h-28 w-auto mb-4" />
-                        </Link>
-                        <p className="text-gray-800 font-semibold">(주) 잡잡</p>
-                        <p className="mt-2 text-gray-500">
-                            사업자등록번호: 123-456-12345 <br />
-                            서울특별시 강남구 테헤란로14길 6<br />
-                            남도빌딩 2층, 3층, 4층
-                        </p>
-                        <p className="mt-2 text-gray-500">
-                            © 2025 jobjob. All rights reserved.
-                        </p>
+                <div className="flex flex-col md:flex-row justify-between">
+                    {/* 로고 및 회사 정보 */}
+                    <div className="flex items-start space-x-8 mb-6 md:mb-0">
+                        {/* 로고 */}
+                        <div>
+                            <Link to="/">
+                                <img src={albaingLogo} alt="알바잉 로고" className="h-24 md:h-36 w-auto" />
+                            </Link>
+                        </div>
+
+                        {/* 회사 정보 */}
+                        <div>
+                            <p className="text-gray-800 font-semibold">(주) 잡잡</p>
+                            <p className="mt-2 text-gray-500">
+                                사업자등록번호: 123-456-12345 <br />
+                                서울특별시 강남구 테헤란로14길 6<br />
+                                남도빌딩 2층, 3층, 4층
+                            </p>
+                            <p className="mt-2 text-gray-500">
+                                © 2025 jobjob. All rights reserved.
+                            </p>
+                        </div>
                     </div>
 
-                    <div>
-                        <h3 className="font-semibold mb-4 text-gray-900">서비스</h3>
-                        <ul className="space-y-2 text-gray-600">
-                            <li><Link to="/jobpost/list" className="hover:text-blue-600">채용정보</Link></li>
-                            <li><Link to="/company" className="hover:text-blue-600">기업정보</Link></li>
-                            <li><Link to="/resume" className="hover:text-blue-600">인재정보</Link></li>
-                            <li><Link to="/community" className="hover:text-blue-600">커뮤니티</Link></li>
-                        </ul>
-                    </div>
+                    {/* 메뉴 링크들 */}
+                    <div className="flex-wrap justify-between md:space-x-12 hidden md:flex">
+                        {/* 서비스 */}
+                        <div className="w-1/2 md:w-auto mb-6 md:mb-0">
+                            <h3 className="font-semibold mb-4 text-gray-900">서비스</h3>
+                            <ul className="space-y-2 text-gray-600">
+                                <li><Link to="/jobpost/list" className="hover:text-blue-600">채용정보</Link></li>
+                                <li><Link to="/company" className="hover:text-blue-600">기업정보</Link></li>
+                                <li><Link to="/resume" className="hover:text-blue-600">인재정보</Link></li>
+                                <li><Link to="/community" className="hover:text-blue-600">커뮤니티</Link></li>
+                            </ul>
+                        </div>
 
-                    <div>
-                        <h3 className="font-semibold mb-4 text-gray-900">고객지원</h3>
-                        <ul className="space-y-2 text-gray-600">
-                            <li><Link to="/customer/faq" className="hover:text-blue-600">자주 묻는 질문</Link></li>
-                            <li><Link to="/customer/notice" className="hover:text-blue-600">공지사항</Link></li>
-                            <li><Link to="/customer/contact" className="hover:text-blue-600">문의하기</Link></li>
-                        </ul>
-                    </div>
+                        {/* 고객지원 */}
+                        <div className="w-1/2 md:w-auto mb-6 md:mb-0">
+                            <h3 className="font-semibold mb-4 text-gray-900">고객지원</h3>
+                            <ul className="space-y-2 text-gray-600">
+                                <li><Link to="/customer/faq" className="hover:text-blue-600">자주 묻는 질문</Link></li>
+                                <li><Link to="/customer/notice" className="hover:text-blue-600">공지사항</Link></li>
+                                <li><Link to="/customer/contact" className="hover:text-blue-600">문의하기</Link></li>
+                            </ul>
+                        </div>
 
-                    <div>
-                        <h3 className="font-semibold mb-4 text-gray-900">회사 정보</h3>
-                        <ul className="space-y-2 text-gray-600">
-                            <li><Link to="/company/about" className="hover:text-blue-600">회사 소개</Link></li>
-                            <li><Link to="/company/terms" className="hover:text-blue-600">이용약관</Link></li>
-                            <li><Link to="/company/privacy" className="hover:text-blue-600">개인정보처리방침</Link></li>
-                        </ul>
+                        {/* 회사 정보 */}
+                        <div className="w-1/2 md:w-auto">
+                            <h3 className="font-semibold mb-4 text-gray-900">회사 정보</h3>
+                            <ul className="space-y-2 text-gray-600">
+                                <li><Link to="/company/about" className="hover:text-blue-600">회사 소개</Link></li>
+                                <li><Link to="/company/terms" className="hover:text-blue-600">이용약관</Link></li>
+                                <li><Link to="/company/privacy" className="hover:text-blue-600">개인정보처리방침</Link></li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
             </div>

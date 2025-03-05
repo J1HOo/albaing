@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
     Dialog,
@@ -17,6 +17,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
 import albaingLogo from '../assets/svg/albaing_logo.svg';
+import { useAuth } from '../contexts/AuthContext';
 
 // 카테고리 메뉴 구성
 const categories = [
@@ -48,58 +49,16 @@ const categories = [
 
 export default function Header() {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
-    const [userType, setUserType] = useState(null); // 'user' or 'company'
     const navigate = useNavigate();
 
-    // 로그인 상태 확인 (실제 구현 시에는 JWT 토큰이나 세션 확인 로직으로 대체)
-    useEffect(() => {
-        // API 호출로 로그인 상태 확인
-        const checkLoginStatus = async () => {
-            try {
-                const response = await fetch('/api/account/auth/checkLogin', {
-                    credentials: 'include',
-                });
-
-                if (response.ok) {
-                    const data = await response.json();
-                    setIsLoggedIn(true);
-                    // 유저 타입 확인 (회사인지 개인인지)
-                    if (data.userId) {
-                        setUserType('user');
-                    } else if (data.companyId) {
-                        setUserType('company');
-                    }
-                } else {
-                    setIsLoggedIn(false);
-                    setUserType(null);
-                }
-            } catch (error) {
-                console.error('Login check failed:', error);
-                setIsLoggedIn(false);
-                setUserType(null);
-            }
-        };
-
-        checkLoginStatus();
-    }, []);
+    // Context에서 인증 정보 가져오기
+    const { isLoggedIn, userType, userData, logout } = useAuth();
 
     // 로그아웃 처리
-    const handleLogout = async () => {
-        try {
-            const response = await fetch('/api/account/auth/logout', {
-                method: 'POST',
-                credentials: 'include',
-            });
-
-            if (response.ok) {
-                setIsLoggedIn(false);
-                setUserType(null);
-                navigate('/');
-            }
-        } catch (error) {
-            console.error('Logout failed:', error);
-        }
+    const handleLogout = () => {
+        logout().then(() => {
+            navigate('/');
+        });
     };
 
     return (
@@ -112,7 +71,7 @@ export default function Header() {
                             <img
                                 src={albaingLogo}
                                 alt="알바잉 로고"
-                                className="h-20 w-auto"
+                                className="md:h-32 h-28 w-auto"
                             />
                         </Link>
                     </div>
@@ -169,7 +128,7 @@ export default function Header() {
                     <div className="hidden lg:flex lg:flex-1 lg:justify-end lg:gap-x-4">
                         {isLoggedIn ? (
                             <>
-                                <Link to={userType === 'company' ? "/company/mypage" : "/mypage"} className="text-sm font-semibold text-gray-900">
+                                <Link to={userType === 'company' ? `/companies/${userData.companyId}` : "/mypage"} className="text-sm font-semibold text-gray-900">
                                     마이페이지
                                 </Link>
                                 <button
@@ -184,8 +143,7 @@ export default function Header() {
                                 <Link to="/login" className="text-sm font-semibold text-gray-900">
                                     로그인
                                 </Link>
-                                <span className="text-gray-300">|</span>
-                                <Link to="/register/person" className="text-sm font-semibold text-gray-900">
+                                <Link to="/register" className="text-sm font-semibold text-gray-900">
                                     회원가입
                                 </Link>
                             </>
@@ -199,7 +157,7 @@ export default function Header() {
                 <div className="fixed inset-0 z-10" />
                 <DialogPanel className="fixed inset-y-0 right-0 z-10 w-full overflow-y-auto bg-white px-6 py-6 sm:max-w-sm sm:ring-1 sm:ring-gray-900/10">
                     <div className="flex items-center justify-between">
-                        <Link to="/" className="-m-1.5 p-1.5">
+                        <Link to="/" className="-m-1.5 p-1.5" onClick={() => setMobileMenuOpen(false)}>
                             <span className="sr-only">알바잉</span>
                             <img
                                 src={albaingLogo}
@@ -257,7 +215,7 @@ export default function Header() {
                                 {isLoggedIn ? (
                                     <>
                                         <Link
-                                            to={userType === 'company' ? "/company/mypage" : "/mypage"}
+                                            to={userType === 'company' ? `/companies/${userData.companyId}` : "/mypage"}
                                             className="-mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold text-gray-900 hover:bg-gray-50"
                                             onClick={() => setMobileMenuOpen(false)}
                                         >
