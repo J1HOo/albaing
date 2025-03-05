@@ -4,11 +4,6 @@ import DatePicker from "react-datepicker";
 import {Select} from "@headlessui/react";
 import Major from "./Major";
 
-
-const Resume = () => {
-
-    // const [user, setUser] = useState([]);
-
     const initialResumeData = {
         resume: {
             resumeId: "1",
@@ -45,8 +40,11 @@ const Resume = () => {
                 eduAdmissionYear: "",
                 eduGraduationYear: ""
             }
-        ]
-    }
+        ]}
+
+const Resume = () => {
+
+    // const [user, setUser] = useState([]);
 
     const [resumeData, setResumeData] = useState(initialResumeData);
 
@@ -234,6 +232,18 @@ const Resume = () => {
     )
 
 }
+const ResumeSection = ({ title, section, data, handleChange }) => (
+    <div>
+        <h2>{title}</h2>
+        {data.map((item, index) => (
+            <div key={index}>
+                {Object.keys(item).filter(key => key !== "resumeId" && key !== `${section}Id`).map(key => (
+                    <ResumeInput key={key} label={key} name={key} value={item[key]} onChange={e => handleChange(section, index, e)} />
+                ))}
+            </div>
+        ))}
+    </div>
+);
 
 const ResumeInput = ({label, name, value, onChange, type = "text", options = [], radioGroup = []}) => {
     return (
