@@ -3,36 +3,45 @@ import apiResumeService from "./apiResumeService";
 import DatePicker from "react-datepicker";
 import {Select} from "@headlessui/react";
 import Major from "./Major";
+import {useParams} from "react-router-dom";
+
+
+const Resume = () => {
+    const {resumeId} = useParams();
+
+
 
     const initialResumeData = {
-        resume: {
-            resumeId: "1",
-            userId: "1",
-            resumeTitle: "",
-            resumeLocation: "",
-            resumeJobCategory: "",
-            resumeJobType: "",
-            resumeJobDuration: "",
-            resumeWorkSchedule: "",
-            resumeWorkTime: "",
-            resumeJobSkill: "",
-            resumeIntroduction: ""
-        },
-        career: [
+        resume:
+            {
+                resumeId: "26",
+                userId: "26",
+                resumeTitle: "",
+                resumeLocation: "",
+                resumeJobCategory: "",
+                resumeJobType: "",
+                resumeJobDuration: "",
+                resumeWorkSchedule: "",
+                resumeWorkTime: "",
+                resumeJobSkill: "",
+                resumeIntroduction: ""
+            }
+        ,
+        career:
             {
                 careerId: "",
-                resumeId: "1",
+                resumeId: "26",
                 careerCompanyName: "",
                 careerJoinDate: "",
                 careerQuitDate: "",
                 careerJobDescription: "",
                 careerIsCareer: ""
             }
-        ],
-        education: [
+        ,
+        education:
             {
                 educationId: "",
-                resumeId: "1",
+                resumeId: "26",
                 eduDegree: "",
                 eduStatus: "",
                 eduSchool: "",
@@ -40,36 +49,40 @@ import Major from "./Major";
                 eduAdmissionYear: "",
                 eduGraduationYear: ""
             }
-        ]}
 
-const Resume = () => {
-
-    // const [user, setUser] = useState([]);
-
+    }
     const [resumeData, setResumeData] = useState(initialResumeData);
 
-    // 입력값 변경 핸들러
-    const handleChange = (section, index, e) => {
-        const { name, value, type, checked } = e.target;
-        setResumeData((prev) => {
-            if (section === "resume") {
-                return { ...prev, resume: { ...prev.resume, [name]: type === "checkbox" ? checked : value } };
-            } else {
-                const updatedSection = [...prev[section]];
-                updatedSection[index] = { ...updatedSection[index], [name]: type === "checkbox" ? checked : value };
-                return { ...prev, [section]: updatedSection };
-            }
-        });
-    };
+
+    useEffect(() => {
+        apiResumeService.updateResume(resumeId, resumeData);
+    }, []);
 
 
     // 이력서 수정 API 호출
     const handleUpdate = () => {
-        apiResumeService.updateResume(resumeData.resume.resumeId, resumeData,
-            () => {
-            alert("이력서가 수정되었습니다.");
-        });
+        apiResumeService.updateResume(resumeId,resumeData);
     };
+
+
+    // 입력값 변경 핸들러
+    const handleChange = (e) => {
+        const {name, value} = e.target;
+        setResumeData(
+            {
+                ...resumeData, [name]: value
+            }
+        )
+        //     if (section === "resume") {
+        //         return {...prev, resume: {...prev.resume, [name]: type === "checkbox" ? checked : value}};
+        //     } else {
+        //         const updatedSection = [...prev[section]];
+        //         updatedSection[index] = {...updatedSection[index], [name]: type === "checkbox" ? checked : value};
+        //         return {...prev, [section]: updatedSection};
+        //     }
+        // });
+    };
+
 
 
     return (
@@ -83,22 +96,28 @@ const Resume = () => {
                 <h2>학력 사항</h2>
                 <button>+추가</button>
                 {resumeData.education.map(
-                    (edu, index) => (
-                        <div key={edu.educationId}>
-                            <ResumeInput label="학교명" name="eduSchool"
-                                         value={edu.eduSchool}
-                                         onChange={(e) => handleChange("education", index, e)}/>
-                            <ResumeInput label="전공" name="eduMajor"
-                                         value={edu.eduMajor}
-                                         onChange={(e) => handleChange("education", index, e)}/>
-                            <ResumeInput label="학위" name="eduDegree"
-                                         value={edu.eduDegree}
-                                         onChange={(e) => handleChange("education", index, e)}/>
+                    (edu) => (
+                        <div key={edu.education.educationId}>
+                            <label>학교명</label>
+                            <input type="text" name="eduSchool"
+                                   value={edu.education.eduSchool}
+                                   onChange={handleChange}/>
+                            {/*onChange={(e) => handleChange("education",e)}/>*/}
+                            <label>전공</label>
+                            <input name="eduMajor"
+                                   value={edu.education.eduMajor}
+                                   onChange={handleChange}/>
+                            {/*onChange={(e) => handleChange("education",e)}/>*/}
+                            <input label="학위" name="eduDegree"
+                                   value={edu.education.eduDegree}
+                                   onChange={handleChange}/>
+                            {/*onChange={(e) => handleChange("education",e)}/>*/}
                             <ResumeInput
                                 label="학력 상태"
                                 name="eduStatus"
-                                value={resumeData.education[0].eduStatus}
-                                onChange={(e) => handleChange("education", 0, e)}
+                                value={resumeData.education.eduStatus}
+                                onChange={handleChange}
+                                // onChange={(e) => handleChange("education",e)}
                                 type="select"
                                 options={[
                                     {value: "졸업", label: "졸업"},
@@ -111,23 +130,25 @@ const Resume = () => {
                                 ]}
                             />
                             <ResumeInput label="입학 연도" name="eduAdmissionYear"
-                                         value={resumeData.education[0].eduAdmissionYear}
-                                         onChange={(e) => handleChange("education", 0, e)} type="month"/>
+                                         value={resumeData.education.eduAdmissionYear}
+                                         onChange={handleChange}/>
+                            {/*onChange={(e) => handleChange("education", e)} type="month"/>*/}
                             <ResumeInput label="졸업 연도" name="eduGraduationYear"
-                                         value={resumeData.education[0].eduGraduationYear}
-                                         onChange={(e) => handleChange("education", 0, e)} type="month"/>
+                                         value={resumeData.education.eduGraduationYear}
+                                         onChange={handleChange}/>
+                            {/*onChange={(e) => handleChange("education",e)} type="month"/>*/}
 
                         </div>
                     ))}
 
                 <h2>경력</h2>
-                {resumeData.career.map((career, index) => (
+                {resumeData.career.map((career) => (
                     <div key={career.careerId}>
                         <ResumeInput
                             label="경력 구분"
                             name="careerIsCareer"
-                            value={resumeData.career[0].careerIsCareer}
-                            onChange={(e) => handleChange("career", 0, e)}
+                            value={resumeData.careerIsCareer}
+                            onChange={(e) => handleChange("career",e)}
                             type="radio"
                             radioGroup={[
                                 {value: "신입", label: "신입"},
@@ -135,17 +156,17 @@ const Resume = () => {
                             ]}
                         />
                         <ResumeInput label="회사명" name="careerCompanyName"
-                                     value={resumeData.career[0].careerCompanyName}
-                                     onChange={(e) => handleChange("career", 0, e)}/>
+                                     value={resumeData.careerCompanyName}
+                                     onChange={(e) => handleChange("career", e)}/>
                         <ResumeInput label="입사일" name="careerJoinDate"
-                                     value={resumeData.career[0].careerJoinDate}
-                                     onChange={(e) => handleChange("career", 0, e)} type="month"/>
+                                     value={resumeData.careerJoinDate}
+                                     onChange={(e) => handleChange("career",e)} type="month"/>
                         <ResumeInput label="퇴사일" name="careerQuitDate"
-                                     value={resumeData.career[0].careerQuitDate}
-                                     onChange={(e) => handleChange("career", 0, e)} type="month"/>
+                                     value={resumeData.careerQuitDate}
+                                     onChange={(e) => handleChange("career",e)} type="month"/>
                         <ResumeInput label="담당업무" name="careerJobDescription"
-                                     value={resumeData.career[0].careerJobDescription}
-                                     onChange={(e) => handleChange("career", 0, e)} type="textarea"/>
+                                     value={resumeData.careerJobDescription}
+                                     onChange={(e) => handleChange("career",e)} type="textarea"/>
                     </div>
                 ))}
 
@@ -153,7 +174,7 @@ const Resume = () => {
                 <ResumeInput
                     label="업직종"
                     name="resumeJobCategory"
-                    value={resumeData.resume.resumeJobCategory}
+                    value={resumeData.resumeJobCategory}
                     onChange={(e) => handleChange("resume", null, e)}
                     type="select"
                     options={[
@@ -207,14 +228,16 @@ const Resume = () => {
                              type="select" options={[{value: "무관", label: "무관"}, {value: "평일", label: "평일"},
                     {value: "주말", label: "주말"}]}/>
                 <ResumeInput label="희망 근무 시간" name="resumeWorkTime"
-                             value={resumeData.resume.resumeWorkTime} o
-                             nChange={(e) => handleChange("resume", null, e)}
+                             value={resumeData.resume.resumeWorkTime}
+                             onChange={(e) => handleChange("resume", null, e)}
                              type="select" options={
                     [{value: "무관", label: "무관"},
-                    {value: "오전(06:00~12:00)", label: "오전(06:00~12:00)"},
-                    {value: "오후(12:00~18;00)", label: "오후(12:00~18;00)"},{value: "저녁(18:00~24:00)", label: "저녁(18:00~24:00)"},
-                    {value: "새벽(00:00~06:00)", label: "새벽(00:00~06:00)"}]}/>
-
+                        {value: "오전(06:00~12:00)", label: "오전(06:00~12:00)"},
+                        {value: "오후(12:00~18;00)", label: "오후(12:00~18;00)"}, {
+                        value: "저녁(18:00~24:00)",
+                        label: "저녁(18:00~24:00)"
+                    },
+                        {value: "새벽(00:00~06:00)", label: "새벽(00:00~06:00)"}]}/>
 
 
                 <h2>자기소개, 스킬</h2>
@@ -232,18 +255,7 @@ const Resume = () => {
     )
 
 }
-const ResumeSection = ({ title, section, data, handleChange }) => (
-    <div>
-        <h2>{title}</h2>
-        {data.map((item, index) => (
-            <div key={index}>
-                {Object.keys(item).filter(key => key !== "resumeId" && key !== `${section}Id`).map(key => (
-                    <ResumeInput key={key} label={key} name={key} value={item[key]} onChange={e => handleChange(section, index, e)} />
-                ))}
-            </div>
-        ))}
-    </div>
-);
+
 
 const ResumeInput = ({label, name, value, onChange, type = "text", options = [], radioGroup = []}) => {
     return (
@@ -274,19 +286,17 @@ const ResumeInput = ({label, name, value, onChange, type = "text", options = [],
                 ))
             ) : type === "checkbox" ? (
                 <label>
-                    <input type="checkbox" name={name} checked={value} onChange={onChange} />
+                    <input type="checkbox" name={name} checked={value} onChange={onChange}/>
                     {label}
                 </label>
             ) : type === "date" ? (
-                <input type="date" name={name} value={value} onChange={onChange} />
+                <input type="date" name={name} value={value} onChange={onChange}/>
             ) : (
-                <input type="text" name={name} value={value} onChange={onChange} />
+                <input type="text" name={name} value={value} onChange={onChange}/>
             )}
         </div>
     );
 };
-
-
 
 
 export default Resume;

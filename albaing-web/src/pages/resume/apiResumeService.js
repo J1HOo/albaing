@@ -94,12 +94,12 @@ const apiResumeService = {
     },
 
     //이력서 수정
-    updateResume:function (resumeId,updateResume,callback){
-        axios.put(`${API_RESUME_URL}/update/${resumeId}`,updateResume)
+    updateResume:function (resumeId,resumeData){
+        axios.put(`${API_RESUME_URL}/update/${resumeId}`,resumeData)
             .then(
                 (res)=>{
                     if(res.data){
-                      callback();
+                      alert("이력서가 수정되었습니다.");
                     } else {
                         alert("변경된 내용이 없습니다.");
                     }
