@@ -2,13 +2,10 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 
-
 export default function JobPostDetail() {
     const { id: jobPostId } = useParams();
-    console.log("받은 jobPostId:", jobPostId);
     const [jobPost, setJobPost] = useState(null);
     const [loading, setLoading] = useState(true);
-
     const [error, setError] = useState(null);
 
     useEffect(() => {
@@ -31,49 +28,86 @@ export default function JobPostDetail() {
             });
     }, [jobPostId]);
 
-    if (loading)
+    if (loading) {
         return <p className="text-center text-gray-500 mt-8">로딩 중...</p>;
-    if (error)
+    }
+
+    if (error) {
         return <p className="text-center text-red-500 mt-8">{error}</p>;
-    if (!jobPost)
+    }
+
+    if (!jobPost) {
         return (
             <p className="text-center text-gray-500 mt-8">
                 해당 공고를 찾을 수 없습니다.
             </p>
         );
+    }
 
     return (
-        <div className="p-6 max-w-4xl mx-auto bg-white rounded shadow-md mt-10">
-            <h1 className="text-3xl font-bold mb-6 text-gray-800">
-                {jobPost.jobPostTitle}
-            </h1>
-            <div className="space-y-4 text-gray-600">
-                <p>
-                    <span className="font-semibold">기업 ID:</span> {jobPost.companyId}
-                </p>
-                <p>
-                    <span className="font-semibold">카테고리:</span>{" "}
-                    {jobPost.jobPostJobCategory}
-                </p>
-                <p>
-                    <span className="font-semibold">근무 유형:</span>{" "}
-                    {jobPost.jobPostJobType}
-                </p>
-                <p>
-                    <span className="font-semibold">근무지:</span>{" "}
-                    {jobPost.jobPostWorkPlace}
-                </p>
-                <p>
-                    <span className="font-semibold">급여:</span> {jobPost.jobPostSalary} 원
-                </p>
-                <p>
-                    <span className="font-semibold">마감일:</span>{" "}
-                    {jobPost.jobPostDueDate}
-                </p>
-                <p>
-                    <span className="font-semibold">연락처:</span>{" "}
-                    {jobPost.jobPostContactNumber}
-                </p>
+        <div className="max-w-4xl mx-auto px-4 py-8">
+            <div className="bg-white rounded-lg shadow p-6">
+                {/* 상단: 제목 및 주요 정보 (3개씩 2줄) */}
+                <div className="border-b pb-4 mb-4">
+                    <h2 className="text-3xl font-bold text-gray-800 mb-2">
+                        {jobPost.jobPostTitle || "제목 없음"}
+                    </h2>
+                    <div className="grid grid-cols-3 gap-4 text-gray-600 text-sm">
+                        <div>
+                            <strong>직종 카테고리:</strong> {jobPost.jobPostJobCategory || "-"}
+                        </div>
+                        <div>
+                            <strong>고용형태:</strong> {jobPost.jobPostJobType || "-"}
+                        </div>
+                        <div>
+                            <strong>근무기간:</strong> {jobPost.jobPostWorkingPeriod || "-"}
+                        </div>
+                        <div>
+                            <strong>근무요일:</strong> {jobPost.jobWorkSchedule || "-"}
+                        </div>
+                        <div>
+                            <strong>근무시간:</strong> {jobPost.jobPostShiftHours || "-"}
+                        </div>
+                        <div>
+                            <strong>급여:</strong> {jobPost.jobPostSalary || "-"}
+                        </div>
+                    </div>
+                </div>
+
+                {/* 중단: 세부 정보 */}
+                <div className="mb-4 space-y-1 text-sm text-gray-600">
+                    <p>
+                        <strong>기업 ID:</strong> {jobPost.companyId || "-"}
+                    </p>
+                    <p>
+                        <strong>근무지:</strong> {jobPost.jobPostWorkPlace || "-"}
+                    </p>
+                    <p>
+                        <strong>마감일:</strong> {jobPost.jobPostDueDate || "-"}
+                    </p>
+                    <p>
+                        <strong>연락처:</strong> {jobPost.jobPostContactNumber || "-"}
+                    </p>
+                    <p>
+                        <strong>학력요건:</strong> {jobPost.jobPostRequiredEducations || "-"}
+                    </p>
+                </div>
+
+                {/* 하단: 이미지 영역 */}
+                {jobPost.jobPostOptionalImage && (
+                    <div className="mt-4">
+                        <img
+                            src={jobPost.jobPostOptionalImage}
+                            alt="채용공고 이미지"
+                            className="w-full h-auto object-contain rounded"
+                            onError={(e) => {
+                                e.target.onerror = null;
+                                e.target.src =
+                                    "https://via.placeholder.com/600x400?text=No+Image";
+                            }}
+                        />
+                    </div>
+                )}
             </div>
         </div>
     );

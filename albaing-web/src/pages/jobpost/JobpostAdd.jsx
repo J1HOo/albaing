@@ -48,8 +48,6 @@ const JobPostAdd = () => {
         jobPostWorkPlace: '', // 기본 주소
         jobPostWorkPlaceDetail: '', // 상세 주소
         jobPostWorkPlaceFullAddress: '', // 전체 주소 (기본 주소 + 상세 주소)
-        jobPostLatitude: '', // 위도
-        jobPostLongitude: '', // 경도
         jobPostStatus: true,
         jobPostDueDate: '',
     });
@@ -57,7 +55,6 @@ const JobPostAdd = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
-    // 카카오맵 API 초기화
     useEffect(() => {
         const script = document.createElement('script');
         script.async = true;
@@ -71,7 +68,7 @@ const JobPostAdd = () => {
         };
 
         return () => {
-            document.head.removeChild(script);
+
         };
     }, []);
 
@@ -99,7 +96,6 @@ const JobPostAdd = () => {
         setIsSearching(true);
         setSearchResults([]);
 
-        const geocoder = new window.kakao.maps.services.Geocoder();
         const places = new window.kakao.maps.services.Places();
 
         places.keywordSearch(searchKeyword, (result, status) => {
@@ -110,9 +106,7 @@ const JobPostAdd = () => {
                     id: item.id,
                     placeName: item.place_name,
                     roadAddress: item.road_address_name,
-                    address: item.address_name,
-                    x: item.x, // 경도
-                    y: item.y  // 위도
+                    address: item.address_name
                 }));
                 setSearchResults(addressResults);
             }
@@ -120,13 +114,12 @@ const JobPostAdd = () => {
         });
     };
 
+    // 주소 선택 시 위도, 경도 제거
     const selectAddress = (result) => {
         setFormData(prev => ({
             ...prev,
             jobPostWorkPlace: result.roadAddress || result.address,
             jobPostWorkPlaceFullAddress: result.roadAddress || result.address,
-            jobPostLatitude: result.y,
-            jobPostLongitude: result.x
         }));
         setShowAddressSearch(false);
         setSearchResults([]);
@@ -141,22 +134,25 @@ const JobPostAdd = () => {
             return;
         }
 
-        // 전체 주소 설정
+        const fullAddress =
+            formData.jobPostWorkPlace +
+            (formData.jobPostWorkPlaceDetail ? ` ${formData.jobPostWorkPlaceDetail}` : '');
+
         const updatedFormData = {
             ...formData,
-            jobPostWorkPlaceFullAddress:
-                formData.jobPostWorkPlace + (formData.jobPostWorkPlaceDetail ? ` ${formData.jobPostWorkPlaceDetail}` : '')
+            jobPostWorkPlace: fullAddress,
         };
 
         setLoading(true);
         setError(null);
 
-        axios.post('/api/jobs', updatedFormData)
-            .then(response => {
+        axios
+            .post('/api/jobs', updatedFormData)
+            .then((response) => {
                 setLoading(false);
                 navigate(`/jobs/${response.data.jobPostId}`);
             })
-            .catch(error => {
+            .catch((error) => {
                 setLoading(false);
                 setError('채용공고 등록 중 오류가 발생했습니다. 다시 시도해주세요.');
                 console.error('Error creating job post:', error);
@@ -168,26 +164,70 @@ const JobPostAdd = () => {
     };
 
     const PreviewCard = ({ data }) => {
+        // 기본주소 + 상세주소 결합
+        const fullAddress =
+            data.jobPostWorkPlace +
+            (data.jobPostWorkPlaceDetail ? ` ${data.jobPostWorkPlaceDetail}` : '');
+
         return (
-            <div className="bg-white p-6 rounded-lg shadow-lg">
+            <div className="bg-white rounded-lg shadow p-6">
+                {/* 상단: 제목 및 주요 정보 (3개씩 2줄) */}
+                <div className="border-b pb-4 mb-4">
+                    <h2 className="text-3xl font-bold text-gray-800 mb-2">
+                        {data.jobPostTitle || '제목 없음'}
+                    </h2>
+                    <div className="grid grid-cols-3 gap-4 text-gray-600 text-sm">
+                        <div>
+                            <strong>직종 카테고리:</strong> {data.jobPostJobCategory || '-'}
+                        </div>
+                        <div>
+                            <strong>고용형태:</strong> {data.jobPostJobType || '-'}
+                        </div>
+                        <div>
+                            <strong>근무기간:</strong> {data.jobPostWorkingPeriod || '-'}
+                        </div>
+                        <div>
+                            <strong>근무요일:</strong> {data.jobWorkSchedule || '-'}
+                        </div>
+                        <div>
+                            <strong>근무시간:</strong> {data.jobPostShiftHours || '-'}
+                        </div>
+                        <div>
+                            <strong>급여:</strong> {data.jobPostSalary || '-'}
+                        </div>
+                    </div>
+                </div>
+
+                {/* 중단: 세부 정보 */}
+                <div className="mb-4 space-y-1 text-sm text-gray-600">
+                    <p>
+                        <strong>근무지:</strong> {fullAddress || '-'}
+                    </p>
+                    <p>
+                        <strong>마감일:</strong> {data.jobPostDueDate || '-'}
+                    </p>
+                    <p>
+                        <strong>연락처:</strong> {data.jobPostContactNumber || '-'}
+                    </p>
+                    <p>
+                        <strong>학력요건:</strong> {data.jobPostRequiredEducations || '-'}
+                    </p>
+                </div>
+
+                {/* 하단: 이미지 영역 */}
                 {data.jobPostOptionalImage && (
-                    <img
-                        src={data.jobPostOptionalImage}
-                        alt="채용공고 이미지"
-                        className="w-full h-48 object-cover rounded mb-4"
-                    />
+                    <div className="mt-4">
+                        <img
+                            src={data.jobPostOptionalImage}
+                            alt="채용공고 이미지"
+                            className="w-full h-auto object-contain rounded"
+                            onError={(e) => {
+                                e.target.onerror = null;
+                                e.target.src = 'https://via.placeholder.com/600x400?text=No+Image';
+                            }}
+                        />
+                    </div>
                 )}
-                <h2 className="text-2xl font-bold text-gray-800 mb-2">{data.jobPostTitle || "제목 없음"}</h2>
-                <p className="text-gray-600 mb-1"><strong>직종 카테고리:</strong> {data.jobPostJobCategory || "-"}</p>
-                <p className="text-gray-600 mb-1"><strong>고용형태:</strong> {data.jobPostJobType || "-"}</p>
-                <p className="text-gray-600 mb-1"><strong>근무기간:</strong> {data.jobPostWorkingPeriod || "-"}</p>
-                <p className="text-gray-600 mb-1"><strong>근무요일:</strong> {data.jobWorkSchedule || "-"}</p>
-                <p className="text-gray-600 mb-1"><strong>근무시간:</strong> {data.jobPostShiftHours || "-"}</p>
-                <p className="text-gray-600 mb-1"><strong>급여:</strong> {data.jobPostSalary || "-"}</p>
-                <p className="text-gray-600 mb-1"><strong>근무지:</strong> {data.jobPostWorkPlaceFullAddress || "-"}</p>
-                <p className="text-gray-600 mb-1"><strong>마감일:</strong> {data.jobPostDueDate || "-"}</p>
-                <p className="text-gray-600 mb-1"><strong>연락처:</strong> {data.jobPostContactNumber || "-"}</p>
-                <p className="text-gray-600 mb-1"><strong>학력요건:</strong> {data.jobPostRequiredEducations || "-"}</p>
             </div>
         );
     };
@@ -207,13 +247,21 @@ const JobPostAdd = () => {
             <div className="mb-6">
                 <button
                     onClick={() => setActiveTab("edit")}
-                    className={`px-4 py-2 mr-2 ${activeTab === "edit" ? "bg-blue-500 text-white" : "bg-white text-gray-700 border"} rounded`}
+                    className={`px-4 py-2 mr-2 ${
+                        activeTab === "edit"
+                            ? "bg-blue-500 text-white"
+                            : "bg-white text-gray-700 border"
+                    } rounded`}
                 >
                     작성
                 </button>
                 <button
                     onClick={() => setActiveTab("preview")}
-                    className={`px-4 py-2 ${activeTab === "preview" ? "bg-blue-500 text-white" : "bg-white text-gray-700 border"} rounded`}
+                    className={`px-4 py-2 ${
+                        activeTab === "preview"
+                            ? "bg-blue-500 text-white"
+                            : "bg-white text-gray-700 border"
+                    } rounded`}
                 >
                     미리보기
                 </button>

@@ -280,7 +280,7 @@ const CompanyMain = () => {
                                     <tbody className="divide-y divide-gray-200">
                                     {jobPosts.map((job, index) => (
                                         <tr key={index} className="hover:bg-gray-50">
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-600">
+                                            <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-blue-600 max-w-[200px] overflow-hidden text-ellipsis">
                                                 <Link to={`/jobs/${job.jobPostId}`}>{job.jobPostTitle}</Link>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -289,7 +289,7 @@ const CompanyMain = () => {
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                                 {job.jobPostJobType}
                                             </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500 max-w-[150px] overflow-hidden text-ellipsis">
                                                 {job.jobPostWorkPlace}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -297,11 +297,13 @@ const CompanyMain = () => {
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 {job.jobPostStatus && new Date(job.jobPostDueDate) > new Date() ? (
-                                                    <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                                    <span
+                                                        className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
                                                             채용중
                                                         </span>
                                                 ) : (
-                                                    <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                                                    <span
+                                                        className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
                                                             마감
                                                         </span>
                                                 )}
