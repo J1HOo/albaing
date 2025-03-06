@@ -1,10 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
 const JobPostAdd = () => {
     const navigate = useNavigate();
-
     const companyId = localStorage.getItem('companyId');
 
     const jobCategories = [
@@ -29,6 +28,10 @@ const JobPostAdd = () => {
     const shiftHours = ['무관', '오전(06:00~12:00)', '오후(12:00~18:00)', '저녁(18:00~24:00)', '새벽(00:00~06:00)'];
 
     const [activeTab, setActiveTab] = useState("edit");
+    const [showAddressSearch, setShowAddressSearch] = useState(false);
+    const [searchKeyword, setSearchKeyword] = useState('');
+    const [searchResults, setSearchResults] = useState([]);
+    const [isSearching, setIsSearching] = useState(false);
 
     const [formData, setFormData] = useState({
         companyId: companyId,
@@ -42,7 +45,11 @@ const JobPostAdd = () => {
         jobWorkSchedule: '',
         jobPostShiftHours: '',
         jobPostSalary: '',
-        jobPostWorkPlace: '',
+        jobPostWorkPlace: '', // 기본 주소
+        jobPostWorkPlaceDetail: '', // 상세 주소
+        jobPostWorkPlaceFullAddress: '', // 전체 주소 (기본 주소 + 상세 주소)
+        jobPostLatitude: '', // 위도
+        jobPostLongitude: '', // 경도
         jobPostStatus: true,
         jobPostDueDate: '',
     });
@@ -50,12 +57,80 @@ const JobPostAdd = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
+    // 카카오맵 API 초기화
+    useEffect(() => {
+        const script = document.createElement('script');
+        script.async = true;
+        script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${process.env.REACT_APP_KAKAO_API_KEY}&libraries=services&autoload=false`;
+        document.head.appendChild(script);
+
+        script.onload = () => {
+            window.kakao.maps.load(() => {
+                console.log('카카오맵 API가 로드되었습니다.');
+            });
+        };
+
+        return () => {
+            document.head.removeChild(script);
+        };
+    }, []);
+
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({
             ...prev,
             [name]: value
         }));
+
+        // 상세 주소가 변경될 때 전체 주소도 업데이트
+        if (name === 'jobPostWorkPlaceDetail') {
+            setFormData(prev => ({
+                ...prev,
+                jobPostWorkPlaceFullAddress:
+                    prev.jobPostWorkPlace + (value ? ` ${value}` : '')
+            }));
+        }
+    };
+
+    // 주소 검색 함수
+    const searchAddress = () => {
+        if (!searchKeyword.trim()) return;
+
+        setIsSearching(true);
+        setSearchResults([]);
+
+        const geocoder = new window.kakao.maps.services.Geocoder();
+        const places = new window.kakao.maps.services.Places();
+
+        places.keywordSearch(searchKeyword, (result, status) => {
+            if (status === window.kakao.maps.services.Status.OK) {
+                const addressResults = result.filter(item =>
+                    item.address_name && item.road_address_name
+                ).map(item => ({
+                    id: item.id,
+                    placeName: item.place_name,
+                    roadAddress: item.road_address_name,
+                    address: item.address_name,
+                    x: item.x, // 경도
+                    y: item.y  // 위도
+                }));
+                setSearchResults(addressResults);
+            }
+            setIsSearching(false);
+        });
+    };
+
+    const selectAddress = (result) => {
+        setFormData(prev => ({
+            ...prev,
+            jobPostWorkPlace: result.roadAddress || result.address,
+            jobPostWorkPlaceFullAddress: result.roadAddress || result.address,
+            jobPostLatitude: result.y,
+            jobPostLongitude: result.x
+        }));
+        setShowAddressSearch(false);
+        setSearchResults([]);
+        setSearchKeyword('');
     };
 
     const handleSubmit = (e) => {
@@ -66,10 +141,17 @@ const JobPostAdd = () => {
             return;
         }
 
+        // 전체 주소 설정
+        const updatedFormData = {
+            ...formData,
+            jobPostWorkPlaceFullAddress:
+                formData.jobPostWorkPlace + (formData.jobPostWorkPlaceDetail ? ` ${formData.jobPostWorkPlaceDetail}` : '')
+        };
+
         setLoading(true);
         setError(null);
 
-        axios.post('/api/jobs', formData)
+        axios.post('/api/jobs', updatedFormData)
             .then(response => {
                 setLoading(false);
                 navigate(`/jobs/${response.data.jobPostId}`);
@@ -102,7 +184,7 @@ const JobPostAdd = () => {
                 <p className="text-gray-600 mb-1"><strong>근무요일:</strong> {data.jobWorkSchedule || "-"}</p>
                 <p className="text-gray-600 mb-1"><strong>근무시간:</strong> {data.jobPostShiftHours || "-"}</p>
                 <p className="text-gray-600 mb-1"><strong>급여:</strong> {data.jobPostSalary || "-"}</p>
-                <p className="text-gray-600 mb-1"><strong>근무지:</strong> {data.jobPostWorkPlace || "-"}</p>
+                <p className="text-gray-600 mb-1"><strong>근무지:</strong> {data.jobPostWorkPlaceFullAddress || "-"}</p>
                 <p className="text-gray-600 mb-1"><strong>마감일:</strong> {data.jobPostDueDate || "-"}</p>
                 <p className="text-gray-600 mb-1"><strong>연락처:</strong> {data.jobPostContactNumber || "-"}</p>
                 <p className="text-gray-600 mb-1"><strong>학력요건:</strong> {data.jobPostRequiredEducations || "-"}</p>
@@ -145,6 +227,7 @@ const JobPostAdd = () => {
 
             {activeTab === "edit" ? (
                 <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg shadow-md space-y-6">
+                    {/* 기존 폼 필드들 */}
                     <div>
                         <label htmlFor="jobPostTitle" className="block text-sm font-medium text-gray-700 mb-1">
                             채용공고 제목 *
@@ -321,19 +404,37 @@ const JobPostAdd = () => {
                     </div>
 
                     <div>
-                        <label htmlFor="jobPostWorkPlace" className="block text-sm font-medium text-gray-700 mb-1">
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
                             근무지 *
                         </label>
-                        <input
-                            type="text"
-                            id="jobPostWorkPlace"
-                            name="jobPostWorkPlace"
-                            value={formData.jobPostWorkPlace}
-                            onChange={handleChange}
-                            required
-                            className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            placeholder="근무지 주소를 입력하세요"
-                        />
+                        <div className="space-y-3">
+                            <div className="flex items-center">
+                                <input
+                                    type="text"
+                                    readOnly
+                                    value={formData.jobPostWorkPlace}
+                                    className="w-full p-3 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    placeholder="주소 검색을 클릭하여 주소를 검색하세요"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowAddressSearch(true)}
+                                    className="p-3 bg-blue-500 text-white rounded-r-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                >
+                                    주소 검색
+                                </button>
+                            </div>
+
+                            <input
+                                type="text"
+                                id="jobPostWorkPlaceDetail"
+                                name="jobPostWorkPlaceDetail"
+                                value={formData.jobPostWorkPlaceDetail}
+                                onChange={handleChange}
+                                className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                placeholder="상세 주소를 입력하세요 (예: 건물명, 동/호수 등)"
+                            />
+                        </div>
                     </div>
 
                     <div>
@@ -378,6 +479,67 @@ const JobPostAdd = () => {
                         >
                             수정하기
                         </button>
+                    </div>
+                </div>
+            )}
+
+            {/* 주소 검색 모달 */}
+            {showAddressSearch && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="bg-white p-6 rounded-lg shadow-xl w-full max-w-xl max-h-screen overflow-y-auto">
+                        <h3 className="text-xl font-bold mb-4">주소 검색</h3>
+                        <div className="flex mb-4">
+                            <input
+                                type="text"
+                                value={searchKeyword}
+                                onChange={(e) => setSearchKeyword(e.target.value)}
+                                className="flex-grow p-3 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                placeholder="주소 또는 건물명을 입력하세요"
+                                onKeyPress={(e) => e.key === 'Enter' && searchAddress()}
+                            />
+                            <button
+                                type="button"
+                                onClick={searchAddress}
+                                disabled={isSearching}
+                                className="p-3 bg-blue-500 text-white rounded-r-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+                            >
+                                {isSearching ? '검색 중...' : '검색'}
+                            </button>
+                        </div>
+
+                        {searchResults.length > 0 ? (
+                            <div className="mb-4 max-h-60 overflow-y-auto border rounded-md">
+                                <ul className="divide-y divide-gray-200">
+                                    {searchResults.map((result, index) => (
+                                        <li
+                                            key={index}
+                                            className="p-3 hover:bg-gray-100 cursor-pointer transition-colors"
+                                            onClick={() => selectAddress(result)}
+                                        >
+                                            <div className="font-medium">{result.placeName}</div>
+                                            <div className="text-sm text-gray-600">도로명: {result.roadAddress}</div>
+                                            <div className="text-sm text-gray-500">지번: {result.address}</div>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        ) : (
+                            searchKeyword.trim() && !isSearching && (
+                                <div className="mb-4 p-3 text-center text-gray-600 border rounded-md">
+                                    검색 결과가 없습니다.
+                                </div>
+                            )
+                        )}
+
+                        <div className="flex justify-end">
+                            <button
+                                type="button"
+                                onClick={() => setShowAddressSearch(false)}
+                                className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-400"
+                            >
+                                닫기
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}

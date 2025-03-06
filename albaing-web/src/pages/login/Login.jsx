@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import {Link, replace, useNavigate} from "react-router-dom";
 import axios from "axios";
 import {useAuth} from "../../contexts/AuthContext";
 
@@ -26,9 +26,9 @@ export default function Login() {
             .then(result => {
                 if (result.success) {
                     if (userType === 'company') {
-                        navigate(`/company/manage/${result.data.company.companyId}`);
+                        navigate(`/company/manage/${result.data.company.companyId}`, { replace:true });
                     } else {
-                        navigate('/');
+                        navigate('/', { replace:true }) ;
                     }
                 } else {
                     setError(result.message);

@@ -4,7 +4,6 @@ import axios from "axios";
 
 
 export default function JobPostDetail() {
-    // Option2에 맞춰 URL 파라미터 이름을 id에서 jobPostId로 재정의
     const { id: jobPostId } = useParams();
     console.log("받은 jobPostId:", jobPostId);
     const [jobPost, setJobPost] = useState(null);

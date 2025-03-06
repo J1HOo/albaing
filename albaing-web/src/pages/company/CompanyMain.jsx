@@ -1,15 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import {useNavigate, useParams} from "react-router-dom";
+import {Link, useNavigate, useParams} from "react-router-dom";
 import {useAuth} from "../../contexts/AuthContext";
 
 
 const CompanyMain = () => {
     const { companyId } = useParams();
     const navigate = useNavigate();
-
     const { isLoggedIn, userType, userData } = useAuth();
-
     const [activeTab, setActiveTab] = useState('dashboard');
     const [companyData, setCompanyData] = useState(null);
     const [jobPosts, setJobPosts] = useState([]);
@@ -162,7 +160,7 @@ const CompanyMain = () => {
                             {/* 요약 카드들 */}
                             <div className="bg-white rounded-lg shadow p-6">
                                 <div className="flex justify-between items-center">
-                                    <h3 className="text-gray-500 text-sm font-medium">Active Job Postings</h3>
+                                    <h3 className="text-gray-500 text-sm font-medium">지금 활성화된 채용공고</h3>
                                 </div>
                                 <p className="text-3xl font-bold text-gray-700 mt-2">
                                     {jobPosts.filter(job => job.jobPostStatus && new Date(job.jobPostDueDate) > new Date()).length}
@@ -171,7 +169,7 @@ const CompanyMain = () => {
 
                             <div className="bg-white rounded-lg shadow p-6">
                                 <div className="flex justify-between items-center">
-                                    <h3 className="text-gray-500 text-sm font-medium">Total Applications</h3>
+                                    <h3 className="text-gray-500 text-sm font-medium">총 지원자</h3>
                                 </div>
                                 <p className="text-3xl font-bold text-gray-700 mt-2">
                                     {applications.length}
@@ -180,7 +178,7 @@ const CompanyMain = () => {
 
                             <div className="bg-white rounded-lg shadow p-6">
                                 <div className="flex justify-between items-center">
-                                    <h3 className="text-gray-500 text-sm font-medium">New Applications</h3>
+                                    <h3 className="text-gray-500 text-sm font-medium">신규 지원자</h3>
                                 </div>
                                 <p className="text-3xl font-bold text-gray-700 mt-2">
                                     {applications.filter(app => !app.viewed).length}
@@ -199,8 +197,7 @@ const CompanyMain = () => {
                                         <table className="min-w-full divide-y divide-gray-200">
                                             <thead>
                                             <tr>
-                                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                    제목</th>
+                                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">제목</th>
                                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">카테고리</th>
                                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">근무지</th>
                                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">마감일</th>
@@ -211,7 +208,7 @@ const CompanyMain = () => {
                                             {jobPosts.slice(0, 5).map((job, index) => (
                                                 <tr key={index} className="hover:bg-gray-50">
                                                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-600">
-                                                        {job.jobPostTitle}
+                                                        <Link to={`/jobs/${job.jobPostId}`}>{job.jobPostTitle}</Link>
                                                     </td>
                                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                                         {job.jobPostJobCategory}
@@ -239,7 +236,7 @@ const CompanyMain = () => {
                                         </table>
                                     </div>
                                 ) : (
-                                    <p className="text-gray-500">No job postings yet. Create your first job posting to get started.</p>
+                                    <p className="text-gray-500">존재하는 공고가 없습니다. 새로운 공고를 올려보세요</p>
                                 )}
                                 <div className="mt-4 text-right">
                                     <button
@@ -284,7 +281,7 @@ const CompanyMain = () => {
                                     {jobPosts.map((job, index) => (
                                         <tr key={index} className="hover:bg-gray-50">
                                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-600">
-                                                {job.jobPostTitle}
+                                                <Link to={`/jobs/${job.jobPostId}`}>{job.jobPostTitle}</Link>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                                 {job.jobPostJobCategory}
@@ -346,7 +343,7 @@ const CompanyMain = () => {
                                     onClick={handleCreateJobPost}
                                     className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
                                 >
-                                    Create New Job Post
+                                    새로운 공고 올리기
                                 </button>
                             </div>
                         )}
@@ -363,10 +360,10 @@ const CompanyMain = () => {
                                 <table className="min-w-full divide-y divide-gray-200">
                                     <thead>
                                     <tr>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Applicant Name</th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Job Title</th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Applied Date</th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">지원자 성함</th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">제목</th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">지원하신 날짜</th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">상태</th>
                                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                                     </tr>
                                     </thead>
@@ -467,7 +464,7 @@ const CompanyMain = () => {
                                         onClick={() => window.location.href = `/companies/${companyId}`}
                                         className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
                                     >
-                                        수정하기
+                                        회사수정페이지가기
                                     </button>
                                 </div>
                             </div>
