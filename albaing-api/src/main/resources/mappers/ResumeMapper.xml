@@ -4,12 +4,56 @@
 <mapper namespace="com.jobjob.albaing.mapper.ResumeMapper">
 
 
-    <!-- 사용자 ID로 이력서 조회 -->
-    <select id="getResumeByUserId">
-        SELECT *
-        FROM RESUMES
-        WHERE user_id = #{userId}
+    <!-- 사용자 아이디로 이력서 정보 조회 -->
+    <select id="getResumeByUserId" resultMap="getResumeByUserIdMap">
+        SELECT
+            r.resume_id, r.user_id, r.resume_title, r.resume_location,
+            r.resume_job_category, r.resume_job_type, r.resume_job_duration,
+            r.resume_work_schedule, r.resume_work_time, r.resume_job_skill,
+            r.resume_introduction,
+            e.education_id, e.edu_degree, e.edu_status, e.edu_school,
+            e.edu_major, e.edu_admission_year, e.edu_graduation_year,
+            c.career_id, c.career_company_name, c.career_join_date,
+            c.career_quit_date, c.career_job_description, c.career_is_career
+        FROM RESUMES r
+                 LEFT JOIN EDUCATION_HISTORIES e ON r.resume_id = e.resume_id
+                 LEFT JOIN CAREER_HISTORIES c ON r.resume_id = c.resume_id
+        WHERE r.user_id = #{userId}
     </select>
+
+    <resultMap id="getResumeByUserIdMap" type="Resume">
+        <id property="userId" column="user_id"/>
+        <result property="resumeId" column="resume_id"/>
+        <result property="resumeTitle" column="resume_title"/>
+        <result property="resumeLocation" column="resume_location"/>
+        <result property="resumeJobCategory" column="resume_job_category"/>
+        <result property="resumeJobType" column="resume_job_type"/>
+        <result property="resumeJobDuration" column="resume_job_duration"/>
+        <result property="resumeWorkSchedule" column="resume_work_schedule"/>
+        <result property="resumeWorkTime" column="resume_work_time"/>
+        <result property="resumeJobSkill" column="resume_job_skill"/>
+        <result property="resumeIntroduction" column="resume_introduction"/>
+        <association property="educationHistory" javaType="EducationHistory">
+            <id property="educationId" column="education_id"/>
+            <result property="resumeId" column="resume_id"/>
+            <result property="eduDegree" column="edu_degree"/>
+            <result property="eduStatus" column="edu_status"/>
+            <result property="eduSchool" column="edu_school"/>
+            <result property="eduMajor" column="edu_major"/>
+            <result property="eduAdmissionYear" column="edu_admission_year"/>
+            <result property="eduGraduationYear" column="edu_graduation_year"/>
+        </association>
+        <association property="careerHistory" javaType="CareerHistory">
+            <id property="careerId" column="career_id"/>
+            <result property="resumeId" column="resume_id"/>
+            <result property="careerCompanyName" column="career_company_name"/>
+            <result property="careerJoinDate" column="career_join_date"/>
+            <result property="careerQuitDate" column="career_quit_date"/>
+            <result property="careerJobDescription" column="career_job_description"/>
+            <result property="careerIsCareer" column="career_is_career"/>
+        </association>
+    </resultMap>
+
 
     <!-- 이력서 상세 조회 -->
     <select id="resumeDetails" resultMap="resumeDetailMap">
@@ -60,6 +104,9 @@
             <result property="careerIsCareer" column="career_is_career"/>
         </association>
     </resultMap>
+
+
+
     <!-- 이력서 저장 (회원가입 시 자동 생성용) -->
     <insert id="createResumeForUser">
         INSERT INTO RESUMES (
