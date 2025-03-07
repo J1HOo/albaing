@@ -23,6 +23,7 @@ import NotFound from "../components/ NotFound";
 import RegisterPage from "./register/RegisterPage";
 import ProtectedRoute from "./ProtectedRoute";
 import ReviewManagement from "./review/company/ReviewManagement";
+import MyPage from "./mypage/MyPage";
 
 // 메인 레이아웃 컴포넌트
 const MainLayout = ({ children }) => (
@@ -57,8 +58,8 @@ function PathRoute() {
                 <Route path="/jobs/:id" element={<MainLayout><JobpostDetail /></MainLayout>} /> {/* 채용공고 상세 페이지 */}
 
                 {/* 일반 사용자만 접근 가능 */}
-                <Route element={<ProtectedRoute userTypeRequired="user"/> }>
-                {/*<Route path="/mypage" element={<MainLayout><MyPage /></MainLayout>} /> /!* 일반 사용자 마이페이지 메인 *!/*/}
+                <Route element={<ProtectedRoute userTypeRequired="personal"/> }>
+                <Route path="/mypage" element={<MainLayout><MyPage /></MainLayout>} /> {/* 일반 사용자 마이페이지 메인 */}
                 {/*<Route path="/mypage/applications" element={<MainLayout><MyApplication /></MainLayout>} /> /!* 일반 사용자 지원 내역 페이지 *!/*/}
                 {/*<Route path="/mypage/scraps" element={<MainLayout><MyScrap /></MainLayout>} /> /!* 일반 사용자 스크랩 목록 페이지 *!/*/}
                 {/*<Route path="/mypage/reviews" element={<MainLayout><MyReviews /></MainLayout>} /> /!* 일반 사용자 작성 리뷰 목록 페이지 *!/*/}
@@ -79,7 +80,7 @@ function PathRoute() {
                 </Route>
 
                 {/* 로그인한 모든 사용자 접근 가능 - ProtectedRoute 사용(타입 제한 없음) */}
-                <Route element={<ProtectedRoute userTypeRequired="admin"  /> }>
+                <Route element={<ProtectedRoute /> }>
                     <Route path="/companies/:companyId/reviews/:reviewId" element={<MainLayout><ReviewDetail /></MainLayout>} /> {/* 회사 리뷰 목록 페이지 */}
                 </Route>
 
