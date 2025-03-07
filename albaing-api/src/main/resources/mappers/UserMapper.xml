@@ -40,6 +40,16 @@
 
     </select>
 
+    <!-- 이름과 핸드폰번호로 이메일 찾기 -->
+    <select id="findEmailByUserNameAndUserPhone">
+        SELECT user_email FROM USER WHERE USERNAME = #{userName} AND PASSWORD = #{userPhone}
+    </select>
+
+    <!-- 이메일과 핸드폰번호로 비밀번호 찾기 -->
+    <select id="findPasswordByUserNameAndUserPassword">
+        SELECT user_password FROM USER WHERE EMAIL = #{email} AND PHONENUMBER = #{phoneNumber}
+    </select>
+
     <!-- 마이페이지 -사용자 정보 조회 -->
     <select id="getUserById">
         SELECT *

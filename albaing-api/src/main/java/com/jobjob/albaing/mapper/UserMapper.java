@@ -16,6 +16,12 @@ public interface UserMapper {
     // 유저 로그인
     User loginUser(Map<String, Object> param);
 
+    // 유저 이메일 찾기
+    User findEmailByUserNameAndUserPhone(String userName, String userPhone);
+
+    // 유저 비밀번호 찾기
+    User findPasswordByUserNameAndUserPassword(String userEmail, String userPhone);
+
     // 마이페이지- 사용자 정보 조회
     User getUserById(int userId);
 
