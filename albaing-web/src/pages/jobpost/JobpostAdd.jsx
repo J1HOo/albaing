@@ -164,7 +164,6 @@ const JobPostAdd = () => {
     };
 
     const PreviewCard = ({ data }) => {
-        // 기본주소 + 상세주소 결합
         const fullAddress =
             data.jobPostWorkPlace +
             (data.jobPostWorkPlaceDetail ? ` ${data.jobPostWorkPlaceDetail}` : '');

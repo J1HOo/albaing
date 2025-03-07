@@ -51,6 +51,7 @@ const ReviewModal = ({ companyId, onClose, onSubmit }) => {
                         <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                         </svg>
+
                     </button>
                 </div>
 
@@ -72,8 +73,7 @@ const ReviewModal = ({ companyId, onClose, onSubmit }) => {
                             onChange={(e) => setReviewTitle(e.target.value)}
                             className="w-full p-2 border rounded-md"
                             placeholder="리뷰 제목을 입력하세요"
-                            required
-                        />
+                            required />
                     </div>
 
                     <div className="mb-6">
@@ -87,23 +87,20 @@ const ReviewModal = ({ companyId, onClose, onSubmit }) => {
                             className="w-full p-2 border rounded-md"
                             rows={6}
                             placeholder="리뷰 내용을 입력하세요"
-                            required
-                        />
+                            required />
                     </div>
 
                     <div className="flex justify-end space-x-3">
                         <button
                             type="button"
                             onClick={onClose}
-                            className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
-                        >
+                            className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
                             취소
                         </button>
                         <button
                             type="submit"
                             disabled={loading}
-                            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-400"
-                        >
+                            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-400">
                             {loading ? "제출 중..." : "리뷰 등록"}
                         </button>
                     </div>

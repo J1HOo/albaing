@@ -1,13 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect} from 'react';
 import axios from 'axios';
 import {Link, useNavigate, useParams} from "react-router-dom";
 import {useAuth} from "../../contexts/AuthContext";
 
 
 const CompanyMain = () => {
-    const { companyId } = useParams();
+    const {companyId} = useParams();
     const navigate = useNavigate();
-    const { isLoggedIn, userType, userData } = useAuth();
+    const {isLoggedIn, userType, userData} = useAuth();
     const [activeTab, setActiveTab] = useState('dashboard');
     const [companyData, setCompanyData] = useState(null);
     const [jobPosts, setJobPosts] = useState([]);
@@ -16,41 +16,36 @@ const CompanyMain = () => {
     const [error, setError] = useState(null);
 
     useEffect(() => {
-        // 아직 로그인 상태를 확인할 수 없는 경우, 리턴하여 네비게이션 방지
         if (isLoggedIn === null || userData === null) return;
 
-        // 로그인 여부 체크
         if (!isLoggedIn) {
             navigate('/login');
             return;
         }
 
-        // 기업 사용자 여부 체크
         if (userType !== 'company') {
             navigate('/');
             return;
         }
 
-        // 본인 회사인지 체크 (userData가 로딩될 때까지 대기)
         if (userData && userData.companyId && parseInt(companyId) !== userData.companyId) {
             navigate(`/company/manage/${userData.companyId}`);
             return;
         }
 
-        // 데이터 로딩 시작
         setLoading(true);
-        axios.get(`/api/companies/${companyId}`, { withCredentials: true })
+        axios.get(`/api/companies/${companyId}`, {withCredentials: true})
             .then(companyRes => {
                 setCompanyData(companyRes.data);
 
-                return axios.get(`/api/jobs/company/${companyId}`, { withCredentials: true })
-                    .catch(jobError => jobError.response?.status === 404 ? { data: [] } : Promise.reject(jobError));
+                return axios.get(`/api/jobs/company/${companyId}`, {withCredentials: true})
+                    .catch(jobError => jobError.response?.status === 404 ? {data: []} : Promise.reject(jobError));
             })
             .then(jobsRes => {
                 setJobPosts(jobsRes.data);
 
-                return axios.get(`/api/applications/company/${companyId}`, { withCredentials: true })
-                    .catch(appError => appError.response?.status === 404 ? { data: [] } : Promise.reject(appError));
+                return axios.get(`/api/applications/company/${companyId}`, {withCredentials: true})
+                    .catch(appError => appError.response?.status === 404 ? {data: []} : Promise.reject(appError));
             })
             .then(appsRes => {
                 setApplications(appsRes.data);
@@ -102,8 +97,7 @@ const CompanyMain = () => {
 
                 <nav className="mt-6">
                     <ul>
-                        <li
-                            className={`px-4 py-3 cursor-pointer hover:bg-blue-50 transition-colors ${
+                        <li className={`px-4 py-3 cursor-pointer hover:bg-blue-50 transition-colors ${
                                 activeTab === 'dashboard' ? 'bg-blue-100 border-l-4 border-blue-500' : ''
                             }`}
                             onClick={() => handleTabChange('dashboard')}
@@ -113,8 +107,7 @@ const CompanyMain = () => {
                             </div>
                         </li>
 
-                        <li
-                            className={`px-4 py-3 cursor-pointer hover:bg-blue-50 transition-colors ${
+                        <li className={`px-4 py-3 cursor-pointer hover:bg-blue-50 transition-colors ${
                                 activeTab === 'jobPosts' ? 'bg-blue-100 border-l-4 border-blue-500' : ''
                             }`}
                             onClick={() => handleTabChange('jobPosts')}
@@ -124,8 +117,7 @@ const CompanyMain = () => {
                             </div>
                         </li>
 
-                        <li
-                            className={`px-4 py-3 cursor-pointer hover:bg-blue-50 transition-colors ${
+                        <li className={`px-4 py-3 cursor-pointer hover:bg-blue-50 transition-colors ${
                                 activeTab === 'applications' ? 'bg-blue-100 border-l-4 border-blue-500' : ''
                             }`}
                             onClick={() => handleTabChange('applications')}
@@ -135,8 +127,7 @@ const CompanyMain = () => {
                             </div>
                         </li>
 
-                        <li
-                            className={`px-4 py-3 cursor-pointer hover:bg-blue-50 transition-colors ${
+                        <li className={`px-4 py-3 cursor-pointer hover:bg-blue-50 transition-colors ${
                                 activeTab === 'profile' ? 'bg-blue-100 border-l-4 border-blue-500' : ''
                             }`}
                             onClick={() => handleTabChange('profile')}
@@ -157,7 +148,6 @@ const CompanyMain = () => {
                         <h1 className="text-3xl font-bold text-gray-800 mb-6">기업 대시보드</h1>
 
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                            {/* 요약 카드들 */}
                             <div className="bg-white rounded-lg shadow p-6">
                                 <div className="flex justify-between items-center">
                                     <h3 className="text-gray-500 text-sm font-medium">지금 활성화된 채용공고</h3>
@@ -221,11 +211,13 @@ const CompanyMain = () => {
                                                     </td>
                                                     <td className="px-6 py-4 whitespace-nowrap">
                                                         {job.jobPostStatus && new Date(job.jobPostDueDate) > new Date() ? (
-                                                            <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                                            <span
+                                                                className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
                                                                     채용중
                                                                 </span>
                                                         ) : (
-                                                            <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                                                            <span
+                                                                className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
                                                                     마감
                                                                 </span>
                                                         )}
@@ -362,11 +354,15 @@ const CompanyMain = () => {
                                 <table className="min-w-full divide-y divide-gray-200">
                                     <thead>
                                     <tr>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">지원자 성함</th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">지원자
+                                            성함
+                                        </th>
                                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">제목</th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">지원하신 날짜</th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">지원하신
+                                            날짜
+                                        </th>
                                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">상태</th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">채용유무</th>
                                     </tr>
                                     </thead>
                                     <tbody className="divide-y divide-gray-200">
@@ -435,7 +431,8 @@ const CompanyMain = () => {
                                             className="w-24 h-24 object-cover rounded-lg mr-6"
                                         />
                                     ) : (
-                                        <div className="w-24 h-24 bg-gray-200 rounded-lg mr-6 flex items-center justify-center text-gray-400">
+                                        <div
+                                            className="w-24 h-24 bg-gray-200 rounded-lg mr-6 flex items-center justify-center text-gray-400">
                                             No Logo
                                         </div>
                                     )}
@@ -448,11 +445,17 @@ const CompanyMain = () => {
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                                     <div>
                                         <h3 className="text-lg font-medium text-gray-800 mb-2">회사정보</h3>
-                                        <p className="text-gray-600 mb-1"><span className="font-medium">이메일:</span> {companyData.companyEmail}</p>
-                                        <p className="text-gray-600 mb-1"><span className="font-medium">회사연락처:</span> {companyData.companyPhone}</p>
-                                        <p className="text-gray-600 mb-1"><span className="font-medium">본사 위치:</span> {companyData.companyLocalAddress}</p>
-                                        <p className="text-gray-600 mb-1"><span className="font-medium">회사 창립일:</span> {companyData.companyOpenDate}</p>
-                                        <p className="text-gray-600 mb-1"><span className="font-medium">사업자등록번호:</span> {companyData.companyRegistrationNumber}</p>
+                                        <p className="text-gray-600 mb-1"><span
+                                            className="font-medium">이메일:</span> {companyData.companyEmail}</p>
+                                        <p className="text-gray-600 mb-1"><span
+                                            className="font-medium">회사연락처:</span> {companyData.companyPhone}</p>
+                                        <p className="text-gray-600 mb-1"><span
+                                            className="font-medium">본사 위치:</span> {companyData.companyLocalAddress}</p>
+                                        <p className="text-gray-600 mb-1"><span
+                                            className="font-medium">회사 창립일:</span> {companyData.companyOpenDate}</p>
+                                        <p className="text-gray-600 mb-1"><span
+                                            className="font-medium">사업자등록번호:</span> {companyData.companyRegistrationNumber}
+                                        </p>
                                     </div>
                                 </div>
 

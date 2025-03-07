@@ -47,53 +47,28 @@ export default function JobPostDetail() {
     return (
         <div className="max-w-4xl mx-auto px-4 py-8">
             <div className="bg-white rounded-lg shadow p-6">
-                {/* 상단: 제목 및 주요 정보 (3개씩 2줄) */}
                 <div className="border-b pb-4 mb-4">
                     <h2 className="text-3xl font-bold text-gray-800 mb-2">
                         {jobPost.jobPostTitle || "제목 없음"}
                     </h2>
+                    <div><strong>기업 ID:</strong> {jobPost.companyId || "-"}</div>
                     <div className="grid grid-cols-3 gap-4 text-gray-600 text-sm">
-                        <div>
-                            <strong>직종 카테고리:</strong> {jobPost.jobPostJobCategory || "-"}
-                        </div>
-                        <div>
-                            <strong>고용형태:</strong> {jobPost.jobPostJobType || "-"}
-                        </div>
-                        <div>
-                            <strong>근무기간:</strong> {jobPost.jobPostWorkingPeriod || "-"}
-                        </div>
-                        <div>
-                            <strong>근무요일:</strong> {jobPost.jobWorkSchedule || "-"}
-                        </div>
-                        <div>
-                            <strong>근무시간:</strong> {jobPost.jobPostShiftHours || "-"}
-                        </div>
-                        <div>
-                            <strong>급여:</strong> {jobPost.jobPostSalary || "-"}
-                        </div>
+                        <div><strong>직종 카테고리:</strong> {jobPost.jobPostJobCategory || "-"}</div>
+                        <div><strong>고용형태:</strong> {jobPost.jobPostJobType || "-"}</div>
+                        <div><strong>근무기간:</strong> {jobPost.jobPostWorkingPeriod || "-"}</div>
+                        <div><strong>근무요일:</strong> {jobPost.jobWorkSchedule || "-"}</div>
+                        <div><strong>근무시간:</strong> {jobPost.jobPostShiftHours || "-"}</div>
+                        <div><strong>급여:</strong> {jobPost.jobPostSalary || "-"}</div>
                     </div>
                 </div>
 
-                {/* 중단: 세부 정보 */}
                 <div className="mb-4 space-y-1 text-sm text-gray-600">
-                    <p>
-                        <strong>기업 ID:</strong> {jobPost.companyId || "-"}
-                    </p>
-                    <p>
-                        <strong>근무지:</strong> {jobPost.jobPostWorkPlace || "-"}
-                    </p>
-                    <p>
-                        <strong>마감일:</strong> {jobPost.jobPostDueDate || "-"}
-                    </p>
-                    <p>
-                        <strong>연락처:</strong> {jobPost.jobPostContactNumber || "-"}
-                    </p>
-                    <p>
-                        <strong>학력요건:</strong> {jobPost.jobPostRequiredEducations || "-"}
-                    </p>
+                    <p><strong>근무지:</strong> {jobPost.jobPostWorkPlace || "-"}</p>
+                    <p><strong>마감일:</strong> {jobPost.jobPostDueDate || "-"}</p>
+                    <p><strong>연락처:</strong> {jobPost.jobPostContactNumber || "-"}</p>
+                    <p><strong>학력요건:</strong> {jobPost.jobPostRequiredEducations || "-"}</p>
                 </div>
 
-                {/* 하단: 이미지 영역 */}
                 {jobPost.jobPostOptionalImage && (
                     <div className="mt-4">
                         <img
