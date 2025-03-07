@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
+
 import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Random;
@@ -55,15 +56,15 @@ public class VerificationServiceImpl implements VerificationService {
             helper.setSubject("[알바잉] 이메일 인증번호");
 
             String content =
-                "<div style='margin:20px;'>" +
-                    "<h2>알바잉 이메일 인증</h2>" +
-                    "<p>안녕하세요! 알바잉 서비스 이용을 위한 이메일 인증번호입니다.</p>" +
-                    "<div style='padding:10px; font-size:24px; font-weight:bold; background-color:#f4f4f4; border-radius:5px; display:inline-block;'>" +
-                    code +
-                    "</div>" +
-                    "<p>인증번호는 10분간 유효합니다.</p>" +
-                    "<p>감사합니다.</p>" +
-                    "</div>";
+                    "<div style='margin:20px;'>" +
+                            "<h2>알바잉 이메일 인증</h2>" +
+                            "<p>안녕하세요! 알바잉 서비스 이용을 위한 이메일 인증번호입니다.</p>" +
+                            "<div style='padding:10px; font-size:24px; font-weight:bold; background-color:#f4f4f4; border-radius:5px; display:inline-block;'>" +
+                            code +
+                            "</div>" +
+                            "<p>인증번호는 10분간 유효합니다.</p>" +
+                            "<p>감사합니다.</p>" +
+                            "</div>";
 
             helper.setText(content, true);
             mailSender.send(message);
@@ -113,6 +114,7 @@ public class VerificationServiceImpl implements VerificationService {
 
         VerificationData data = verificationStore.get(email.toLowerCase());
         if (data != null) {
+            System.out.println(data);
             data.verified = true;
         }
     }

@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import {useState, useEffect} from "react";
+import {useNavigate, Link} from "react-router-dom";
 import axios from "axios";
 
 const RegisterPerson = () => {
@@ -25,9 +25,35 @@ const RegisterPerson = () => {
 
         const nameParam = params.get("name");
         const nicknameParam = params.get("nickname");
+        const email = params.get("email");
+        const profileImageParam = params.get("profileImage");
+        console.log("nickname" ,nicknameParam );
+        console.log("email " ,email   );
+        console.log("profileImageParam " ,profileImageParam  );
         setUserName(decodeURIComponent(nameParam || nicknameParam || ""));
+        setUserEmail(decodeURIComponent(email || ""));
+        setUserProfileImage(decodeURIComponent(profileImageParam || ""));
 
-        setUserEmail(params.get("email") || "");
+        console.log("카카오 로그인으로 전달된 이메일:", email);
+
+        if (email) {
+            console.log("카카오 로그인 사용자 → 이메일 인증 자동 완료");
+            setEmailVerified(true);
+        }
+    }, []);
+
+
+    /*
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+
+        const nameParam = params.get("name");
+        const nicknameParam = params.get("nickname");
+        const email = params.get("email");
+
+        setUserName(decodeURIComponent(nameParam || nicknameParam || ""));
+        setUserEmail(decodeURIComponent(email || ""));
+        console.log(userEmail);
 
         const birthdayParam = params.get("birthday");
         if (birthdayParam) {
@@ -49,11 +75,19 @@ const RegisterPerson = () => {
             setUserProfileImage(decodeURIComponent(profileImageParam));
         }
 
+        console.log("params.get(\"email\") : " ,params.get("email"));
+        //   if (userEmail === params.get("email")) {  // 수정하니 이메일 인풋창과 인증하기 버튼 활성화됨
         if (params.get("email")) {
+            // 단순히  params.get("email") 만 있으면 인증상태로 만들시 에러발생
+            // userEmail === params.get("email") 비교시 거짓이므로 setEmailVerified(true); 안됨
+            // userEmail 이 null 이거나 params.get("email") 과 다르다
             setEmailVerified(true);
         }
-    }, []);
 
+
+
+    }, []);
+*/
     const requestVerificationCode = () => {
         if (!userEmail) {
             setError("이메일을 입력해주세요.");
@@ -63,14 +97,16 @@ const RegisterPerson = () => {
         setLoading(true);
         setError("");
 
-        axios.post("/api/auth/sendCode", {
-            email: userEmail
-        })
+        axios
+            .post("/api/auth/sendCode", {
+                email: userEmail
+            })
             .then(response => {
                 alert("인증번호가 이메일로 발송되었습니다.");
             })
             .catch(error => {
-                setError(`인증번호 발송 실패: ${error.response?.data?.message || "알 수 없는 오류가 발생했습니다."}`);
+                setError(`인증번호 발송 실패: ${error.response?.data?.message || "알 수 없는 오류가 발생했습니다."}`); // 현재 뜨는 에러창
+                console.log("axios.catch: ", userEmail)
                 console.error("인증번호 발송 오류:", error);
             })
             .finally(() => {
@@ -87,10 +123,11 @@ const RegisterPerson = () => {
         setLoading(true);
         setError("");
 
-        axios.post("/api/auth/checkCode", {
-            email: userEmail,
-            code: verificationCode
-        })
+        axios
+            .post("/api/auth/checkCode", {
+                email: userEmail,
+                code: verificationCode
+            })
             .then(response => {
                 setEmailVerified(true);
                 alert("이메일 인증이 완료되었습니다.");
@@ -155,29 +192,36 @@ const RegisterPerson = () => {
 
     const handleSignup = () => {
         if (!validateInputs()) {
+            setError("!validateInputs 인풋창을 모두 입력하세요");
             return;
         }
 
+        if (!emailVerified) {
+            setError("이메일 인증 확인 실패");
+        }
         setLoading(true);
         setError("");
 
-        axios.post("/api/auth/register/person", {
-            userEmail,
-            userPassword,
-            userName,
-            userBirthdate: userBirthdate ? new Date(userBirthdate) : null,
-            userGender,
-            userPhone,
-            userAddress,
-            userProfileImage,
-            userTermsAgreement
-        })
+        axios
+            .post("/api/auth/register/person", {
+                userEmail,
+                userPassword,
+                userName,
+                userBirthdate: userBirthdate ? new Date(userBirthdate) : null,
+                userGender,
+                userPhone,
+                userAddress,
+                userProfileImage,
+                userTermsAgreement,
+                emailVerified
+                // emailVerified:true // 위에서 false 를 기본값으로 설정하고, 카카오 인증이 될 경우 true 로 변경되지않음
+            })
             .then(response => {
                 alert("회원가입이 성공적으로 완료되었습니다.");
                 navigate("/login");
             })
             .catch(error => {
-                setError(`회원가입 실패: ${error.response?.data?.message || "알 수 없는 오류가 발생했습니다."}`);
+                setError(`회원가입 실패: ${error.response?.data?.message || "알 수 없는 오류가 발생했습니다."}`); // 현재 뜨는 에러창
                 console.error("회원가입 실패:", error);
             })
             .finally(() => {
@@ -213,8 +257,8 @@ const RegisterPerson = () => {
                                 <input
                                     type="email"
                                     id="email"
-                                    value={userEmail}
-                                    onChange={(e) => setUserEmail(e.target.value)}
+                                    value={userEmail} // userEmail 값이 자동으로 입력된다
+                                    onChange={(e) => setUserEmail(e.target.value || userEmail)}
                                     disabled={emailVerified || loading}
                                     className={`flex-grow p-2 border rounded-l-md ${emailVerified ? 'bg-gray-100' : ''}`}
                                     placeholder="example@email.com"
@@ -233,7 +277,8 @@ const RegisterPerson = () => {
 
                         {!emailVerified && userEmail && (
                             <div className="mb-4">
-                                <label htmlFor="verificationCode" className="block text-sm font-medium text-gray-700 mb-1">
+                                <label htmlFor="verificationCode"
+                                       className="block text-sm font-medium text-gray-700 mb-1">
                                     인증번호 <span className="text-red-500">*</span>
                                 </label>
                                 <div className="flex">
@@ -281,7 +326,8 @@ const RegisterPerson = () => {
                             </div>
 
                             <div>
-                                <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">
+                                <label htmlFor="confirmPassword"
+                                       className="block text-sm font-medium text-gray-700 mb-1">
                                     비밀번호 확인 <span className="text-red-500">*</span>
                                 </label>
                                 <input
@@ -390,7 +436,8 @@ const RegisterPerson = () => {
                                         className="h-24 w-24 rounded-full object-cover"
                                     />
                                 ) : (
-                                    <div className="h-24 w-24 rounded-full bg-gray-200 flex items-center justify-center">
+                                    <div
+                                        className="h-24 w-24 rounded-full bg-gray-200 flex items-center justify-center">
                                         <span className="text-gray-400">No Image</span>
                                     </div>
                                 )}
@@ -437,10 +484,12 @@ const RegisterPerson = () => {
                                     이용약관에 동의합니다 <span className="text-red-500">*</span>
                                 </label>
                                 <p className="text-gray-500">
-                                    <Link to="/company/terms" className="text-blue-600 hover:text-blue-500" target="_blank">
+                                    <Link to="/company/terms" className="text-blue-600 hover:text-blue-500"
+                                          target="_blank">
                                         이용약관
                                     </Link>과{' '}
-                                    <Link to="/company/privacy" className="text-blue-600 hover:text-blue-500" target="_blank">
+                                    <Link to="/company/privacy" className="text-blue-600 hover:text-blue-500"
+                                          target="_blank">
                                         개인정보처리방침
                                     </Link>에 동의합니다.
                                 </p>

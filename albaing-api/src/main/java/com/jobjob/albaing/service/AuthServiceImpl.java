@@ -103,7 +103,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public void registerUser(User user) {
         if (!verificationService.isEmailVerified(user.getUserEmail())) {
-            throw new IllegalArgumentException("이메일 인증이 완료되지 않았습니다.");
+            throw new IllegalArgumentException("AuthServiceImpl : 이메일 인증이 완료되지 않았습니다.");
         }
 
         validateUserInput(user);

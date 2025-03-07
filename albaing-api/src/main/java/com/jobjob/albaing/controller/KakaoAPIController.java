@@ -96,7 +96,7 @@ public class KakaoAPIController {
         String gender = kakaoAccount.containsKey("gender") ? (String) kakaoAccount.get("gender") : null;
         String birthday = kakaoAccount.containsKey("birthday") ? (String) kakaoAccount.get("birthday") : null;
 
-        // 4. DB에서 사용자 존재 여부 확인
+        // 4. DB 에서 가입여부 확인
         try {
             Map<String, Object> param = new HashMap<>();
             param.put("userEmail", email);
@@ -106,9 +106,9 @@ public class KakaoAPIController {
                 HttpSession session = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest().getSession();
                 session.setAttribute("userSession", existingUser);
 
-                return new RedirectView("http://localhost:3000/");
+                return new RedirectView("http://localhost:3000/"); // 가입한 사용자는 로그인으로
             } else {
-                String frontendRedirectUri = "http://localhost:3000/register/person"
+                String frontendRedirectUri = "http://localhost:3000/register/person"  // 미가입 사용자는 회원가입으로
                         + "?nickname=" + URLEncoder.encode(nickname, StandardCharsets.UTF_8)
                         + "&email=" + email;
 

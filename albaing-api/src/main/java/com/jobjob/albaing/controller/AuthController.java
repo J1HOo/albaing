@@ -112,7 +112,7 @@ public class AuthController {
         boolean isVerified = verificationServiceImpl.isEmailVerified(user.getUserEmail());
         if (!isVerified) {
             response.put("status", "fail");
-            response.put("message", "이메일 인증이 완료되지 않았습니다. 인증을 먼저 완료해주세요.");
+            response.put("message", "AuthController : registerUser : 이메일 인증이 완료되지 않았습니다. 인증을 먼저 완료해주세요.");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
 
