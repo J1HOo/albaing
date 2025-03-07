@@ -126,6 +126,8 @@ public class AuthController {
         try {
             authService.registerUser(user);
 
+            resumeService.createResumeForUser(user);
+
             response.put("status", "success");
             response.put("message", "회원가입이 성공적으로 완료되었습니다.");
 

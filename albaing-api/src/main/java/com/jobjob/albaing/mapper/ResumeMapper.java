@@ -29,8 +29,14 @@ public interface ResumeMapper {
         // 학력 정보 수정
         void updateEducation(ResumeUpdateRequest resumeUpdateRequest);
 
+        // 학력 정보 조회
+        EducationHistory getEducationHistoryByResumeId(int resumeId);
+
         // 경력 정보 수정
         void updateCareer(ResumeUpdateRequest resumeUpdateRequest);
+
+        // 경력 정보 조회
+        CareerHistory getCareerHistoryByResumeId(int resumeId);
 
 
 

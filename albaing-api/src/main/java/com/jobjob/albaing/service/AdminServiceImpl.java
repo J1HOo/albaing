@@ -23,29 +23,66 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public List<Resume> adminSearchResumes(String resumeTitle, String resumeJobCategory, String resumeJobType, String sortOrderBy, Boolean isDESC) {
-        List<Resume> resumes = new ArrayList<>();
-        resumes = adminMapper.adminSearchResumes(resumeTitle, resumeJobCategory, resumeJobType);
-        return resumes;
+        return adminMapper.adminSearchResumes(resumeTitle, resumeJobCategory, resumeJobType);
     }
 
     @Override
     public List<JobApplication> adminSearchJobApplications(String userName, String companyName, String jobPostTitle, String sortOrderBy, Boolean isDESC) {
-        List<JobApplication> adminSearchJobApplications = new ArrayList<>();
-        adminSearchJobApplications = adminMapper.adminSearchJobApplications(userName, companyName, jobPostTitle);
-        return adminSearchJobApplications;
+        return adminMapper.adminSearchJobApplications(userName, companyName, jobPostTitle);
     }
 
     @Override
     public List<Company> adminSearchCompanies(String companyName, String companyOwnerName, String companyPhone, String companyRegistrationNumber, String sortOrderBy, Boolean isDESC) {
-        List<Company> adminSearchCompanies = new ArrayList<>();
-        adminSearchCompanies = adminMapper.adminSearchCompanies(companyName, companyOwnerName, companyPhone, companyRegistrationNumber);
-        return adminSearchCompanies;
+        return adminMapper.adminSearchCompanies(companyName, companyOwnerName, companyPhone, companyRegistrationNumber);
     }
 
     @Override
     public List<JobPost> adminSearchJobPosts(String companyName, String jobPostTitle, String jobPostStatus, String sortOrderBy, Boolean isDESC) {
-        List<JobPost> adminSearchJobPosts = new ArrayList<>();
-        adminSearchJobPosts = adminMapper.adminSearchJobPosts(companyName, jobPostTitle, jobPostStatus);
-        return adminSearchJobPosts;
+        return adminMapper.adminSearchJobPosts(companyName, jobPostTitle, jobPostStatus);
+    }
+
+    @Override
+    public User adminUserDetail(String userId) {
+        return adminMapper.adminUserDetail(userId);
+    }
+
+    @Override
+    public void adminUserDelete(String userId) {
+        adminMapper.adminUserDelete(userId);
+    }
+
+    @Override
+    public Resume adminResumeDetail(String resumeId) {
+        return adminMapper.adminResumeDetail(resumeId);
+    }
+
+    @Override
+    public void adminResumeDelete(String userId) {
+        adminMapper.adminResumeDelete(userId);
+    }
+
+    @Override
+    public Company adminCompanyDetail(String companyId) {
+        return adminMapper.adminCompanyDetail(companyId);
+    }
+
+    @Override
+    public void adminCompanyDelete(String companyId) {
+        adminMapper.adminCompanyDelete(companyId);
+    }
+
+    @Override
+    public JobPost adminJobPostDetail(String jobPostId) {
+        return adminMapper.adminJobPostDetail(jobPostId);
+    }
+
+    @Override
+    public void adminJobPostDelete(String jobPostId) {
+        adminMapper.adminJobPostDelete(jobPostId);
+    }
+
+    @Override
+    public void adminJobPostStatusChange(String CompanyId) {
+        adminMapper.adminJobPostStatusChange(CompanyId);
     }
 }

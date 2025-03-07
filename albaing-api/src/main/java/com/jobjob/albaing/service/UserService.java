@@ -12,6 +12,9 @@ public interface UserService {
     // 사용자 정보 조회
     User getUserById(int userId);
 
+    // 사용자 정보 조회
+    User getUserByEmail(String userEmail);
+
     // 사용자 정보 수정
     void updateUser(int userId, User.Gender userGender, Date userBirthdate, String userAddress, String userProfileImage);
 

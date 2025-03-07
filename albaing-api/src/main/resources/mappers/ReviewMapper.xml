@@ -118,7 +118,7 @@
             comments.comment_created_at
         FROM
             REVIEWS
-        LEFT JOIN
+                LEFT JOIN
             COMMENTS ON reviews.review_id = comments.review_id
         WHERE
             reviews.review_id = #{reviewId}

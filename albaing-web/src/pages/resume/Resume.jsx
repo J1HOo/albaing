@@ -10,7 +10,7 @@ const Resume = () => {
     const { userData } = useAuth();
 
     useEffect(() => {
-        const fetchResume = async () => {
+        const fetchResume = () => {
             if (!userData?.userId) {
                 console.log("userData 또는 userId가 없음");
                 setLoading(false);
@@ -21,30 +21,42 @@ const Resume = () => {
             setLoading(true);
             setError(null);
 
-            try {
-                let resumeData;
-                if (userData.resumeId) {
-                    try {
-                        // 이력서 ID로 조회 시도
-                        resumeData = await apiResumeService.getResume(userData.resumeId);
-                        console.log("이력서 ID로 조회 성공");
-                    } catch (error) {
+            // 이력서 ID로 조회 시도
+            if (userData.resumeId) {
+                apiResumeService.getResume(userData.resumeId)
+                    .then(resumeData => {
+                        console.log("이력서 ID로 조회 성공:", resumeData);
+                        setResume(resumeData);
+                        setLoading(false);
+                    })
+                    .catch(error => {
                         console.error("이력서 ID로 조회 실패:", error);
                         // 실패할 경우 사용자 ID로 조회 시도
-                        resumeData = await apiResumeService.getResumeByUserId(userData.userId);
-                        console.log("사용자 ID로 이력서 조회 성공");
-                    }
-                } else {
-                    // 사용자 ID로 조회 시도
-                    resumeData = await apiResumeService.getResumeByUserId(userData.userId);
-                    console.log("사용자 ID로 이력서 조회 성공");
-                }
-                setResume(resumeData);
-                setLoading(false);
-            } catch (error) {
-                console.error('이력서 조회 오류:', error);
-                setError('이력서를 불러오는 중 오류가 발생했습니다.');
-                setLoading(false);
+                        apiResumeService.getResumeByUserId(userData.userId)
+                            .then(resumeData => {
+                                console.log("사용자 ID로 이력서 조회 성공:", resumeData);
+                                setResume(resumeData);
+                                setLoading(false);
+                            })
+                            .catch(error => {
+                                console.error("이력서 조회 오류:", error);
+                                setError('이력서를 불러오는 중 오류가 발생했습니다.');
+                                setLoading(false);
+                            });
+                    });
+            } else {
+                // 사용자 ID로 조회 시도
+                apiResumeService.getResumeByUserId(userData.userId)
+                    .then(resumeData => {
+                        console.log("사용자 ID로 이력서 조회 성공:", resumeData);
+                        setResume(resumeData);
+                        setLoading(false);
+                    })
+                    .catch(error => {
+                        console.error("이력서 조회 오류:", error);
+                        setError('이력서를 불러오는 중 오류가 발생했습니다.');
+                        setLoading(false);
+                    });
             }
         };
 

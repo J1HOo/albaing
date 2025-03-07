@@ -23,6 +23,9 @@ public class AuthServiceImpl implements AuthService {
     private CompanyMapper companyMapper;
 
     @Autowired
+    private ResumeService resumeService;
+
+    @Autowired
     private BCryptPasswordEncoder passwordEncoder;
 
     @Autowired
@@ -120,6 +123,8 @@ public class AuthServiceImpl implements AuthService {
         }
 
         userMapper.registerUser(user);
+
+        resumeService.createResumeForUser(user);
     }
 
     // 기업 회원가입

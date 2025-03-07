@@ -204,4 +204,88 @@
             </if>
         </trim>
     </select>
+
+    <!-- 개인 회원 상세 정보 조회 -->
+    <!-- int userId 를 받아 일치하는 유저의 상세정보 조회 -->
+    <!-- 개인정보 전체를 단일 User 로 반환 -->
+    <select id="adminUserDetail">
+        select *
+        from USERS
+        where user_id = #{userId}
+    </select>
+
+    <!-- 개인 회원 삭제 : 실행할 때 이력서 삭제도 같이 실행 -->
+    <!-- int userId 를 받아 일치하는 유저 삭제 -->
+    <!-- 반환값 없음 -->
+    <delete id="adminUserDelete">
+        delete
+        from USERS
+        where user_id = #{userId}
+    </delete>
+
+    <!-- 이력서 상세 정보 조회 -->
+    <!-- int resumeId 를 받아 일치하는 이력서 상세정보 표기 -->
+    <!-- 이력서 전체를 단일 Resume 로 반환 -->
+    <select id="adminResumeDetail">
+        select *
+        from RESUMES
+        where resume_id = #{resumeId}
+    </select>
+
+    <!-- 이력서 삭제 : 개인 회원 삭제할 때 같이 실행 -->
+    <!-- int userId 를 받아 일치하는 이력서 삭제 -->
+    <!-- 반환값 없음 -->
+    <delete id="adminResumeDelete">
+        delete
+        from RESUMES
+        where user_id = #{userId}
+    </delete>
+
+    <!-- 기업 회원 상세정보 조회 -->
+    <!-- int companyId 를 받아 일치하는 기업 회원 상세정보 조회 -->
+    <!-- 기업 정보 전체를 단일 Company 로 반환 -->
+    <select id="adminCompanyDetail">
+        select *
+        from COMPANIES
+        where company_id = #{companyId}
+    </select>
+
+    <!-- 기업 회원 삭제 : 실행할 때 공고 상태 변경도 같이 실행 -->
+    <!-- int companyID 를 받아 일치하는 기업 회원 삭제 -->
+    <!-- 반환값 없음 -->
+    <delete id="adminCompanyDelete">
+        delete
+        from COMPANIES
+        where company_id = #{companyId}
+    </delete>
+
+    <!-- 공고 상세 정보 조회 -->
+    <!-- int jobPostId 를 받아 일치하는 공고 상세정보 조회 -->
+    <!-- 공고 정보 전체를 단일 Resume 로 반환 -->
+    <select id="adminJobPostDetail">
+        select *
+        from JobPosts
+        where job_post_id = #{jobPostId}
+    </select>
+
+    <!-- 공고 삭제 -->
+    <!-- int jobPostId 를 받아 일치하는 공고 삭제 -->
+    <!-- 반환값 없음 -->
+    <delete id="adminJobPostDelete">
+        delete
+        from JobPosts
+        where job_post_id = #{jobPostId}
+    </delete>
+
+    <!-- 공고 상태 변경(숨김처리) : 기업 회원 삭제할 때 같이 실행 -->
+    <!-- int companyId 를 받아 일치하는 공고들 모두 삭제 -->
+    <!-- 반환값 없음 -->
+    <update id="adminJobPostStatusChange">
+        update JobPosts
+        set job_post_status = false
+        where company_id = #{companyId}
+    </update>
+
+
+
 </mapper>

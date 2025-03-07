@@ -159,6 +159,12 @@
         WHERE resume_id = #{resume.resumeId}
     </update>
 
+    <select id="getEducationHistoryByResumeId">
+        SELECT *
+        FROM EDUCATION_HISTORIES
+        WHERE resume_id = #{resumeId}
+    </select>
+
     <!-- 경력 정보 수정 -->
     <update id="updateCareer">
         UPDATE CAREER_HISTORIES
@@ -170,4 +176,10 @@
             career_is_career = #{careerHistory.careerIsCareer}
         WHERE resume_id = #{resume.resumeId}
     </update>
+
+    <select id="getCareerHistoryByResumeId">
+        SELECT *
+        FROM CAREER_HISTORIES
+        WHERE resume_id = #{resumeId}
+    </select>
 </mapper>

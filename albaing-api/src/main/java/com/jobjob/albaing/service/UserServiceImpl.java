@@ -25,6 +25,12 @@ public class UserServiceImpl implements UserService {
         return userMapper.getUserById(userId);
     }
 
+    // 사용자 정보 조회
+    @Override
+    public User getUserByEmail(String userEmail) {
+        return userMapper.getUserByEmail(userEmail);
+    }
+
     // 사용자 정보 수정
     @Override
     public void updateUser(int userId, User.Gender userGender, Date userBirthdate, String userAddress, String userProfileImage) {

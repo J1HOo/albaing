@@ -49,6 +49,12 @@
         WHERE user_id = #{userId}
     </select>
 
+    <select id="getUserByEmail">
+    SELECT *
+    FROM USERS
+    WHERE user_email = #{userEmail}
+    </select>
+
     <!-- 마이페이지 - 사용자 정보 수정 -->
     <update id="updateUser">
         UPDATE USERS
