@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jobjob.albaing.mapper.JobApplicationViewMapper">
+
+    <!-- 지원 내역 조회 -->
+    <select id="getJobSearchApplications">
+        SELECT * FROM VIEW_JOB_APPLICATIONS
+        WHERE (#{companyName} IS NULL OR company_name LIKE CONCAT('%', #{companyName}, '%'))
+          AND (#{jobPostTitle} IS NULL OR job_post_title LIKE CONCAT('%', #{jobPostTitle}, '%'))
+          AND (#{userName} IS NULL OR user_name LIKE CONCAT('%', #{userName}, '%'))
+    </select>
+
+</mapper>
