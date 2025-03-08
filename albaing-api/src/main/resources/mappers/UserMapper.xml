@@ -44,12 +44,18 @@
 
     <!-- 유저 존재여부 확인 -->
     <select id="isUserExist" resultType="boolean">
-        SELECT COUNT(*) >0
+        SELECT COUNT(*) > 0
         FROM users
         WHERE user_email = #{userEmail}
 
     </select>
 
+    <!-- 이메일 중복체크 -->
+    <select id="getEmailByEmail" resultType="boolean">
+        SELECT COUNT(*) > 0
+        FROM USERS
+        WHERE user_email = #{userEmail}
+    </select>
 
     <!-- 마이페이지 -사용자 정보 조회 -->
     <select id="getUserById">

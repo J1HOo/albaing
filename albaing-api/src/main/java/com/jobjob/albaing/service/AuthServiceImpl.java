@@ -176,6 +176,11 @@ public class AuthServiceImpl implements AuthService {
         return userMapper.getUserByEmail(email);
     }
 
+    @Override
+    public boolean getEmailByEmail(String email) {
+        return userMapper.getEmailByEmail(email);
+    }
+
     private void validateUserInput(User user) {
         if (user.getUserEmail() == null || user.getUserEmail().trim().isEmpty()) {
             throw new IllegalArgumentException("이메일은 필수 입력 사항입니다.");

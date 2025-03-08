@@ -37,4 +37,6 @@ public interface AuthService {
     boolean isUserExist(String email);
 
     User getUserByEmail(String email);
+
+    boolean getEmailByEmail(String email);
 }

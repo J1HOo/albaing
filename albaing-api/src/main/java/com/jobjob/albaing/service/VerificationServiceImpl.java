@@ -19,6 +19,9 @@ public class VerificationServiceImpl implements VerificationService {
     @Autowired
     private JavaMailSender mailSender;
 
+    @Autowired
+    AuthServiceImpl authService;
+
     private final Map<String, VerificationData> verificationStore = new ConcurrentHashMap<>();
 
     @Override
@@ -30,6 +33,10 @@ public class VerificationServiceImpl implements VerificationService {
 
     @Override
     public void sendEmail(String email, String code) {
+        // 🔹 1. 이메일 중복 체크 (DB 조회)
+        if (authService.getEmailByEmail(email)) { // DB에 이미 존재하는 이메일인지 확인
+            throw new IllegalArgumentException("이미 가입된 이메일입니다."); // 예외 발생
+        }
         try {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
