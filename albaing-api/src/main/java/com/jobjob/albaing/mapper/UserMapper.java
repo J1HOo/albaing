@@ -20,6 +20,9 @@ public interface UserMapper {
     // 유저 존재여부 확인
     boolean isUserExist(String email);
 
+    // 유저 전화번호 중복체크
+    boolean isUserPhoneExist(String email);
+
     // 마이페이지- 사용자 정보 조회
     User getUserById(int userId);
 

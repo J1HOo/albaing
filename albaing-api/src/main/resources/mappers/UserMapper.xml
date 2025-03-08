@@ -47,7 +47,13 @@
         SELECT COUNT(*) >0
         FROM users
         WHERE user_email = #{userEmail}
+    </select>
 
+    <!-- 전화번호 존재여부 확인 -->
+    <select id="isUserPhoneExist" resultType="boolean">
+        SELECT COUNT(*) > 0
+        FROM users
+        WHERE user_phone = #{userPhone}
     </select>
 
 

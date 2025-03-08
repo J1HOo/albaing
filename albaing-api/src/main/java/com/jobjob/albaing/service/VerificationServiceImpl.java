@@ -3,6 +3,7 @@ package com.jobjob.albaing.service;
 import com.jobjob.albaing.model.vo.VerificationData;
 import com.jobjob.albaing.model.vo.VerificationRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,10 @@ public class VerificationServiceImpl implements VerificationService {
     @Autowired
     private JavaMailSender mailSender;
 
+    @Autowired
+    @Lazy
+    AuthServiceImpl authService;
+
     private final Map<String, VerificationData> verificationStore = new ConcurrentHashMap<>();
 
     @Override
@@ -30,6 +35,10 @@ public class VerificationServiceImpl implements VerificationService {
 
     @Override
     public void sendEmail(String email, String code) {
+        // 🔹 1. 이메일 중복 체크 (DB 조회)
+        if (authService.isUserExist(email) || authService.isCompanyExist(email)) { // DB에 이미 존재하는 이메일인지 확인
+            throw new IllegalArgumentException("이미 가입된 이메일입니다."); // 예외 발생
+        }
         try {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
@@ -51,7 +60,7 @@ public class VerificationServiceImpl implements VerificationService {
             helper.setText(content, true);
             mailSender.send(message);
         } catch (MessagingException e) {
-            throw new RuntimeException("이메일 전송 중 오류가 발생했습니다: " + e.getMessage(), e);
+            throw new RuntimeException("VerifiCationServiceImpl : 이메일 전송 중 오류가 발생했습니다: " + e.getMessage(), e);
         }
     }
 
