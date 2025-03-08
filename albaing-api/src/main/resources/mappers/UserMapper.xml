@@ -39,7 +39,6 @@
         SELECT user_id, user_email, user_password, user_name
         FROM users
         WHERE user_email = #{userEmail}
-
     </select>
 
     <!-- 유저 존재여부 확인 -->
@@ -47,14 +46,14 @@
         SELECT COUNT(*) > 0
         FROM users
         WHERE user_email = #{userEmail}
-
     </select>
 
-    <!-- 이메일 중복체크 -->
-    <select id="getEmailByEmail" resultType="boolean">
+    <!-- 전화번호 존재여부 확인 -->
+    <select id="isUserPhoneExist" resultType="boolean">
         SELECT COUNT(*) > 0
-        FROM USERS
-        WHERE user_email = #{userEmail}
+        FROM users
+        WHERE user_phone = #{userPhone}
+
     </select>
 
     <!-- 마이페이지 -사용자 정보 조회 -->

@@ -4,6 +4,7 @@ import axios from "axios";
 import {ErrorMessage} from "../../../components/common";
 
 const RegisterPerson = () => {
+
     const [userName, setUserName] = useState("");
     const [userEmail, setUserEmail] = useState("");
     const [userPassword, setUserPassword] = useState("");
@@ -18,8 +19,8 @@ const RegisterPerson = () => {
     const [verificationCode, setVerificationCode] = useState("");
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
-
     const navigate = useNavigate();
+
     useEffect(() => {
         const params = new URLSearchParams(window.location.search);
 

@@ -3,6 +3,7 @@ package com.jobjob.albaing.service;
 import com.jobjob.albaing.model.vo.VerificationData;
 import com.jobjob.albaing.model.vo.VerificationRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -20,6 +21,7 @@ public class VerificationServiceImpl implements VerificationService {
     private JavaMailSender mailSender;
 
     @Autowired
+    @Lazy
     AuthServiceImpl authService;
 
     private final Map<String, VerificationData> verificationStore = new ConcurrentHashMap<>();
@@ -34,7 +36,7 @@ public class VerificationServiceImpl implements VerificationService {
     @Override
     public void sendEmail(String email, String code) {
         // 🔹 1. 이메일 중복 체크 (DB 조회)
-        if (authService.getEmailByEmail(email)) { // DB에 이미 존재하는 이메일인지 확인
+        if (authService.isUserExist(email) || authService.isCompanyExist(email)) { // DB에 이미 존재하는 이메일인지 확인
             throw new IllegalArgumentException("이미 가입된 이메일입니다."); // 예외 발생
         }
         try {
