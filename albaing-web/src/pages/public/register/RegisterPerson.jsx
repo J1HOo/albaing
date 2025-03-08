@@ -73,7 +73,7 @@ const RegisterPerson = () => {
                 alert("인증번호가 이메일로 발송되었습니다.");
             })
             .catch(error => {
-                setError(`인증번호 발송 실패: ${error.response?.data?.message || "알 수 없는 오류가 발생했습니다."}`);
+                setError(`RegisterPerson : 인증번호 발송 실패: ${error.response?.data?.message || "알 수 없는 오류가 발생했습니다."}`);
                 console.error("인증번호 발송 오류:", error);
             })
             .finally(() => {

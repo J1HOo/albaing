@@ -51,7 +51,7 @@ public class VerificationServiceImpl implements VerificationService {
             helper.setText(content, true);
             mailSender.send(message);
         } catch (MessagingException e) {
-            throw new RuntimeException("이메일 전송 중 오류가 발생했습니다: " + e.getMessage(), e);
+            throw new RuntimeException("VerifiCationServiceImpl : 이메일 전송 중 오류가 발생했습니다: " + e.getMessage(), e);
         }
     }
 
