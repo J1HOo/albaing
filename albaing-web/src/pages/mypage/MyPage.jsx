@@ -1,82 +1,47 @@
-import React, {useEffect, useState} from "react";
-import {Link, useParams, useNavigate} from "react-router-dom";
+import {useEffect, useState} from "react";
+import {Link, useParams} from "react-router-dom";
 import apiMyPageService from "./apiMyPageService";
 
-const MyPage = () => {
-    const {userId, resumeId} = useParams();
+const MyPage= () =>{
+    const {userId} = useParams();  // URL 파라미터에서 userId를 받기
+    console.log("userId : ",userId);
+    console.log("API URL: ", `http://localhost:8080/api/resume/user/${userId}`);
+    const [user, setUser] = useState(null);  // 사용자 정보를 담을 상태
+    const [resume, setResume] = useState(null);  // 이력서 정보를 담을 상태
 
-    // const [userData, seUserData] = useState("");
-    // const [resumeData, setResumeData] = useState("");
-    const [resumeTitle, setResumeTitle] = useState("");
-    const [userName,setUserName] = useState("");
-
-
+    // userId가 존재하면 API 호출하여 사용자 정보 불러오기
     useEffect(() => {
-        apiMyPageService.getUserById(userId)
-            .then(
-                (userData)=>{
-                    if(userData && userData.name){
-                        setUserName(userData.name);
-                    }
-                }
-            )
-            .catch((err)=>{
-                console.error("사용자 이름 불러오기 실패",err);
-            })
+        apiMyPageService.getUserById(userId, setUser)
+        apiMyPageService.getResumeById(userId, setResume)
+    }, [userId]);
 
-
-        apiMyPageService.getResumeById(resumeId)
-            .then(
-                (resumeData) => {
-                    if (resumeData && resumeData.title) {
-                        setResumeTitle(resumeData.title);
-                    }
-                }
-            )
-            .catch(
-                (error) => {
-                    console.error("이력서불러오기 실패", error);
-                }
-            )
-
-    }, [userId,resumeId]);
+    if (!user) return <div className="text-center mt-10">사용자 정보를 불러오는 중...</div>;
+    if (!resume) return <div className="text-center mt-10">이력서를 불러오는 중...</div>;
 
     return (
-        <div className="myPage-container">
-            {/* 메뉴 바 */}
-            <div className="myPageMenu-container">
-                <h2>My Page</h2>
-                <ul>
-                    <li>
-                        <Link to="/mypage">나의 이력서 정보</Link>
-                    </li>
-                    <li>
-                        <Link to="/mypage/scraps">스크랩한 공고</Link>
-                    </li>
-                    <li>
-                        <Link to="/mypage/applications">지원 현황</Link>
-                    </li>
-                    <li>
-                        <Link to="/mypage/reviews">리뷰/댓글 관리</Link>
-                    </li>
-                </ul>
-            </div>
+        <div className="max-w-xl mx-auto p-6 bg-white rounded-lg shadow-md">
+            {/* 사용자 정보 */}
+            <h1 className="text-2xl font-bold mb-2">{user.userName} 님</h1>
+            <Link to="/mypage/user/edit" className="text-blue-500 hover:underline">
+                내 정보 수정하기
+            </Link>
 
-            {/* 사용자 정보 및 이력서 정보 */}
-            <div className="userInfo-container">
-                    <div>
-                        <p>{userName}</p>
-                        <button><Link to="/mypage/user/edit">내 정보 수정</Link></button>
-                    </div>
-
-                <div>
-                    <p>이력서</p>
-                    <p>{resumeTitle}</p>
-                </div>
-
+            {/* 이력서 목록 */}
+            <div className="mt-6 p-4 border rounded-lg shadow-sm">
+                <h2 className="text-lg font-semibold">
+                    <Link to="/resumes" className="hover:underline text-blue-600">
+                        {resume.resumeTitle} {/* 이력서 제목 */}
+                    </Link>
+                </h2>
+                <Link
+                    to="/resumes/edit"
+                    className="ml-4 px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600"
+                >
+                    수정
+                </Link>
             </div>
         </div>
     );
-};
+}
 
 export default MyPage;
