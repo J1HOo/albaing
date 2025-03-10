@@ -33,8 +33,8 @@ public class UserServiceImpl implements UserService {
 
     // 사용자 정보 수정
     @Override
-    public void updateUser(int userId, User.Gender userGender, Date userBirthdate, String userAddress, String userProfileImage) {
-        userMapper.updateUser(userId,userGender,userBirthdate,userAddress,userProfileImage);
+    public void updateUser(User user) {
+        userMapper.updateUser(user);
     }
 
 

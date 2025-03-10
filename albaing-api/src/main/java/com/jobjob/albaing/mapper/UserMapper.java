@@ -26,7 +26,7 @@ public interface UserMapper {
     User getUserByEmail(String email);
 
     // 마이페이지 - 사용자 정보 수정
-    void updateUser(int userId, User.Gender userGender, Date userBirthdate, String userAddress, String userProfileImage);
+    void updateUser(User user);
 
 
 }

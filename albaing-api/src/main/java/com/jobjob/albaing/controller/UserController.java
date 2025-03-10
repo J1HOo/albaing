@@ -27,12 +27,8 @@ public class UserController {
 
     // 마이페이지 - 사용자 정보 수정
     @PutMapping("/update/{userId}")
-    public void updateUser(@PathVariable int userId,
-                           @RequestParam("userGender") User.Gender userGender,
-                           @RequestParam("userBirthdate") Date userBirthdate,
-                           @RequestParam("userAddress") String userAddress,
-                           @RequestParam("userProfileImage") String userProfileImage) {
-        userService.updateUser(userId,userGender,userBirthdate,userAddress,userProfileImage);
+    public void updateUser(@RequestBody User user, @PathVariable int userId) {
+        userService.updateUser(user);
     }
 
 }

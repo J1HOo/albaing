@@ -4,12 +4,11 @@ const API_MYPAGE_URL = "http://localhost:8080/api";
 
 // API 서비스
 const apiMyPageService = {
-    // 사용자 정보 가져오기
     getUserById: function (userId,setUser) {
         axios
             .get(`${API_MYPAGE_URL}/user/${userId}`)
-            .then(
-                (res) => {
+    .then(
+            (res) => {
                 setUser(res.data);
                 console.log("사용자 정보 조회 성공", res.data);
             })
@@ -22,27 +21,23 @@ const apiMyPageService = {
     getResumeById: function (userId,setResume) {
         axios
             .get(`http://localhost:8080/api/resume/user/${userId}`)
-            .then((res) => {
-                setResume(res.data);
-                console.log("사용자 이력서 조회 성공", res.data);
-            })
+    .then((res) => {
+            setResume(res.data);
+            console.log("사용자 이력서 조회 성공", res.data);
+        })
             .catch((err) => {
                 console.error("사용자 이력서 조회 실패", err);
             });
     },
     // 사용자 정보 수정
-    updateUser: function (userId, userGender, userBirthdate, userAddress, userProfileImage) {
-         axios
-             .put(`${API_MYPAGE_URL}/user/${userId}`, {
-            userGender,
-            userBirthdate,
-            userAddress,
-            userProfileImage,
+    updateUser: function (userId,setUsers) {
+        axios
+            .put(`${API_MYPAGE_URL}/user/update/${userId}`, setUsers)
+    .then((res) => {
+           setUsers(res.data);
+           console.log("사용자 정보 수정 성공 : ",res.data);
+
         })
-            .then((res) => {
-                console.log("사용자 정보 수정 성공", res.data);
-                return res.data;
-            })
             .catch((err) => {
                 console.error("사용자 정보 수정 실패", err);
             });
