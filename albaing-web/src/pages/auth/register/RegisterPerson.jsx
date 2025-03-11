@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 import {ErrorMessage} from "../../../components/common";
+import AlertModal from "../../../../../albaing-web/src/components/modals/AlertModal";
 
 const RegisterPerson = () => {
 
@@ -20,6 +21,7 @@ const RegisterPerson = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const navigate = useNavigate();
+    const [alertModal, setAlertModal] = useState(null);
 
     useEffect(() => {
         const params = new URLSearchParams(window.location.search);
@@ -78,7 +80,7 @@ const RegisterPerson = () => {
         axios
             .post("/api/auth/sendCode", { email: userEmail })
             .then(() => {
-                alert("인증번호가 이메일로 발송되었습니다.");
+                setAlertModal({ message: "인증번호가 이메일로 발송되었습니다." });
             })
             .catch(error => {
                 setError(`RegisterPerson : 인증번호 발송 실패: ${error.response?.data?.message || "알 수 없는 오류가 발생했습니다."}`);
@@ -102,7 +104,7 @@ const RegisterPerson = () => {
             .post("/api/auth/checkCode", { email: userEmail, code: verificationCode })
             .then(() => {
                 setEmailVerified(true);
-                alert("이메일 인증이 완료되었습니다.");
+                setAlertModal({ message: "이메일 인증이 완료되었습니다." });
             })
             .catch(error => {
                 setError(`인증번호 확인 실패: ${error.response?.data?.message || "알 수 없는 오류가 발생했습니다."}`);
@@ -187,8 +189,13 @@ const RegisterPerson = () => {
         axios
             .post("/api/auth/register/person", requestData)
             .then(() => {
-                alert("회원가입이 성공적으로 완료되었습니다.");
-                navigate("/login");
+                setAlertModal({
+                    message: "회사 회원가입이 성공적으로 완료되었습니다.",
+                    onClose: () => {
+                        setAlertModal(null);
+                        navigate("/login");
+                    },
+                });
             })
             .catch(error => {
                 console.error("회원가입 실패:", error.response?.data || error);
@@ -478,6 +485,19 @@ const RegisterPerson = () => {
                     </Link>
                 </p>
             </div>
+            {/* AlertModal 렌더링 */}
+            {alertModal && (
+                <AlertModal
+                    message={alertModal.message}
+                    onClose={() => {
+                        if (alertModal.onClose) {
+                            alertModal.onClose();
+                        } else {
+                            setAlertModal(null);
+                        }
+                    }}
+                />
+            )}
         </div>
     );
 };

@@ -1,20 +1,20 @@
-import { useEffect, useState, useRef } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import {useEffect, useState, useRef} from "react";
+import {useParams, useNavigate} from "react-router-dom";
 import axios from "axios";
-import { ErrorMessage, LoadingSpinner } from "../../components/common";
-import { useAuth } from "../../contexts/AuthContext";
+import {ErrorMessage, LoadingSpinner} from "../../components/common";
+import {useAuth} from "../../contexts/AuthContext";
 
 export default function JobPostDetail() {
-    const { jobPostId } = useParams();
+    const {jobPostId} = useParams();
     const navigate = useNavigate();
-    const { isLoggedIn, userType, userData } = useAuth();
+    const {isLoggedIn, userType, userData} = useAuth();
     const pageTopRef = useRef(null);
 
     const [jobPost, setJobPost] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [resumeId, setResumeId] = useState(null);
-    const [modal, setModal] = useState({ show: false, message: "", type: "" });
+    const [modal, setModal] = useState({show: false, message: "", type: ""});
     const [isScraped, setIsScraped] = useState(false);
     const [alreadyApplied, setAlreadyApplied] = useState(false);
     const [applicationResult, setApplicationResult] = useState(null);
@@ -38,14 +38,14 @@ export default function JobPostDetail() {
     function loadJobPostData() {
         setLoading(true);
 
-        axios.get(`/api/jobs/${jobPostId}`, { withCredentials: true })
+        axios.get(`/api/jobs/${jobPostId}`, {withCredentials: true})
             .then((response) => {
                 if (response.data) {
                     const jobData = response.data;
                     setJobPost(jobData);
 
                     if (jobData.companyId) {
-                        axios.get(`/api/companies/${jobData.companyId}`, { withCredentials: true })
+                        axios.get(`/api/companies/${jobData.companyId}`, {withCredentials: true})
                             .then((companyResponse) => {
                                 if (companyResponse.data) {
                                     setCompanyName(companyResponse.data.companyName || "회사명 미지정");
@@ -85,7 +85,7 @@ export default function JobPostDetail() {
             return;
         }
 
-        axios.get(`/api/resume/user/${userId}`, { withCredentials: true })
+        axios.get(`/api/resume/user/${userId}`, {withCredentials: true})
             .then((response) => {
                 if (response.data && response.data.resumeId) {
                     setResumeId(response.data.resumeId);
@@ -103,7 +103,7 @@ export default function JobPostDetail() {
     function checkAlreadyApplied(currentResumeId) {
         if (!currentResumeId || !jobPostId) return;
 
-        axios.get(`/api/applications/resume/${currentResumeId}`, { withCredentials: true })
+        axios.get(`/api/applications/resume/${currentResumeId}`, {withCredentials: true})
             .then((response) => {
                 if (response.data && Array.isArray(response.data)) {
                     const hasApplied = response.data.some(
@@ -118,11 +118,11 @@ export default function JobPostDetail() {
     }
 
     const showModal = (message, type) => {
-        setModal({ show: true, message, type });
+        setModal({show: true, message, type});
     };
 
     const closeModal = () => {
-        setModal({ show: false, message: "", type: "" });
+        setModal({show: false, message: "", type: ""});
     };
 
     const goToResumeCreation = () => {
@@ -167,21 +167,21 @@ export default function JobPostDetail() {
             resumeId: Number(resumeId)
         };
 
-        axios.post("/api/applications", applicationData, { withCredentials: true })
+        axios.post("/api/applications", applicationData, {withCredentials: true})
             .then(() => {
                 setAlreadyApplied(true);
                 setApplicationResult({
                     success: true,
                     message: "지원 성공! 행운을 빕니다."
                 });
-                setModal({ show: true, message: "", type: "result" });
+                setModal({show: true, message: "", type: "result"});
             })
             .catch(() => {
                 setApplicationResult({
                     success: false,
                     message: "지원 중 오류가 발생했습니다. 다시 시도해주세요."
                 });
-                setModal({ show: true, message: "", type: "result" });
+                setModal({show: true, message: "", type: "result"});
             });
     };
 
@@ -204,8 +204,9 @@ export default function JobPostDetail() {
 
             // API 호출 (사용자 ID가 있는 경우)
             if (userData && userData.userId) {
-                axios.delete(`/api/scrap/remove/${userData.userId}/${jobPostId}`, { withCredentials: true })
-                    .catch(() => {/* 실패 시 특별한 처리 없음 */});
+                axios.delete(`/api/scrap/remove/${userData.userId}/${jobPostId}`, {withCredentials: true})
+                    .catch(() => {/* 실패 시 특별한 처리 없음 */
+                    });
             }
         } else {
             // 스크랩 추가
@@ -213,8 +214,9 @@ export default function JobPostDetail() {
 
             // API 호출 (사용자 ID가 있는 경우)
             if (userData && userData.userId) {
-                axios.post(`/api/scrap/add/${userData.userId}/${jobPostId}`, {}, { withCredentials: true })
-                    .catch(() => {/* 실패 시 특별한 처리 없음 */});
+                axios.post(`/api/scrap/add/${userData.userId}/${jobPostId}`, {}, {withCredentials: true})
+                    .catch(() => {/* 실패 시 특별한 처리 없음 */
+                    });
             }
         }
 
@@ -238,8 +240,8 @@ export default function JobPostDetail() {
         }
     };
 
-    if (loading) return <LoadingSpinner message="채용 공고를 불러오는 중..." />
-    if (error) return <ErrorMessage message={error} />
+    if (loading) return <LoadingSpinner message="채용 공고를 불러오는 중..."/>
+    if (error) return <ErrorMessage message={error}/>
     if (!jobPost) return <div className="text-center py-10">해당 공고를 찾을 수 없습니다.</div>
 
     return (
@@ -292,16 +294,19 @@ export default function JobPostDetail() {
                         </div>
                     )}
                     <div className="flex items-center p-6 border-b border-gray-200">
-                        <div className="flex-shrink-0 h-16 w-16 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 text-2xl font-bold">
+                        <div
+                            className="flex-shrink-0 h-16 w-16 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 text-2xl font-bold">
                             {companyName ? companyName.charAt(0) : 'C'}
                         </div>
                         <div className="ml-6 flex-1">
                             <h1 className="text-2xl font-bold text-gray-900">{companyName || "회사명 미지정"}</h1>
                             <div className="flex flex-wrap gap-2 mt-2">
-                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                <span
+                                    className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                                     {jobPost.jobPostJobCategory || "미분류"}
                                 </span>
-                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                <span
+                                    className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                                     {jobPost.jobPostWorkPlace ? jobPost.jobPostWorkPlace.split(' ')[0] : "지역 미지정"}
                                 </span>
                             </div>
@@ -317,7 +322,8 @@ export default function JobPostDetail() {
                             <div className="mb-4 sm:mb-0">
                                 <h3 className="text-2xl font-bold text-gray-800 mb-1">{jobPost.jobPostTitle || "제목 없음"}</h3>
                                 <p className="text-sm text-gray-500">
-                                    등록일: {formatDate(jobPost.jobPostCreatedAt)} | 마감일: <span className="text-red-600 font-medium">{formatDate(jobPost.jobPostDueDate)}</span>
+                                    등록일: {formatDate(jobPost.jobPostCreatedAt)} | 마감일: <span
+                                    className="text-red-600 font-medium">{formatDate(jobPost.jobPostDueDate)}</span>
                                 </p>
                             </div>
 
@@ -338,45 +344,55 @@ export default function JobPostDetail() {
                     <div className="p-6">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                             <div>
-                                <h3 className="text-lg font-medium text-gray-900 mb-4 pb-2 border-b border-gray-200">근무 조건</h3>
+                                <h3 className="text-lg font-medium text-gray-900 mb-4 pb-2 border-b border-gray-200">근무
+                                    조건</h3>
                                 <ul className="space-y-3">
                                     <li className="flex items-start">
                                         <div className="flex-shrink-0 w-28 text-sm font-medium text-gray-500">고용형태</div>
-                                        <div className="flex-1 text-sm text-gray-900">{jobPost.jobPostJobType || "-"}</div>
+                                        <div
+                                            className="flex-1 text-sm text-gray-900">{jobPost.jobPostJobType || "-"}</div>
                                     </li>
                                     <li className="flex items-start">
                                         <div className="flex-shrink-0 w-28 text-sm font-medium text-gray-500">근무기간</div>
-                                        <div className="flex-1 text-sm text-gray-900">{jobPost.jobPostWorkingPeriod || "-"}</div>
+                                        <div
+                                            className="flex-1 text-sm text-gray-900">{jobPost.jobPostWorkingPeriod || "-"}</div>
                                     </li>
                                     <li className="flex items-start">
                                         <div className="flex-shrink-0 w-28 text-sm font-medium text-gray-500">근무요일</div>
-                                        <div className="flex-1 text-sm text-gray-900">{jobPost.jobWorkSchedule || "-"}</div>
+                                        <div
+                                            className="flex-1 text-sm text-gray-900">{jobPost.jobWorkSchedule || "-"}</div>
                                     </li>
                                     <li className="flex items-start">
                                         <div className="flex-shrink-0 w-28 text-sm font-medium text-gray-500">근무시간</div>
-                                        <div className="flex-1 text-sm text-gray-900">{jobPost.jobPostShiftHours || "-"}</div>
+                                        <div
+                                            className="flex-1 text-sm text-gray-900">{jobPost.jobPostShiftHours || "-"}</div>
                                     </li>
                                     <li className="flex items-start">
                                         <div className="flex-shrink-0 w-28 text-sm font-medium text-gray-500">급여</div>
-                                        <div className="flex-1 text-sm text-gray-900 font-medium">{jobPost.jobPostSalary || "-"}</div>
+                                        <div
+                                            className="flex-1 text-sm text-gray-900 font-medium">{jobPost.jobPostSalary || "-"}</div>
                                     </li>
                                 </ul>
                             </div>
 
                             <div>
-                                <h3 className="text-lg font-medium text-gray-900 mb-4 pb-2 border-b border-gray-200">근무 정보</h3>
+                                <h3 className="text-lg font-medium text-gray-900 mb-4 pb-2 border-b border-gray-200">근무
+                                    정보</h3>
                                 <ul className="space-y-3">
                                     <li className="flex items-start">
                                         <div className="flex-shrink-0 w-28 text-sm font-medium text-gray-500">근무지</div>
-                                        <div className="flex-1 text-sm text-gray-900">{jobPost.jobPostWorkPlace || "-"}</div>
+                                        <div
+                                            className="flex-1 text-sm text-gray-900">{jobPost.jobPostWorkPlace || "-"}</div>
                                     </li>
                                     <li className="flex items-start">
                                         <div className="flex-shrink-0 w-28 text-sm font-medium text-gray-500">학력요건</div>
-                                        <div className="flex-1 text-sm text-gray-900">{jobPost.jobPostRequiredEducations || "제한 없음"}</div>
+                                        <div
+                                            className="flex-1 text-sm text-gray-900">{jobPost.jobPostRequiredEducations || "제한 없음"}</div>
                                     </li>
                                     <li className="flex items-start">
                                         <div className="flex-shrink-0 w-28 text-sm font-medium text-gray-500">연락처</div>
-                                        <div className="flex-1 text-sm text-gray-900">{jobPost.jobPostContactNumber || "-"}</div>
+                                        <div
+                                            className="flex-1 text-sm text-gray-900">{jobPost.jobPostContactNumber || "-"}</div>
                                     </li>
                                 </ul>
                             </div>

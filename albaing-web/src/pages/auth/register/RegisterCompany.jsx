@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
-import {ErrorMessage} from "../../../components/common";
+import { ErrorMessage } from "../../../components/common";
+import AlertModal from "../../../../../albaing-web/src/components/modals/AlertModal";
 
 const RegisterCompany = () => {
     const [companyName, setCompanyName] = useState("");
@@ -20,6 +21,8 @@ const RegisterCompany = () => {
     const [verificationCode, setVerificationCode] = useState("");
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
+    // alertModal 객체: { message, onClose(optional) }
+    const [alertModal, setAlertModal] = useState(null);
 
     const navigate = useNavigate();
 
@@ -32,14 +35,17 @@ const RegisterCompany = () => {
         setLoading(true);
         setError("");
 
-        axios.post("/api/auth/sendCode", {
-            email: companyEmail
-        })
-            .then(response => {
-                alert("인증번호가 이메일로 발송되었습니다.");
+        axios
+            .post("/api/auth/sendCode", { email: companyEmail })
+            .then((response) => {
+                setAlertModal({ message: "인증번호가 이메일로 발송되었습니다." });
             })
-            .catch(error => {
-                setError(`인증번호 발송 실패: ${error.response?.data?.message || "알 수 없는 오류가 발생했습니다."}`);
+            .catch((error) => {
+                setError(
+                    `인증번호 발송 실패: ${
+                        error.response?.data?.message || "알 수 없는 오류가 발생했습니다."
+                    }`
+                );
                 console.error("인증번호 발송 오류:", error);
             })
             .finally(() => {
@@ -56,16 +62,21 @@ const RegisterCompany = () => {
         setLoading(true);
         setError("");
 
-        axios.post("/api/auth/checkCode", {
-            email: companyEmail,
-            code: verificationCode
-        })
-            .then(response => {
-                setEmailVerified(true);
-                alert("이메일 인증이 완료되었습니다.");
+        axios
+            .post("/api/auth/checkCode", {
+                email: companyEmail,
+                code: verificationCode,
             })
-            .catch(error => {
-                setError(`인증번호 확인 실패: ${error.response?.data?.message || "알 수 없는 오류가 발생했습니다."}`);
+            .then((response) => {
+                setEmailVerified(true);
+                setAlertModal({ message: "이메일 인증이 완료되었습니다." });
+            })
+            .catch((error) => {
+                setError(
+                    `인증번호 확인 실패: ${
+                        error.response?.data?.message || "알 수 없는 오류가 발생했습니다."
+                    }`
+                );
                 console.error("인증번호 확인 오류:", error);
             })
             .finally(() => {
@@ -151,25 +162,35 @@ const RegisterCompany = () => {
         setLoading(true);
         setError("");
 
-        axios.post("/api/auth/register/company", {
-            companyEmail,
-            companyPassword,
-            companyName,
-            companyRegistrationNumber,
-            companyOwnerName,
-            companyPhone,
-            companyLocalAddress,
-            companyLogo,
-            companyDescription,
-            companyOpenDate,
-            termsAgreement
-        })
-            .then(response => {
-                alert("회사 회원가입이 성공적으로 완료되었습니다.");
-                navigate("/login");
+        axios
+            .post("/api/auth/register/company", {
+                companyEmail,
+                companyPassword,
+                companyName,
+                companyRegistrationNumber,
+                companyOwnerName,
+                companyPhone,
+                companyLocalAddress,
+                companyLogo,
+                companyDescription,
+                companyOpenDate,
+                termsAgreement,
             })
-            .catch(error => {
-                setError(`회원가입 실패: ${error.response?.data?.message || "알 수 없는 오류가 발생했습니다."}`);
+            .then((response) => {
+                setAlertModal({
+                    message: "회사 회원가입이 성공적으로 완료되었습니다.",
+                    onClose: () => {
+                        setAlertModal(null);
+                        navigate("/login");
+                    },
+                });
+            })
+            .catch((error) => {
+                setError(
+                    `회원가입 실패: ${
+                        error.response?.data?.message || "알 수 없는 오류가 발생했습니다."
+                    }`
+                );
                 console.error("회원가입 오류:", error);
             })
             .finally(() => {
@@ -193,7 +214,10 @@ const RegisterCompany = () => {
                         <h2 className="text-lg font-medium text-gray-900 mb-4">계정 정보</h2>
 
                         <div className="mb-4">
-                            <label htmlFor="companyEmail" className="block text-sm font-medium text-gray-700 mb-1">
+                            <label
+                                htmlFor="companyEmail"
+                                className="block text-sm font-medium text-gray-700 mb-1"
+                            >
                                 기업 이메일 <span className="text-red-500">*</span>
                             </label>
                             <div className="flex">
@@ -203,7 +227,9 @@ const RegisterCompany = () => {
                                     value={companyEmail}
                                     onChange={(e) => setCompanyEmail(e.target.value)}
                                     disabled={emailVerified || loading}
-                                    className={`flex-grow p-2 border rounded-l-md ${emailVerified ? 'bg-gray-100' : ''}`}
+                                    className={`flex-grow p-2 border rounded-l-md ${
+                                        emailVerified ? "bg-gray-100" : ""
+                                    }`}
                                     placeholder="company@example.com"
                                     required
                                 />
@@ -213,14 +239,21 @@ const RegisterCompany = () => {
                                     disabled={emailVerified || loading || !companyEmail}
                                     className="py-2 px-4 border border-transparent rounded-r-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:bg-gray-300 disabled:cursor-not-allowed"
                                 >
-                                    {loading ? '처리 중...' : emailVerified ? '인증 완료' : '인증번호 발송'}
+                                    {loading
+                                        ? "처리 중..."
+                                        : emailVerified
+                                            ? "인증 완료"
+                                            : "인증번호 발송"}
                                 </button>
                             </div>
                         </div>
 
                         {!emailVerified && companyEmail && (
                             <div className="mb-4">
-                                <label htmlFor="verificationCode" className="block text-sm font-medium text-gray-700 mb-1">
+                                <label
+                                    htmlFor="verificationCode"
+                                    className="block text-sm font-medium text-gray-700 mb-1"
+                                >
                                     인증번호 <span className="text-red-500">*</span>
                                 </label>
                                 <div className="flex">
@@ -239,7 +272,7 @@ const RegisterCompany = () => {
                                         disabled={loading || !verificationCode}
                                         className="py-2 px-4 border border-transparent rounded-r-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:bg-gray-300 disabled:cursor-not-allowed"
                                     >
-                                        {loading ? '확인 중...' : '인증 확인'}
+                                        {loading ? "확인 중..." : "인증 확인"}
                                     </button>
                                 </div>
                                 <p className="mt-1 text-sm text-gray-500">
@@ -250,7 +283,10 @@ const RegisterCompany = () => {
 
                         <div className="grid grid-cols-1 gap-6 mt-6">
                             <div>
-                                <label htmlFor="companyPassword" className="block text-sm font-medium text-gray-700 mb-1">
+                                <label
+                                    htmlFor="companyPassword"
+                                    className="block text-sm font-medium text-gray-700 mb-1"
+                                >
                                     비밀번호 <span className="text-red-500">*</span>
                                 </label>
                                 <input
@@ -268,7 +304,10 @@ const RegisterCompany = () => {
                             </div>
 
                             <div>
-                                <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">
+                                <label
+                                    htmlFor="confirmPassword"
+                                    className="block text-sm font-medium text-gray-700 mb-1"
+                                >
                                     비밀번호 확인 <span className="text-red-500">*</span>
                                 </label>
                                 <input
@@ -290,7 +329,10 @@ const RegisterCompany = () => {
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
-                                <label htmlFor="companyName" className="block text-sm font-medium text-gray-700 mb-1">
+                                <label
+                                    htmlFor="companyName"
+                                    className="block text-sm font-medium text-gray-700 mb-1"
+                                >
                                     회사명 <span className="text-red-500">*</span>
                                 </label>
                                 <input
@@ -305,7 +347,10 @@ const RegisterCompany = () => {
                             </div>
 
                             <div>
-                                <label htmlFor="companyRegistrationNumber" className="block text-sm font-medium text-gray-700 mb-1">
+                                <label
+                                    htmlFor="companyRegistrationNumber"
+                                    className="block text-sm font-medium text-gray-700 mb-1"
+                                >
                                     사업자등록번호 <span className="text-red-500">*</span>
                                 </label>
                                 <input
@@ -323,7 +368,10 @@ const RegisterCompany = () => {
                             </div>
 
                             <div>
-                                <label htmlFor="companyOwnerName" className="block text-sm font-medium text-gray-700 mb-1">
+                                <label
+                                    htmlFor="companyOwnerName"
+                                    className="block text-sm font-medium text-gray-700 mb-1"
+                                >
                                     대표자명 <span className="text-red-500">*</span>
                                 </label>
                                 <input
@@ -338,7 +386,10 @@ const RegisterCompany = () => {
                             </div>
 
                             <div>
-                                <label htmlFor="companyPhone" className="block text-sm font-medium text-gray-700 mb-1">
+                                <label
+                                    htmlFor="companyPhone"
+                                    className="block text-sm font-medium text-gray-700 mb-1"
+                                >
                                     전화번호 <span className="text-red-500">*</span>
                                 </label>
                                 <input
@@ -353,7 +404,10 @@ const RegisterCompany = () => {
                             </div>
 
                             <div className="md:col-span-2">
-                                <label htmlFor="companyLocalAddress" className="block text-sm font-medium text-gray-700 mb-1">
+                                <label
+                                    htmlFor="companyLocalAddress"
+                                    className="block text-sm font-medium text-gray-700 mb-1"
+                                >
                                     회사 주소 <span className="text-red-500">*</span>
                                 </label>
                                 <input
@@ -368,7 +422,10 @@ const RegisterCompany = () => {
                             </div>
 
                             <div>
-                                <label htmlFor="companyOpenDate" className="block text-sm font-medium text-gray-700 mb-1">
+                                <label
+                                    htmlFor="companyOpenDate"
+                                    className="block text-sm font-medium text-gray-700 mb-1"
+                                >
                                     설립일
                                 </label>
                                 <input
@@ -388,7 +445,10 @@ const RegisterCompany = () => {
 
                         <div className="space-y-6">
                             <div>
-                                <label htmlFor="companyLogo" className="block text-sm font-medium text-gray-700 mb-1">
+                                <label
+                                    htmlFor="companyLogo"
+                                    className="block text-sm font-medium text-gray-700 mb-1"
+                                >
                                     회사 로고
                                 </label>
                                 <div className="flex items-center space-x-6">
@@ -415,19 +475,24 @@ const RegisterCompany = () => {
                                                 }
                                             }}
                                             className="block w-full text-sm text-gray-500
-                                            file:mr-4 file:py-2 file:px-4
-                                            file:rounded-md file:border-0
-                                            file:text-sm file:font-semibold
-                                            file:bg-blue-50 file:text-blue-700
-                                            hover:file:bg-blue-100"
+                        file:mr-4 file:py-2 file:px-4
+                        file:rounded-md file:border-0
+                        file:text-sm file:font-semibold
+                        file:bg-blue-50 file:text-blue-700
+                        hover:file:bg-blue-100"
                                         />
-                                        <p className="mt-1 text-xs text-gray-500">PNG, JPG 파일 (최대 2MB)</p>
+                                        <p className="mt-1 text-xs text-gray-500">
+                                            PNG, JPG 파일 (최대 2MB)
+                                        </p>
                                     </div>
                                 </div>
                             </div>
 
                             <div>
-                                <label htmlFor="companyDescription" className="block text-sm font-medium text-gray-700 mb-1">
+                                <label
+                                    htmlFor="companyDescription"
+                                    className="block text-sm font-medium text-gray-700 mb-1"
+                                >
                                     회사 소개
                                 </label>
                                 <textarea
@@ -460,12 +525,22 @@ const RegisterCompany = () => {
                                     이용약관에 동의합니다 <span className="text-red-500">*</span>
                                 </label>
                                 <p className="text-gray-500">
-                                    <Link to="/company/terms" className="text-blue-600 hover:text-blue-500" target="_blank">
+                                    <Link
+                                        to="/company/terms"
+                                        className="text-blue-600 hover:text-blue-500"
+                                        target="_blank"
+                                    >
                                         이용약관
-                                    </Link>과{' '}
-                                    <Link to="/company/privacy" className="text-blue-600 hover:text-blue-500" target="_blank">
+                                    </Link>
+                                    과{" "}
+                                    <Link
+                                        to="/company/privacy"
+                                        className="text-blue-600 hover:text-blue-500"
+                                        target="_blank"
+                                    >
                                         개인정보처리방침
-                                    </Link>에 동의합니다.
+                                    </Link>
+                                    에 동의합니다.
                                 </p>
                             </div>
                         </div>
@@ -479,7 +554,7 @@ const RegisterCompany = () => {
                             disabled={loading}
                             className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:bg-gray-300 disabled:cursor-not-allowed"
                         >
-                            {loading ? '처리 중...' : '가입하기'}
+                            {loading ? "처리 중..." : "가입하기"}
                         </button>
                     </div>
                 </div>
@@ -487,12 +562,26 @@ const RegisterCompany = () => {
 
             <div className="text-center">
                 <p className="text-gray-600">
-                    이미 계정이 있으신가요?{' '}
+                    이미 계정이 있으신가요?{" "}
                     <Link to="/login" className="font-medium text-blue-600 hover:text-blue-500">
                         로그인
                     </Link>
                 </p>
             </div>
+
+            {/* AlertModal 렌더링 */}
+            {alertModal && (
+                <AlertModal
+                    message={alertModal.message}
+                    onClose={() => {
+                        if (alertModal.onClose) {
+                            alertModal.onClose();
+                        } else {
+                            setAlertModal(null);
+                        }
+                    }}
+                />
+            )}
         </div>
     );
 };

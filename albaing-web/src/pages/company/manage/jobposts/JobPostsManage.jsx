@@ -2,20 +2,19 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { PlusIcon } from '@heroicons/react/24/outline';
+import AlertModal from '../../../../components/modals/AlertModal'; // 실제 경로에 맞게 조정하세요
 
 const JobPostsManage = ({ jobPosts, refreshJobPosts }) => {
     const navigate = useNavigate();
     const [searchTerm, setSearchTerm] = useState('');
     const [filterStatus, setFilterStatus] = useState('all'); // 'all', 'active', 'closed'
-    const [confirmationModal, setConfirmationModal] = useState(null);
+    const [alertModal, setAlertModal] = useState(null);
 
-    // 채용공고 필터링
     const filteredJobPosts = jobPosts.filter(job => {
-        // 검색어 필터링
-        const matchesSearch = job.jobPostTitle.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        const matchesSearch =
+            job.jobPostTitle.toLowerCase().includes(searchTerm.toLowerCase()) ||
             job.jobPostJobCategory.toLowerCase().includes(searchTerm.toLowerCase());
 
-        // 상태 필터링: 활성은 jobPostStatus가 true이면서 마감일이 미래인 경우
         const isActive = job.jobPostStatus && new Date(job.jobPostDueDate) > new Date();
         if (filterStatus === 'all') return matchesSearch;
         if (filterStatus === 'active') return matchesSearch && isActive;
@@ -33,14 +32,14 @@ const JobPostsManage = ({ jobPosts, refreshJobPosts }) => {
     const updateJobPostStatus = (jobPostId, currentStatus) => {
         const newStatus = !currentStatus;
 
-        axios.patch(`/api/jobs/${jobPostId}/status?status=${newStatus}`)
+        axios
+            .patch(`/api/jobs/${jobPostId}/status?status=${newStatus}`)
             .then(() => {
                 refreshJobPosts();
-                setConfirmationModal(null);
             })
             .catch(err => {
                 console.error('Error updating status:', err);
-                alert('상태 변경 중 오류가 발생했습니다.');
+                setAlertModal({ message: "상태 변경 중 오류가 발생했습니다." });
             });
     };
 
@@ -88,19 +87,29 @@ const JobPostsManage = ({ jobPosts, refreshJobPosts }) => {
                         <table className="min-w-full divide-y divide-gray-200">
                             <thead className="bg-gray-50">
                             <tr>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">제목</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">직종</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">근무 형태</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">마감일</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">상태</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">관리</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    제목
+                                </th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    직종
+                                </th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    근무 형태
+                                </th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    마감일
+                                </th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    상태
+                                </th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    관리
+                                </th>
                             </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-200">
                             {filteredJobPosts.map((job) => {
-                                // isActive: job가 채용중인 상태 (상태 true이면서 마감일이 미래)
                                 const isActive = job.jobPostStatus && new Date(job.jobPostDueDate) > new Date();
-                                // 재활성화를 시도할 경우, 현재 날짜가 지난 경우에는 활성화가 불가능함
                                 const dueDatePassed = new Date(job.jobPostDueDate) <= new Date();
 
                                 return (
@@ -120,14 +129,13 @@ const JobPostsManage = ({ jobPosts, refreshJobPosts }) => {
                                             {new Date(job.jobPostDueDate).toLocaleDateString()}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
-                                                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                                                    ${isActive
-                                                    ? 'bg-green-100 text-green-800'
-                                                    : 'bg-red-100 text-red-800'
-                                                }`}
-                                                >
-                                                    {isActive ? '채용중' : '마감'}
-                                                </span>
+                        <span
+                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                                isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                            }`}
+                        >
+                          {isActive ? '채용중' : '마감'}
+                        </span>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 space-x-2">
                                             <button
@@ -138,22 +146,10 @@ const JobPostsManage = ({ jobPosts, refreshJobPosts }) => {
                                             </button>
                                             <button
                                                 onClick={() => {
-                                                    // 채용 활성화를 시도하는 경우
                                                     if (!isActive && dueDatePassed) {
-                                                        setConfirmationModal({
-                                                            jobPostId: job.jobPostId,
-                                                            currentStatus: job.jobPostStatus,
-                                                            title: job.jobPostTitle,
-                                                            error: true,
-                                                            errorMessage: "공고 날짜가 지나 활성화할 수 없습니다. 공고 활성화를 위해 수정페이지에서 날짜 변경해주세요."
-                                                        });
+                                                        setAlertModal({ message: "공고 날짜가 지나 활성화할 수 없습니다. 공고 활성화를 위해 수정페이지에서 날짜 변경해주세요." });
                                                     } else {
-                                                        // 정상적인 상태 변경 (활성 -> 마감 또는 마감 -> 활성)
-                                                        setConfirmationModal({
-                                                            jobPostId: job.jobPostId,
-                                                            currentStatus: job.jobPostStatus,
-                                                            title: job.jobPostTitle
-                                                        });
+                                                        updateJobPostStatus(job.jobPostId, job.jobPostStatus);
                                                     }
                                                 }}
                                                 className={`${isActive ? 'text-red-600 hover:text-red-900' : 'text-green-600 hover:text-green-900'}`}
@@ -170,7 +166,9 @@ const JobPostsManage = ({ jobPosts, refreshJobPosts }) => {
                 </div>
             ) : (
                 <div className="bg-white rounded-lg shadow p-8 text-center">
-                    <p className="text-gray-500 mb-4">등록된 채용공고가 없거나 검색 조건에 맞는 공고가 없습니다.</p>
+                    <p className="text-gray-500 mb-4">
+                        등록된 채용공고가 없거나 검색 조건에 맞는 공고가 없습니다.
+                    </p>
                     <button
                         onClick={handleCreateJobPost}
                         className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
@@ -181,53 +179,17 @@ const JobPostsManage = ({ jobPosts, refreshJobPosts }) => {
                 </div>
             )}
 
-            {/* 상태 변경 확인/오류 모달 */}
-            {confirmationModal && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                    <div className="bg-white rounded-lg p-6 max-w-md mx-4 shadow-xl">
-                        {confirmationModal.error ? (
-                            <>
-                                <h3 className="text-lg font-bold mb-4">공고 활성화 불가</h3>
-                                <p className="mb-6">
-                                    해당 공고는 날짜가 지나 활성화할 수 없습니다.
-                                    <br/>
-                                    공고 활성화를 위해 수정페이지에서
-                                    <br/>
-                                    날짜를 변경해주세요.
-                                </p>
-                                <div className="flex justify-end">
-                                    <button
-                                        onClick={() => setConfirmationModal(null)}
-                                        className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-blue-50"
-                                    >
-                                        확인
-                                    </button>
-                                </div>
-                            </>
-                        ) : (
-                            <>
-                                <h3 className="text-lg font-bold mb-4">공고 상태 변경</h3>
-                                <p className="mb-6">
-                                    "{confirmationModal.title}" 공고를 {confirmationModal.currentStatus ? '마감' : '활성화'}하시겠습니까?
-                                </p>
-                                <div className="flex justify-end space-x-3">
-                                    <button
-                                        onClick={() => setConfirmationModal(null)}
-                                        className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
-                                    >
-                                        취소
-                                    </button>
-                                    <button
-                                        onClick={() => updateJobPostStatus(confirmationModal.jobPostId, confirmationModal.currentStatus)}
-                                        className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-                                    >
-                                        확인
-                                    </button>
-                                </div>
-                            </>
-                        )}
-                    </div>
-                </div>
+            {alertModal && (
+                <AlertModal
+                    message={alertModal.message}
+                    onClose={() => {
+                        if (alertModal.onClose) {
+                            alertModal.onClose();
+                        } else {
+                            setAlertModal(null);
+                        }
+                    }}
+                />
             )}
         </div>
     );

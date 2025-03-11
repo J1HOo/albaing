@@ -2,7 +2,7 @@ import {useParams} from "react-router-dom";
 import {useEffect, useState} from "react";
 import axios from "axios";
 import {ErrorMessage, LoadingSpinner} from "../../components/common";
-
+import AlertModal from "../../../../albaing-web/src/components/modals/AlertModal";
 
 const ReviewDetail = () => {
     const {companyId, reviewId} = useParams();
@@ -11,6 +11,7 @@ const ReviewDetail = () => {
     const [commentInput, setCommentInput] = useState("");
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [alertModal, setAlertModal] = useState(null);
 
     // 조회한 리뷰 내용 불러오기
     useEffect(() => {
@@ -112,9 +113,9 @@ const ReviewDetail = () => {
             console.error("오류 응답:", error.response);
 
             if (error.response?.status === 401) {
-                alert("댓글을 작성하려면 로그인이 필요합니다.");
+                setAlertModal({ message: "댓글을 작성하려면 로그인이 필요합니다."});
             } else {
-                alert("댓글 작성 중 오류가 발생했습니다. 다시 시도해주세요.");
+                setAlertModal({ message:"댓글 작성 중 오류가 발생했습니다. 다시 시도해주세요."});
             }
         }
     };
@@ -180,6 +181,18 @@ const ReviewDetail = () => {
                     </form>
                 </div>
             </div>
+            {alertModal && (
+                <AlertModal
+                    message={alertModal.message}
+                    onClose={() => {
+                        if (alertModal.onClose) {
+                            alertModal.onClose();
+                        } else {
+                            setAlertModal(null);
+                        }
+                    }}
+                />
+            )}
         </div>
     );
 };
