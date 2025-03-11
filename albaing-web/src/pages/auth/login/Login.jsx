@@ -39,6 +39,16 @@ export default function Login() {
             });
     };
 
+    const AUTH_URL = "http://localhost:8080";
+
+    const handleKakaoLogin = () => {
+        window.location.href = AUTH_URL + "/oauth/kakao/login"
+    };
+
+    const handleNaverLogin = () => {
+        window.location.href = AUTH_URL + "/oauth/naver/login"
+    };
+
     return (
         <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
             <div className="sm:mx-auto sm:w-full sm:max-w-sm">
@@ -149,7 +159,7 @@ export default function Login() {
                     <div className="mt-6 grid grid-cols-1 gap-3">
                         <button
                             type="button"
-                            onClick={() => window.location.href = '/api/auth/kakao'}
+                            onClick={handleKakaoLogin}
                             className="flex w-full items-center justify-center gap-3 rounded-md bg-yellow-400 px-3 py-2 text-sm font-semibold text-black shadow-sm hover:bg-yellow-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-yellow-500"
                         >
                             <svg width="20" height="19" viewBox="0 0 20 19" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -159,7 +169,7 @@ export default function Login() {
                         </button>
                         <button
                             type="button"
-                            onClick={() => window.location.href = '/api/auth/naver'}
+                            onClick={handleNaverLogin}
                             className="flex w-full items-center justify-center gap-3 rounded-md bg-green-500 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-green-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600"
                         >
                             <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
