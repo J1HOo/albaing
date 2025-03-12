@@ -3,7 +3,7 @@ import { useParams, Link } from "react-router-dom"; // Link 컴포넌트 추가
 import apiMyApplicationService from "../../../service/apiMyApplicationService";
 
 const MyApplications = () => {
-    const { resumeId } = useParams();
+    const { resumeId ,jobPostId} = useParams();
     const [applications, setApplications] = useState([]);
     const [applicationStats, setApplicationStats] = useState(null); // 상태 개수 저장
 
@@ -52,9 +52,10 @@ const MyApplications = () => {
                 <p className="text-center text-gray-600">지원한 공고가 없습니다.</p>
             ) : (
                 <ul className="space-y-4">
-                    {applications.map((application) => (
-                        <li
-                            key={application.resumeId}
+                    {applications.map((application) => {
+                        console.log("jobPostId : " ,application.jobPostId);
+                        return (
+                        <li key={application.resumeId}
                             className="p-4 border rounded-lg shadow-sm bg-[#F2F8FF] hover:bg-gray-50 transition"
                         >
                             <Link to={`/jobs/${application.jobPostId}`}>
@@ -65,7 +66,7 @@ const MyApplications = () => {
                                 {convertStatus(application.approveStatus)}
                             </p>
                         </li>
-                    ))}
+                    )})}
                 </ul>
             )}
         </div>

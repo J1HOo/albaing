@@ -62,7 +62,11 @@ const EditUserPage = () => {
             {/* 프로필 이미지 */}
             <div className="flex flex-col items-center mb-6">
                 <img
-                    src={user.userProfileImage ? URL.createObjectURL(user.userProfileImage) : defaultProfileImage}
+                    src={
+                        user.userProfileImage instanceof File
+                            ? URL.createObjectURL(user.userProfileImage)
+                            : user.userProfileImage || defaultProfileImage
+                    }
                     alt="프로필 이미지"
                     className="w-32 h-32 rounded-full border border-gray-300 object-cover mb-3"
                 />
