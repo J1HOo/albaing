@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import {getAllSchools} from "../../service/apiEducationService";
+import {getAllMajors} from "../../service/apiEducationService";
 
-const EducationModal = ({ educationData, onSave, onCancel }) => {
+const EducationModal = ({ educationData, majorData, onSave, onCancel }) => {
     const [formData, setFormData] = useState({
         eduDegree: '',
         eduStatus: '',
@@ -10,6 +12,94 @@ const EducationModal = ({ educationData, onSave, onCancel }) => {
         eduGraduationYear: ''
     });
 
+    //학교
+    const [searchTerm, setSearchTerm] = useState("");
+    const [schoolList, setSchoolList] = useState([]);
+    const [filteredSchools, setFilteredSchools] = useState([]);
+    const [selectedSchool, setSelectedSchool] = useState(null);
+
+    //전공
+    const [majorSearchTerm, setMajorSearchTerm] = useState("");
+    const [majorList, setMajorList] = useState([]);
+    const [filteredMajors, setFilteredMajors] = useState([]);
+    const [selectedMajor, setSelectedMajor] = useState(null);
+
+    //학교 정보 가져오기
+    useEffect(() => {
+        const fetchSchools = () => {
+            getAllSchools()
+                .then((schools) => {
+                    setSchoolList(schools);
+                })
+                .catch((error) => {
+                    console.error('학교 데이터를 가져오는 중 오류 발생:', error);
+                });
+        };
+        fetchSchools();
+    }, []);
+
+    //전공 정보 가져오기
+    useEffect(() => {
+        const fetchMajors = () => {
+            getAllMajors()
+                .then((majors) => {
+                    setMajorList(majors);
+                })
+                .catch((error) => {
+                    console.error('전공 데이터를 가져오는 중 오류 발생:', error);
+                });
+        };
+        fetchMajors();
+    }, []);
+
+    // 학교 검색어 입력 시 필터링
+    useEffect(() => {
+        if (searchTerm === "") {
+            setFilteredSchools([]);
+            return;
+        }
+        const filtered = schoolList.filter((school) =>
+            school.name.includes(searchTerm)
+        );
+        setFilteredSchools(filtered);
+    }, [searchTerm, schoolList]);
+
+// 전공 검색어 입력 시 필터링
+    useEffect(() => {
+        if (majorSearchTerm === "") {
+            setFilteredMajors([]);
+            return;
+        }
+
+        const filtered = majorList.filter((major) => {
+            // facilName을 ','로 분리하여 각 전공 이름에 대해 검색어가 포함되는지 체크
+            if (major.name) {
+                const majorNames = major.name.split(','); // ','로 전공 이름 분리
+                return majorNames.some((name) => name.toLowerCase().includes(majorSearchTerm.toLowerCase()));
+            }
+            return false;
+        });
+
+        setFilteredMajors(filtered);
+    }, [majorSearchTerm, majorList]);
+
+
+
+
+
+    const handleSelect = (school) => {
+        setSelectedSchool(school);
+        setSearchTerm(school.name); // 선택한 학교 이름을 입력창에 표시
+        setFilteredSchools([]); // 리스트 닫기
+    };
+
+    const handleMajorSelect = (major) => {
+        setSelectedMajor(major);
+        setMajorSearchTerm(major.name); // 선택한 전공 이름을 입력창에 표시
+        setFilteredMajors([]); // 리스트 닫기
+    };
+
+
     const degreeTypes = ['고등학교', '전문학사', '학사', '석사', '박사', '기타'];
 
     const statusTypes = ['졸업', '재학중', '휴학중', '중퇴', '수료'];
@@ -18,17 +108,16 @@ const EducationModal = ({ educationData, onSave, onCancel }) => {
     const yearOptions = Array.from({ length: 100 }, (_, i) => (currentYear - i).toString());
 
     useEffect(() => {
-        if (educationData) {
-            setFormData({
-                eduDegree: educationData.eduDegree || '',
-                eduStatus: educationData.eduStatus || '',
-                eduSchool: educationData.eduSchool || '',
-                eduMajor: educationData.eduMajor || '',
-                eduAdmissionYear: educationData.eduAdmissionYear || '',
-                eduGraduationYear: educationData.eduGraduationYear || ''
-            });
-        }
-    }, [educationData]);
+        setFormData(prev => ({
+            eduDegree: educationData?.eduDegree || prev.eduDegree || '',
+            eduStatus: educationData?.eduStatus || prev.eduStatus || '',
+            eduSchool: educationData?.eduSchool || prev.eduSchool || '',
+            eduAdmissionYear: educationData?.eduAdmissionYear || prev.eduAdmissionYear || '',
+            eduGraduationYear: educationData?.eduGraduationYear || prev.eduGraduationYear || '',
+            eduMajor: majorData?.eduMajor || prev.eduMajor || '',
+        }));
+    }, [educationData, majorData]);
+
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -43,6 +132,11 @@ const EducationModal = ({ educationData, onSave, onCancel }) => {
 
         if (!formData.eduSchool.trim()) {
             alert('학교명을 입력해주세요.');
+            return;
+        }
+
+        if (!formData.eduMajor.trim()) {
+            alert('전공을 입력해주세요.');
             return;
         }
 
@@ -88,12 +182,27 @@ const EducationModal = ({ educationData, onSave, onCancel }) => {
                                 type="text"
                                 id="eduSchool"
                                 name="eduSchool"
-                                value={formData.eduSchool}
-                                onChange={handleChange}
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
                                 className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all shadow-sm"
-                                placeholder="학교명을 입력하세요"
+                                placeholder="학교 검색"
                                 required
                             />
+                            <ul style={{maxHeight: "150px", overflowY: "auto", padding: 0}}>
+                                {filteredSchools.map((school, index) => (
+                                    <li
+                                        key={index}
+                                        onClick={() => handleSelect(school)}
+                                        style={{
+                                            padding: "5px",
+                                            cursor: "pointer",
+                                            backgroundColor: selectedSchool?.name === school.name ? "#ddd" : "white"
+                                        }}
+                                    >
+                                        {school.name} ({school.type})
+                                    </li>
+                                ))}
+                            </ul>
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -123,11 +232,26 @@ const EducationModal = ({ educationData, onSave, onCancel }) => {
                                     type="text"
                                     id="eduMajor"
                                     name="eduMajor"
-                                    value={formData.eduMajor}
-                                    onChange={handleChange}
+                                    value={majorSearchTerm}
+                                    onChange={(e) => setMajorSearchTerm(e.target.value)}
                                     className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all shadow-sm"
                                     placeholder="전공을 입력하세요"
                                 />
+                                <ul style={{maxHeight: "150px", overflowY: "auto", padding: 0}}>
+                                    {filteredMajors.map((major, index) => (
+                                        <li
+                                            key={index}
+                                            onClick={() => handleMajorSelect(major)}
+                                            style={{
+                                                padding: "5px",
+                                                cursor: "pointer",
+                                                backgroundColor: selectedMajor?.name === major.name ? "#ddd" : "white"
+                                            }}
+                                        >
+                                            {major.name} ({major.type})
+                                        </li>
+                                    ))}
+                                </ul>
                             </div>
                         </div>
 

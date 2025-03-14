@@ -19,7 +19,7 @@ const ResumeEdit = () => {
         resumeWorkTime: '',
         resumeJobSkill: '',
         resumeIntroduction: '',
-        educationHistory: null,
+        educationHistory: [],
         careerHistory: null
     });
 
@@ -103,7 +103,7 @@ const ResumeEdit = () => {
         fetchResume();
     }, [userData, resumeId]);
 
-    //
+
     const validateForm = () => {
         const errors = {};
 
@@ -137,19 +137,27 @@ const ResumeEdit = () => {
 
     const handleEducationUpdate = (educationData) => {
         console.log("학력 정보 업데이트 받음:", educationData);
+
+        // educationData가 배열이 아닌 경우 배열로 변환
+        const educationArray = Array.isArray(educationData) ? educationData : [educationData];
+
         setResumeData(prev => {
+            // prev.educationHistory가 배열인지 확인하고, 배열이 아니면 빈 배열로 처리
+            const updatedEducationHistory = Array.isArray(prev.educationHistory)
+                ? [...prev.educationHistory, ...educationArray] // 기존 데이터에 새로운 데이터를 추가
+                : [...educationArray]; // educationHistory가 배열이 아니면 새로운 데이터로 설정
+
             const updated = {
                 ...prev,
-                educationHistory: {
-                    ...educationData,
-                    resumeId: prev.resumeId
-                }
+                educationHistory: updatedEducationHistory,
             };
             console.log("학력 정보 업데이트 후 이력서 데이터:", updated);
             return updated;
         });
+
         setShowEducationModal(false);
     };
+
 
     const handleCareerUpdate = (careerData) => {
         console.log("경력 정보 업데이트 받음:", careerData);
@@ -738,6 +746,7 @@ const ResumeEdit = () => {
                 {showEducationModal && (
                     <EducationModal
                         educationData={resumeData.educationHistory}
+                        majorData={resumeData.educationHistory}
                         onSave={handleEducationUpdate}
                         onCancel={() => setShowEducationModal(false)}
                     />
