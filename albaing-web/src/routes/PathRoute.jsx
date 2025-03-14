@@ -32,6 +32,7 @@ import Companies from "../pages/company/public/Companies";
 import ChangePassword from "../pages/auth/find/ChangePassword";
 import Find from "../pages/auth/find/Find";
 import MyScrap from "../pages/user/mypage/MyScrap";
+import CompanyProfileEdit from "../pages/company/manage/profile/CompanyProfileEdit";
 
 // 메인 레이아웃 컴포넌트
 const MainLayout = ({children}) => (
@@ -90,6 +91,7 @@ function PathRoute() {
                 <Route element={<ProtectedRoute userTypeRequired="company"/>}>
                     <Route path="/company/manage/:companyId" element={<CompanyManage/>}/> {/* 회사 관리 메인 페이지 */}
                     <Route path="/company/:companyId/reviews/:reviewId" element={<ReviewDetail/>}/> {/* 회사 리뷰 상세 페이지 */}
+                    <Route path="/company/edit/:companyId" element={<CompanyProfileEdit/>}/> {/* 회사 상세 정보 페이지 수정*/}
                     <Route path="/jobs/new" element={<MainLayout><JobpostAdd/></MainLayout>}/> {/* 채용공고 등록 페이지 */}
                     <Route path="/jobs/edit/:jobPostId" element={<MainLayout><JobpostEdit/></MainLayout>}/> {/* 채용공고 수정 페이지 */}
                     <Route path="/resumes/:resumeId" element={<MainLayout><ResumeView /></MainLayout>}/> {/* 지원자 이력서 상세 보기 */}

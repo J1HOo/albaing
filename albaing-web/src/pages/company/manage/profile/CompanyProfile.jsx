@@ -119,7 +119,7 @@ const CompanyProfile = ({ companyData }) => {
                     {/* 회사 정보 수정 버튼 */}
                     <div className="mt-8 flex justify-end">
                         <button
-                            onClick={() => navigate('/company/edit')}
+                            onClick={() => navigate(`/company/edit/${companyData.companyId}`)}
                             className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
                         >
                             회사 정보 수정

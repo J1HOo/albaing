@@ -25,6 +25,12 @@ public class CompanyServiceImpl implements CompanyService {
         return companyMapper.companyDetail(companyId);
     }
 
+    // 회사 상세 정보 수정
+    @Override
+    public void updateDetail(Company company) {
+        companyMapper.updateDetail(company);
+    }
+
     // 회사 등록
     @Override
     public void registerCompany(Company company) {

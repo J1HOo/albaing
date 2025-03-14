@@ -29,6 +29,14 @@ public class CompanyController {
         return ResponseEntity.ok(company);
     }
 
+    // 회사 상세 정보 수정
+    @PutMapping("/{companyId}")
+    public ResponseEntity<?> updateCompany(@PathVariable Long companyId, @RequestBody Company company) {
+        company.setCompanyId(companyId);
+        companyService.updateDetail(company);
+        return ResponseEntity.ok(company);
+    }
+
     // 회사명으로 검색
     @GetMapping("/search")
     public ResponseEntity<List<Company>> searchCompanies(@RequestParam("keyword") String keyword) {

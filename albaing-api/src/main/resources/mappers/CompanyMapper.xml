@@ -85,6 +85,22 @@
         WHERE company_id = #{companyId}
     </select>
 
+    <!-- 기업 상세 정보 수정 -->
+    <update id="updateDetail">
+        UPDATE COMPANIES
+        SET
+            company_name = #{companyName},
+            company_registration_number = #{companyRegistrationNumber},
+            company_owner_name = #{companyOwnerName},
+            company_open_date = #{companyOpenDate},
+            company_email = #{companyEmail},
+            company_phone = #{companyPhone},
+            company_local_address = #{companyLocalAddress},
+            company_description = #{companyDescription},
+            company_updated_at = NOW()
+        WHERE company_id = #{companyId}
+    </update>
+
     <!-- 모든 회사 목록 조회 -->
     <select id="getAllCompanies" resultType="Company">
         SELECT *
