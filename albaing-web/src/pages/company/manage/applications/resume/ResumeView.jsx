@@ -12,21 +12,27 @@ import {
     CalendarIcon,
     DocumentArrowDownIcon as DocumentDownloadIcon
 } from '@heroicons/react/24/outline';
+import apiMyPageService from "../../../../../service/apiMyPageService";
 
 const ResumeView = () => {
     const [resumeData, setResumeData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [userData , setUserData] =useState(null);
 
-    const { resumeId } = useParams();
+
+    const { resumeId,userId } = useParams();
     const navigate = useNavigate();
-    const { userType, userData } = useAuth();
+    const { userType} = useAuth();
 
     useEffect(() => {
+
         if (userType !== 'company') {
             navigate('/');
             return;
+
         }
+
 
         const fetchResumeDetail = () => {
             axios.get(`/api/resume/${resumeId}`)
@@ -41,8 +47,9 @@ const ResumeView = () => {
                 });
         };
 
+        apiMyPageService.getUserById(userId, setUserData);
         fetchResumeDetail();
-    }, [resumeId, userType, navigate]);
+    }, [resumeId,userId,userType,navigate]);
 
     // PDF 다운로드 함수
     const handleDownloadPDF = () => {
@@ -90,9 +97,9 @@ const ResumeView = () => {
                 <div className="border-b pb-6 mb-6">
                     <div className="flex items-center space-x-6">
                         <div className="w-24 h-24 bg-blue-100 rounded-full flex items-center justify-center">
-                            {resumeData.profileImage ? (
+                            {userData.profileImage ? (
                                 <img
-                                    src={resumeData.profileImage}
+                                    src={userData.profileImage}
                                     alt="프로필 사진"
                                     className="w-full h-full object-cover rounded-full"
                                 />
@@ -101,15 +108,15 @@ const ResumeView = () => {
                             )}
                         </div>
                         <div>
-                            <h2 className="text-2xl font-bold text-gray-900">{resumeData.userName}</h2>
+                            <h2 className="text-2xl font-bold text-gray-900">{userData.userName}</h2>
                             <div className="mt-2 space-y-1 text-gray-600">
                                 <div className="flex items-center">
                                     <MailIcon className="h-4 w-4 mr-2 text-blue-500" />
-                                    <span>{resumeData.userEmail}</span>
+                                    <span>{userData.userEmail}</span>
                                 </div>
                                 <div className="flex items-center">
                                     <PhoneIcon className="h-4 w-4 mr-2 text-blue-500" />
-                                    <span>{resumeData.userPhone}</span>
+                                    <span>{userData.userPhone}</span>
                                 </div>
                             </div>
                         </div>

@@ -46,10 +46,14 @@ const MyPage = () => {
                     <br/>
                         <p className="text-gray-600 mb-4">이메일 : {user.userEmail}</p>
                         <p className="text-gray-600 mb-4">생년월일 : {user.userBirthdate}</p>
-                        <button
-                            className="w-full text-center px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
-                        ><Link to = {`/mypage/user/${userId}/edit`}> 프로필 수정</Link>
-                        </button>
+                        <Link to={`/mypage/user/${userId}/edit`}>
+                            <button
+                                className="w-full text-center px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
+                            >
+                                프로필 수정
+                            </button>
+                        </Link>
+
                     </div>
                 </div>
 

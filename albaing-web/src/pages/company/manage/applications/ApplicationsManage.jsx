@@ -5,8 +5,10 @@ import {
     ClockIcon,
     EyeIcon
 } from '@heroicons/react/24/outline';
+import {useParams} from "react-router-dom";
 
 const ApplicationsManage = ({ applications, updateApplicantStatus }) => {
+    const { userId } = useParams();
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState('all'); // 'all', 'pending', 'approved', 'denied'
     const [selectedApplication, setSelectedApplication] = useState(null);
@@ -202,7 +204,7 @@ const ApplicationsManage = ({ applications, updateApplicantStatus }) => {
                             <div className="pt-4 border-t border-gray-200">
                                 <button
                                     className="w-full py-2 px-4 rounded-md bg-blue-600 text-white hover:bg-blue-700"
-                                    onClick={() => window.location.href = `/resumes/${selectedApplication.resumeId}`}
+                                    onClick={() => window.location.href = `/resumes/${selectedApplication.resumeId}/user/${userId}`}
                                 >
                                     이력서 상세 보기
                                 </button>

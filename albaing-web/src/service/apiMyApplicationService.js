@@ -5,7 +5,7 @@ const API_APPLICATION_URL = "http://localhost:8080/api/applications";
 const apiMyApplicationService = {
     // 지원한 공고 리스트 가져오기
     getJobApplicationsByResume: function (resumeId, setApplications) {
-        axios
+        return axios
             .get(`${API_APPLICATION_URL}/resume/${resumeId}`)
             .then((res) => {
                 setApplications(res.data);
@@ -18,7 +18,7 @@ const apiMyApplicationService = {
 
     // 지원한 개수 & 승인 상태 개수 가져오기
     getApplicationStatsByResume: function (resumeId, setApplicationStats) {
-        axios
+        return axios
             .get(`${API_APPLICATION_URL}/status/${resumeId}`)
             .then((res) => {
                 setApplicationStats(res.data);
