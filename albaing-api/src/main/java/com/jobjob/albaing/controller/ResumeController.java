@@ -30,6 +30,7 @@ public class ResumeController {
         return resumeService.resumeDetails(resumeId);
     }
 
+    // 아이디로 이력서조회
     @GetMapping("/user/{userId}")
     public Resume getResumeByUserId(@PathVariable("userId") int userId) {
         return resumeService.getResumeByUserId(userId);

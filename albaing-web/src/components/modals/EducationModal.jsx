@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import {getAllSchools} from "../../service/apiEducationService";
 
 const EducationModal = ({ educationData, onSave, onCancel }) => {
     const [formData, setFormData] = useState({
@@ -10,13 +11,47 @@ const EducationModal = ({ educationData, onSave, onCancel }) => {
         eduGraduationYear: ''
     });
 
+    const [searchTerm, setSearchTerm] = useState("");
+    const [schoolList, setSchoolList] = useState([]);
+    const [filteredSchools, setFilteredSchools] = useState([]);
+    const [selectedSchool, setSelectedSchool] = useState(null);
+
+    useEffect(() => {
+        const fetchSchools = () => {
+            getAllSchools()
+                .then((schools) => {
+                    setSchoolList(schools);
+                })
+                .catch((error) => {
+                    console.error('학교 데이터를 가져오는 중 오류 발생:', error);
+                });
+        };
+        fetchSchools();
+    }, []);
+    // 검색어 입력 시 필터링
+    useEffect(() => {
+        if (searchTerm === "") {
+            setFilteredSchools([]);
+            return;
+        }
+        const filtered = schoolList.filter((school) =>
+            school.name.includes(searchTerm)
+        );
+        setFilteredSchools(filtered);
+    }, [searchTerm, schoolList]);
+
+    const handleSelect = (school) => {
+        setSelectedSchool(school);
+        setSearchTerm(school.name); // 선택한 학교 이름을 입력창에 표시
+        setFilteredSchools([]); // 리스트 닫기
+    };
+
+
     const degreeTypes = ['고등학교', '전문학사', '학사', '석사', '박사', '기타'];
 
     const statusTypes = ['졸업', '재학중', '휴학중', '중퇴', '수료'];
-
     const currentYear = new Date().getFullYear();
     const yearOptions = Array.from({ length: 100 }, (_, i) => (currentYear - i).toString());
-
     useEffect(() => {
         if (educationData) {
             setFormData({
@@ -29,7 +64,6 @@ const EducationModal = ({ educationData, onSave, onCancel }) => {
             });
         }
     }, [educationData]);
-
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({
@@ -37,29 +71,23 @@ const EducationModal = ({ educationData, onSave, onCancel }) => {
             [name]: value
         }));
     };
-
     const handleSubmit = (e) => {
         e.preventDefault();
-
         if (!formData.eduSchool.trim()) {
             alert('학교명을 입력해주세요.');
             return;
         }
-
         if (formData.eduStatus === '졸업' && !formData.eduGraduationYear) {
             alert('졸업년도를 선택해주세요.');
             return;
         }
-
         if (formData.eduAdmissionYear && formData.eduGraduationYear &&
             parseInt(formData.eduAdmissionYear) > parseInt(formData.eduGraduationYear)) {
             alert('입학년도는 졸업년도보다 빨라야 합니다.');
             return;
         }
-
         onSave({ ...formData });
     };
-
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50 transition-all duration-300 animate-fadeIn">
             <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 transform transition-all duration-300 animate-slideIn">
@@ -77,7 +105,6 @@ const EducationModal = ({ educationData, onSave, onCancel }) => {
                         </svg>
                     </button>
                 </div>
-
                 <form onSubmit={handleSubmit} className="p-6">
                     <div className="grid grid-cols-1 gap-5">
                         <div className="space-y-2">
@@ -90,10 +117,28 @@ const EducationModal = ({ educationData, onSave, onCancel }) => {
                                 name="eduSchool"
                                 value={formData.eduSchool}
                                 onChange={handleChange}
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
                                 className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all shadow-sm"
                                 placeholder="학교명을 입력하세요"
+                                placeholder="학교 검색"
                                 required
                             />
+                            <ul style={{maxHeight: "150px", overflowY: "auto", padding: 0}}>
+                                {filteredSchools.map((school, index) => (
+                                    <li
+                                        key={index}
+                                        onClick={() => handleSelect(school)}
+                                        style={{
+                                            padding: "5px",
+                                            cursor: "pointer",
+                                            backgroundColor: selectedSchool?.name === school.name ? "#ddd" : "white"
+                                        }}
+                                    >
+                                        {school.name} ({school.type})
+                                    </li>
+                                ))}
+                            </ul>
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -114,7 +159,6 @@ const EducationModal = ({ educationData, onSave, onCancel }) => {
                                     ))}
                                 </select>
                             </div>
-
                             <div className="space-y-2">
                                 <label htmlFor="eduMajor" className="block text-sm font-medium text-gray-700">
                                     전공
@@ -130,7 +174,6 @@ const EducationModal = ({ educationData, onSave, onCancel }) => {
                                 />
                             </div>
                         </div>
-
                         <div className="space-y-2">
                             <label htmlFor="eduStatus" className="block text-sm font-medium text-gray-700">
                                 재학상태
@@ -158,7 +201,6 @@ const EducationModal = ({ educationData, onSave, onCancel }) => {
                                 ))}
                             </div>
                         </div>
-
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <label htmlFor="eduAdmissionYear" className="block text-sm font-medium text-gray-700">
@@ -177,7 +219,6 @@ const EducationModal = ({ educationData, onSave, onCancel }) => {
                                     ))}
                                 </select>
                             </div>
-
                             <div className="space-y-2">
                                 <label htmlFor="eduGraduationYear" className="block text-sm font-medium text-gray-700">
                                     졸업년도
@@ -198,7 +239,6 @@ const EducationModal = ({ educationData, onSave, onCancel }) => {
                             </div>
                         </div>
                     </div>
-
                     <div className="mt-8 flex justify-end space-x-3">
                         <button
                             type="button"
@@ -219,5 +259,4 @@ const EducationModal = ({ educationData, onSave, onCancel }) => {
         </div>
     );
 };
-
 export default EducationModal;
