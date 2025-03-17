@@ -30,9 +30,9 @@ const MyPage = () => {
                 <div className="lg:col-span-1 bg-white rounded-lg shadow-md p-6">
                     <div className="flex flex-col items-center">
                         <div className="w-32 h-32 rounded-full bg-blue-100 flex items-center justify-center mb-4">
-                            {user.profileImage ? (
+                            {user.userProfileImage ? (
                                 <img
-                                    src={user.profileImage}
+                                    src={user.userProfileImage}
                                     alt="프로필"
                                     className="w-full h-full object-cover rounded-full"
                                 />
