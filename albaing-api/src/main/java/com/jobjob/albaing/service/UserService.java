@@ -1,6 +1,7 @@
 package com.jobjob.albaing.service;
 
 import com.jobjob.albaing.dto.User;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Date;
 import java.util.Map;
@@ -16,6 +17,6 @@ public interface UserService {
     User getUserByEmail(String userEmail);
 
     // 사용자 정보 수정
-    void updateUser(User user);
+    void updateUser(User user, MultipartFile file);
 
 }
