@@ -170,6 +170,21 @@ const ResumeEdit = () => {
         setShowCareerModal(false);
     };
 
+    // 경력 추가 함수
+    const handleAddCareer = () => {
+
+        setResumeData(prevState => ({
+            ...prevState,
+            careerHistoryList: [
+                {
+                    ...resumeData.careerHistory,
+                    id: Date.now(),
+                },
+                ...(prevState.careerHistoryList || []),
+            ],
+        }));
+    }
+
     const handleSaveResume = () => {
         if (!validateForm()) {
             window.scrollTo(0, 0);
@@ -635,6 +650,20 @@ const ResumeEdit = () => {
                         )}
                     </div>
                 )}
+                <div className="flex justify-end mt-6">
+                    <button
+                        type="button"
+                        onClick={handleAddCareer}
+                        className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 shadow-sm transition-all flex items-center"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" fill="none"
+                             viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                                  d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                        </svg>
+                        경력 추가하기
+                    </button>
+                </div>
 
                 {/* 보유 스킬 섹션 */}
                 {activeSection === 'skills' && (

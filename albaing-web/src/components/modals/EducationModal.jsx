@@ -10,6 +10,7 @@ const EducationModal = ({ educationData, majorData, onSave, onCancel }) => {
         eduMajor: '',
         eduAdmissionYear: '',
         eduGraduationYear: ''
+
     });
 
     //학교
