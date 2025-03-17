@@ -9,7 +9,7 @@ const BusinessValidation = () => {
     const [message, setMessage] = useState('');
     const navigate = useNavigate();
 
-    // 사업자 등록번호 인증
+    // 사업자 등록번호 인증 커밋다시하기
     const validateBusinessNumber = (callback) => {
         const data = {
             "businesses": [
