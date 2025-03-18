@@ -36,8 +36,8 @@ export default function Footer() {
                         <div className="w-1/2 md:w-auto mb-6 md:mb-0">
                             <h3 className="font-semibold mb-4 text-gray-900">서비스</h3>
                             <ul className="space-y-2 text-gray-600">
-                                <li><Link to="/jobpost/list" className="hover:text-blue-600">채용정보</Link></li>
-                                <li><Link to="/company" className="hover:text-blue-600">기업정보</Link></li>
+                                <li><Link to="/jobs" className="hover:text-blue-600">채용정보</Link></li>
+                                <li><Link to="/companies" className="hover:text-blue-600">기업정보</Link></li>
                                 <li><Link to="/resume" className="hover:text-blue-600">인재정보</Link></li>
                                 <li><Link to="/community" className="hover:text-blue-600">커뮤니티</Link></li>
                             </ul>
