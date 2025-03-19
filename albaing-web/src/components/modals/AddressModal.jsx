@@ -55,7 +55,7 @@ export const AddressModal = ({onComplete,onClose}) => {
         });
     };
 
-        // 예를 들어 강남구 검색했다면 '서울특별시 강남구' 형태로 변환
+        // 강남구 검색했다면 '서울특별시 강남구' 형태로 변환
         const extractCityDistrict = (fullAddress) => {
             const parts = fullAddress.split(" ");
             return parts.length >= 2 ? `${parts[0]} ${parts[1]}` : fullAddress;
@@ -80,7 +80,7 @@ export const AddressModal = ({onComplete,onClose}) => {
                         type="text"
                         value={query}
                         onChange={(e) => setQuery(e.target.value)}
-                        placeholder="지역명을 입력하세요 (예: 강남구)"
+                        placeholder="지역명을 입력하세요 (예: 서울 강남구)"
                         className="w-full p-3 border border-gray-300 rounded-lg mb-4"
                         autoFocus
                     />
