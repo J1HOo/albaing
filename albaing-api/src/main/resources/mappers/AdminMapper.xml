@@ -43,6 +43,18 @@
         </trim>
     </select>
 
+    <update id="adminUserUpdate">
+        UPDATE USERS
+        SET
+            user_name = #{userName},
+            user_email = #{userEmail},
+            user_phone = #{userPhone},
+            user_gender = #{userGender},
+            user_address = #{userAddress},
+            user_updated_at = NOW()
+        WHERE user_id = #{userId}
+    </update>
+
 
     <!--  개인 이력서 조회 : 제목, 직업 분류, 근무 형태로 검색 -->
     <!--  String userName, resumeTitle, resumeJobCategory, resumeJobType 을 받아 해당 항목과 부분 이상 일치하는 항목 찾기-->
@@ -306,6 +318,55 @@
         SELECT COUNT(*) FROM COMPANIES WHERE company_approval_status = 'approving'
     </select>
 
+    <update id="updateCompanyStatus">
+        UPDATE COMPANIES
+        SET company_approval_status = #{status},
+            company_updated_at = NOW()
+        WHERE company_id = #{companyId}
+    </update>
 
+    <delete id="deleteApplicationsByUserId">
+        DELETE FROM JOB_APPLICATIONS
+        WHERE resume_id IN (SELECT resume_id FROM RESUMES WHERE user_id = #{userId})
+    </delete>
 
+    <delete id="deleteScrapsByUserId">
+        DELETE FROM SCRAPS
+        WHERE user_id = #{userId}
+    </delete>
+
+    <delete id="deleteCommentsByUserId">
+        DELETE FROM COMMENTS
+        WHERE user_id = #{userId}
+    </delete>
+
+    <delete id="deleteReviewsByUserId">
+        DELETE FROM REVIEWS
+        WHERE user_id = #{userId}
+    </delete>
+
+    <delete id="deleteApplicationsByCompanyId">
+        DELETE FROM JOB_APPLICATIONS
+        WHERE job_post_id IN (SELECT job_post_id FROM JOB_POSTS WHERE company_id = #{companyId})
+    </delete>
+
+    <delete id="deleteScrapsByCompanyId">
+        DELETE FROM SCRAPS
+        WHERE job_post_id IN (SELECT job_post_id FROM JOB_POSTS WHERE company_id = #{companyId})
+    </delete>
+
+    <delete id="deleteCommentsByCompanyId">
+        DELETE FROM COMMENTS
+        WHERE review_id IN (SELECT review_id FROM REVIEWS WHERE company_id = #{companyId})
+    </delete>
+
+    <delete id="deleteReviewsByCompanyId">
+        DELETE FROM REVIEWS
+        WHERE company_id = #{companyId}
+    </delete>
+
+    <delete id="deleteJobPostsByCompanyId">
+        DELETE FROM JOB_POSTS
+        WHERE company_id = #{companyId}
+    </delete>
 </mapper>

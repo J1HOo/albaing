@@ -4,7 +4,9 @@ import com.jobjob.albaing.dto.*;
 import com.jobjob.albaing.mapper.AdminMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -95,5 +97,71 @@ public class AdminServiceImpl implements AdminService {
         stats.put("reviewCount", adminMapper.countAllReviews());
         stats.put("pendingCompanyCount", adminMapper.countPendingCompanies());
         return stats;
+    }
+
+    @Override
+    public void adminUserUpdate(User user) {
+        adminMapper.adminUserUpdate(user);
+    }
+
+    @Override
+    @Transactional
+    public void updateCompanyStatus(String companyId, String status) {
+        try {
+            Company company = adminMapper.adminCompanyDetail(companyId);
+            if (company != null) {
+                company.setCompanyApprovalStatus(Company.ApprovalStatus.valueOf(status));
+                company.setCompanyUpdatedAt(LocalDateTime.now());
+                adminMapper.updateCompanyStatus(companyId, status);
+            } else {
+                throw new RuntimeException("기업 정보를 찾을 수 없습니다.");
+            }
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException("유효하지 않은 상태 값입니다.", e);
+        }
+    }
+
+    @Override
+    @Transactional
+    public void deleteUserWithRelatedData(String userId) {
+        // 지원 내역 삭제
+        adminMapper.deleteApplicationsByUserId(userId);
+
+        // 스크랩 삭제
+        adminMapper.deleteScrapsByUserId(userId);
+
+        // 리뷰 댓글 삭제
+        adminMapper.deleteCommentsByUserId(userId);
+
+        // 리뷰 삭제
+        adminMapper.deleteReviewsByUserId(userId);
+
+        // 이력서 삭제
+        adminMapper.adminResumeDelete(userId);
+
+        // 사용자 삭제
+        adminMapper.adminUserDelete(userId);
+    }
+
+    @Override
+    @Transactional
+    public void deleteCompanyWithRelatedData(String companyId) {
+        // 공고 지원 내역 삭제
+        adminMapper.deleteApplicationsByCompanyId(companyId);
+
+        // 스크랩 삭제
+        adminMapper.deleteScrapsByCompanyId(companyId);
+
+        // 리뷰 댓글 삭제
+        adminMapper.deleteCommentsByCompanyId(companyId);
+
+        // 리뷰 삭제
+        adminMapper.deleteReviewsByCompanyId(companyId);
+
+        // 채용 공고 삭제
+        adminMapper.deleteJobPostsByCompanyId(companyId);
+
+        // 기업 삭제
+        adminMapper.adminCompanyDelete(companyId);
     }
 }

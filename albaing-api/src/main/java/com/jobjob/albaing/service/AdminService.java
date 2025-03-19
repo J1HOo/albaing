@@ -35,5 +35,17 @@ public interface AdminService {
 
     void adminJobPostStatusChange(String CompanyId);
 
+    // 유저 정보 수정
+    void adminUserUpdate(User user);
+
+    // 기업 승인 상태 변경
+    void updateCompanyStatus(String companyId, String status);
+
+    // 유저 삭제 트랜잭션 처리 (관련 데이터 함께 삭제)
+    void deleteUserWithRelatedData(String userId);
+
+    // 기업 삭제 트랜잭션 처리 (관련 데이터 함께 삭제)
+    void deleteCompanyWithRelatedData(String companyId);
+
     Map<String, Object> getDashboardStats();
 }

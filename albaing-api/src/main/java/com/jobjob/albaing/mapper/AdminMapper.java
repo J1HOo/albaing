@@ -20,6 +20,8 @@ public interface AdminMapper {
 
     User adminUserDetail(String userId);
 
+    void adminUserUpdate(User user);
+
     void adminUserDelete(String userId);
 
     Resume adminResumeDetail(String resumeId);
@@ -35,6 +37,26 @@ public interface AdminMapper {
     void adminJobPostDelete(String jobPostId);
 
     void adminJobPostStatusChange(String CompanyId);
+
+    void updateCompanyStatus(String companyId, String status);
+
+    void deleteApplicationsByUserId(String userId);
+
+    void deleteScrapsByUserId(String userId);
+
+    void deleteCommentsByUserId(String userId);
+
+    void deleteReviewsByUserId(String userId);
+
+    void deleteApplicationsByCompanyId(String companyId);
+
+    void deleteScrapsByCompanyId(String companyId);
+
+    void deleteCommentsByCompanyId(String companyId);
+
+    void deleteReviewsByCompanyId(String companyId);
+
+    void deleteJobPostsByCompanyId(String companyId);
 
     int countAllUsers();
     int countAllCompanies();

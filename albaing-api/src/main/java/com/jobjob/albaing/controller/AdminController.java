@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -31,6 +30,18 @@ public class AdminController {
         }
 
         return adminService.adminSearchUsers(userName, userEmail, userPhone, sortOrderBy, isDESC);
+    }
+
+    // 개인 정보 수정
+    @PutMapping("/users/{userId}")
+    public ResponseEntity<?> updateUser(@PathVariable String userId, @RequestBody User user) {
+        try {
+            user.setUserId(Long.valueOf(userId));
+            adminService.adminUserUpdate(user);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(Map.of("message", "유저 정보 수정 중 오류가 발생했습니다."));
+        }
     }
 
     // 이력서 검색
@@ -66,6 +77,24 @@ public class AdminController {
                                               @RequestParam(required = false) Boolean isDESC) {
 
         return adminService.adminSearchCompanies(companyName, companyOwnerName, companyPhone, companyRegistrationNumber, sortOrderBy, isDESC);
+    }
+
+    @PatchMapping("/companies/{companyId}/status")
+    public ResponseEntity<?> updateCompanyStatus(
+        @PathVariable String companyId,
+        @RequestBody Map<String, String> statusRequest) {
+
+        try {
+            String status = statusRequest.get("companyApprovalStatus");
+            if (status == null || status.isEmpty()) {
+                return ResponseEntity.badRequest().body(Map.of("message", "상태 값이 없습니다."));
+            }
+
+            adminService.updateCompanyStatus(companyId, status);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(Map.of("message", "기업 상태 변경 중 오류가 발생했습니다."));
+        }
     }
 
     // 공고 검색
@@ -125,6 +154,7 @@ public class AdminController {
     }
 
 
+    // 통계
     @GetMapping("/stats")
     public ResponseEntity<Map<String, Object>> getStats() {
         Map<String, Object> stats = adminService.getDashboardStats();

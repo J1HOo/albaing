@@ -10,6 +10,12 @@ const AdminCompanyDetail = () => {
     const confirmModal = useModal();
     const navigate = useNavigate();
 
+    const statusMap = {
+        'approved': '승인',
+        'approving': '승인 대기',
+        'hidden': '비공개'
+    };
+
     useEffect(() => {
         fetchCompanyDetail();
     }, [companyId]);
@@ -34,12 +40,6 @@ const AdminCompanyDetail = () => {
     };
 
     const handleStatusChange = (status) => {
-        const statusMap = {
-            'approved': '승인',
-            'approving': '승인 대기',
-            'hidden': '비공개'
-        };
-
         confirmModal.openModal({
             title: '상태 변경 확인',
             message: `이 기업을 ${statusMap[status]}(으)로 변경하시겠습니까?`,
