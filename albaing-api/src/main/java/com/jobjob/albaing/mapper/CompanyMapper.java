@@ -18,6 +18,9 @@ public interface CompanyMapper {
     // 회사 로그인
     Company loginCompany(Map<String, Object> param);
 
+    // 회사 승인여부 확인
+    boolean isCompanyApproved(@Param("status") Company.ApprovalStatus status);
+
     // 회사 존재여부 확인
     boolean isCompanyExist(String email);
 

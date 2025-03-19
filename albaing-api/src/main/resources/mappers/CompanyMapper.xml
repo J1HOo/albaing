@@ -42,6 +42,15 @@
         WHERE company_email = #{companyEmail}
     </select>
 
+    <!-- 기업 승인여부 확인 -->
+    <select id="isCompanyApproved" resultType="boolean">
+        SELECT EXISTS (
+            SELECT 1
+            FROM companies
+            WHERE company_approval_status = 'approved'
+        );
+    </select>
+
     <!-- 기업 존재여부 확인 -->
     <select id="isCompanyExist" resultType="boolean">
         SELECT COUNT(*) > 0

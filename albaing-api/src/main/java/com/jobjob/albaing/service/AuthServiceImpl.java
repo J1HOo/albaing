@@ -72,6 +72,17 @@ public class AuthServiceImpl implements AuthService {
             return result;
         }
 
+        // 기업 승인 상태 확인
+        if (loggedInCompany.getCompanyApprovalStatus() == Company.ApprovalStatus.approving) {
+            result.put("status", "fail");
+            result.put("message", "승인 대기 중인 기업 계정입니다. 관리자 승인이 완료된 후 로그인 가능합니다.");
+            return result;
+        } else if (loggedInCompany.getCompanyApprovalStatus() != Company.ApprovalStatus.approved) {
+            result.put("status", "fail");
+            result.put("message", "로그인이 허용되지 않는 기업 상태입니다.");
+            return result;
+        }
+
         result.put("status", "success");
         result.put("company", loggedInCompany);
         return result;

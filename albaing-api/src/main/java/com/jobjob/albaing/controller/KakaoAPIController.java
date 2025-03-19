@@ -103,6 +103,8 @@ public class KakaoAPIController {
         String birthday = kakaoAccount.getOrDefault("birthday", "").toString();
         String birthyear = kakaoAccount.getOrDefault("birthyear", "").toString();
 
+        System.out.println("카카오 API 응답: " + userResponse.getBody());
+
         // 4️⃣ DB에서 가입 여부 확인 (AuthService에서 처리)
         if (authService.isUserExist(email)) {
             ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
@@ -139,6 +141,7 @@ public class KakaoAPIController {
             frontendRedirectUri += "&profileImage=" + URLEncoder.encode(profileImg, StandardCharsets.UTF_8);
         }
 
+        System.out.println("🔹 Redirect URI: " + frontendRedirectUri);
 
         return new RedirectView(frontendRedirectUri); // 미가입 사용자는 회원가입으로 리다이렉트
     }

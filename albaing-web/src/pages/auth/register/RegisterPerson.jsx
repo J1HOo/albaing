@@ -49,7 +49,7 @@ const RegisterPerson = () => {
         }
 
         if (genderParam) {
-            setUserGender(genderParam.toLowerCase() === "male" ? "male" : "female");
+            setUserGender(genderParam.toLowerCase() === "male" || "M" ? "male" : "female");
         }
 
         if (birthyearParam && birthdayParam) {

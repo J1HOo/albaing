@@ -45,7 +45,7 @@ public class NaverAPIController {
         String naverAuthUrl = "https://nid.naver.com/oauth2.0/authorize?response_type=code" +
                 "&client_id=" + naverClientId +
                 "&redirect_uri=" + redirectUrl +
-                "&scope=profile_nickname,profile_image,account_email,name,gender,birthday";
+                "&scope=profile_nickname,profile_image,account_email,name,gender,birthday,birthyear";
 
         return new RedirectView(naverAuthUrl);
     }
@@ -102,6 +102,15 @@ public class NaverAPIController {
         String email = response.get("email") != null ? response.get("email").toString() : "";
         String gender = response.get("gender") != null ? response.get("gender").toString() : "";
         String birthday = response.get("birthday") != null ? response.get("birthday").toString() : "";
+        String birthyear = response.get("birthyear") != null ? response.get("birthyear").toString() : "";
+
+// 🔹 생일 형식 변환 (08-29 → 0829)
+        if (!birthday.isEmpty()) {
+            birthday = birthday.replace("-", "");
+        }
+        System.out.println("변환 전 네이버 생일: " + response.get("birthday"));
+        System.out.println("변환 후 네이버 생일: " + birthday);
+        System.out.println("네이버 API 응답: " + userResponse.getBody());
 
 // 4️⃣ DB에서 가입 여부 확인
         if (authService.isUserExist(email)) {
@@ -132,9 +141,14 @@ public class NaverAPIController {
         if (!birthday.isEmpty()) {
             frontendRedirectUri += "&birthday=" + birthday;
         }
+        if (!birthyear.isEmpty()) {
+            frontendRedirectUri += "&birthyear=" + birthyear;
+        }
         if (!profileImg.isEmpty()) {
             frontendRedirectUri += "&profileImage=" + URLEncoder.encode(profileImg, StandardCharsets.UTF_8);
         }
+
+        System.out.println("🔹 Redirect URI: " + frontendRedirectUri);
 
         return new RedirectView(frontendRedirectUri);
 
