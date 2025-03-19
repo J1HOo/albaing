@@ -35,4 +35,11 @@ public interface AdminMapper {
     void adminJobPostDelete(String jobPostId);
 
     void adminJobPostStatusChange(String CompanyId);
+
+    int countAllUsers();
+    int countAllCompanies();
+    int countAllJobPosts();
+    int countAllApplications();
+    int countAllReviews();
+    int countPendingCompanies();
 }

@@ -3,6 +3,7 @@ package com.jobjob.albaing.service;
 import com.jobjob.albaing.dto.*;
 
 import java.util.List;
+import java.util.Map;
 
 public interface AdminService {
 
@@ -33,4 +34,6 @@ public interface AdminService {
     void adminJobPostDelete(String jobPostId);
 
     void adminJobPostStatusChange(String CompanyId);
+
+    Map<String, Object> getDashboardStats();
 }

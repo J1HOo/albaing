@@ -3,9 +3,12 @@ package com.jobjob.albaing.controller;
 import com.jobjob.albaing.dto.*;
 import com.jobjob.albaing.service.AdminServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 @RestController
@@ -14,6 +17,7 @@ public class AdminController {
 
     @Autowired
     private AdminServiceImpl adminService;
+
 
     // 개인 검색
     @GetMapping("/users")
@@ -120,4 +124,10 @@ public class AdminController {
         adminService.adminJobPostDelete(jobPostId);
     }
 
+
+    @GetMapping("/stats")
+    public ResponseEntity<Map<String, Object>> getStats() {
+        Map<String, Object> stats = adminService.getDashboardStats();
+        return ResponseEntity.ok(stats);
+    }
 }

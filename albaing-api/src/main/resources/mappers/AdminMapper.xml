@@ -282,6 +282,30 @@
         where company_id = #{companyId}
     </update>
 
+    <select id="countAllUsers" resultType="int">
+        SELECT COUNT(*) FROM USERS
+    </select>
+
+    <select id="countAllCompanies" resultType="int">
+        SELECT COUNT(*) FROM COMPANIES
+    </select>
+
+    <select id="countAllJobPosts" resultType="int">
+        SELECT COUNT(*) FROM JOB_POSTS
+    </select>
+
+    <select id="countAllApplications" resultType="int">
+        SELECT COUNT(*) FROM JOB_APPLICATIONS
+    </select>
+
+    <select id="countAllReviews" resultType="int">
+        SELECT COUNT(*) FROM REVIEWS
+    </select>
+
+    <select id="countPendingCompanies" resultType="int">
+        SELECT COUNT(*) FROM COMPANIES WHERE company_approval_status = 'approving'
+    </select>
+
 
 
 </mapper>

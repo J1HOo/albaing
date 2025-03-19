@@ -25,28 +25,17 @@ const AdminDashboard = () => {
     const fetchDashboardData = () => {
         setLoading(true);
 
-        // 통계 정보 가져오기
-        const fetchStats = axios.get('/api/admin/stats');
-
-        // 최근 등록된 사용자 5명 가져오기
-        const fetchRecentUsers = axios.get('/api/admin/users', { params: { limit: 5, sortOrderBy: '가입일', isDESC: true } });
-
-        // 최근 등록된 기업 5개 가져오기
-        const fetchRecentCompanies = axios.get('/api/admin/companies', { params: { limit: 5, sortOrderBy: '가입일', isDESC: true } });
-
-        // 최근 지원내역 5개 가져오기
-        const fetchRecentApplications = axios.get('/api/admin/job-applications', { params: { limit: 5, sortOrderBy: '지원일', isDESC: true } });
-
-        // 모든 요청을 병렬로 처리
-        Promise.all([fetchStats, fetchRecentUsers, fetchRecentCompanies, fetchRecentApplications])
-            .then(([statsRes, usersRes, companiesRes, applicationsRes]) => {
-                setStats(statsRes.data);
-                setRecentUsers(usersRes.data);
-                setRecentCompanies(companiesRes.data);
-                setRecentApplications(applicationsRes.data);
+        axios.get('/api/admin/stats')
+            .then(response => {
+                setStats({
+                    userCount: response.data.userCount || 0,
+                    companyCount: response.data.companyCount || 0,
+                    jobPostCount: response.data.jobPostCount || 0,
+                    pendingCompanyCount: response.data.pendingCompanyCount || 0
+                });
             })
             .catch(error => {
-                console.error('대시보드 데이터 로딩 실패:', error);
+                console.error('통계 데이터 로딩 실패:', error);
             })
             .finally(() => {
                 setLoading(false);

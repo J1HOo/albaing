@@ -5,7 +5,9 @@ import com.jobjob.albaing.mapper.AdminMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class AdminServiceImpl implements AdminService {
@@ -81,5 +83,17 @@ public class AdminServiceImpl implements AdminService {
     @Override
     public void adminJobPostStatusChange(String CompanyId) {
         adminMapper.adminJobPostStatusChange(CompanyId);
+    }
+
+    @Override
+    public Map<String, Object> getDashboardStats() {
+        Map<String, Object> stats = new HashMap<>();
+        stats.put("userCount", adminMapper.countAllUsers());
+        stats.put("companyCount", adminMapper.countAllCompanies());
+        stats.put("jobPostCount", adminMapper.countAllJobPosts());
+        stats.put("applicationCount", adminMapper.countAllApplications());
+        stats.put("reviewCount", adminMapper.countAllReviews());
+        stats.put("pendingCompanyCount", adminMapper.countPendingCompanies());
+        return stats;
     }
 }
