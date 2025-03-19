@@ -60,4 +60,12 @@ public interface ReviewMapper {
     Integer checkCommentBelongsToCompany(Map<String, Object> params);
 
     int deleteCommentByCompany(Map<String, Object> params);
+
+    List<Review> getReviewsByUser(long userId);
+
+    List<Comment> getCommentsByUser(long userId);
+
+    void deleteReviewByUser(long reviewId, long userId);
+
+    void deleteCommentByUser(long commentId, long userId);
 }

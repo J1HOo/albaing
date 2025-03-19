@@ -145,7 +145,7 @@ const MyPage = () => {
                                 />
                             </Link>
 
-                            <Link to="/mypage/reviews">
+                            <Link to={`/mypage/reviews/${userId}`}>
                                 <ActivityCard
                                     icon={
                                         <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-purple-500"

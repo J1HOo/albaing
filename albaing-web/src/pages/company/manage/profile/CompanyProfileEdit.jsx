@@ -48,7 +48,7 @@ const CompanyProfileEdit = () => {
 
         const formDataToSend = new FormData();
 
-        formDataToSend.append('company', new Blob([JSON.stringify({
+        const companyData = {
             companyName: formData.companyName,
             companyOwnerName: formData.companyOwnerName,
             companyOpenDate: formData.companyOpenDate,
@@ -56,23 +56,28 @@ const CompanyProfileEdit = () => {
             companyEmail: formData.companyEmail,
             companyRegistrationNumber: formData.companyRegistrationNumber,
             companyLocalAddress: formData.companyLocalAddress,
-            companyDescription: formData.companyDescription
-        })], {type: 'application/json'}));
+            companyDescription: formData.companyDescription,
+            companyLogo: formData.companyLogo || ""
+        };
+
+        formDataToSend.append('company', new Blob([JSON.stringify(companyData)], {type: 'application/json'}));
 
         if (logo) {
             formDataToSend.append('companyLogo', logo);
         }
 
-        axios.put(`/api/companies/${companyId}`, formDataToSend, {
-            headers: { 'Content-Type': 'multipart/form-data' }
+        fetch(`/api/companies/${companyId}`,  {
+            method: 'PUT',
+            body: formDataToSend
         })
-            .then((res) => {
+            .then((res) => res.json())
+            .then((data) => {
                 alert('회사 정보가 성공적으로 수정되었습니다!');
-                setFormData(res.data);
+                setFormData(data);
                 navigate(-1);
             })
             .catch((error) => {
-                alert(error.response?.data || "회사의 정보를 수정하는 데 실패했습니다.");
+                alert(error.message || "회사의 정보를 수정하는 데 실패했습니다.");
             });
     };
 

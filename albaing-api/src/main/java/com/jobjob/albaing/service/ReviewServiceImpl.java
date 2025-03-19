@@ -126,4 +126,28 @@ public class ReviewServiceImpl implements ReviewService {
 
         return reviewMapper.deleteCommentByCompany(params) > 0;
     }
+
+    // 내가 작성한 리뷰 목록 조회
+    @Override
+    public List<Review> getReviewsByUser(long userId) {
+        return reviewMapper.getReviewsByUser(userId);
+    }
+
+    // 내가 작성한 댓글 목록 조회
+    @Override
+    public List<Comment> getCommentsByUser(long userId) {
+        return reviewMapper.getCommentsByUser(userId);
+    }
+
+    // 내가 작성한 리뷰 삭제
+    @Override
+    public void deleteReviewByUser(long reviewId, long userId) {
+        reviewMapper.deleteReviewByUser(reviewId, userId);
+    }
+
+    // 내가 작성한 댓글 삭제
+    @Override
+    public void deleteCommentByUser(long commentId, long userId) {
+        reviewMapper.deleteCommentByUser(commentId, userId);
+    }
 }

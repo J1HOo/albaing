@@ -51,4 +51,13 @@ public interface ReviewService {
     // 회사 기능
     boolean deleteReviewByCompany(long reviewId, long companyId);
     boolean deleteCommentByCompany(long commentId, long reviewId, long companyId);
+
+    List<Review> getReviewsByUser(long userId);
+
+    List<Comment> getCommentsByUser(long userId);
+
+    void deleteReviewByUser(long reviewId, long userId);
+
+    void deleteCommentByUser(long commentId, long userId);
+
 }

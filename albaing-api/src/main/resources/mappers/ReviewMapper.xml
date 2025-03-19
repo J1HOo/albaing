@@ -190,4 +190,23 @@
                  JOIN companies c ON r.company_id = c.company_id
         ORDER BY r.review_created_at DESC
     </select>
+    <!-- 내가 작성한 리뷰 목록 조회 -->
+    <select id="getReviewsByUser">
+        SELECT * FROM reviews WHERE user_id = #{userId}
+    </select>
+
+    <!-- 내가 작성한 댓글 목록 조회 -->
+    <select id="getCommentsByUser">
+        SELECT * FROM comments WHERE user_id = #{userId}
+    </select>
+
+    <!-- 내가 작성한 리뷰 삭제 -->
+    <delete id="deleteReviewByUser">
+        DELETE FROM reviews WHERE review_id = #{reviewId} AND user_id = #{userId}
+    </delete>
+
+    <!-- 내가 작성한 댓글 삭제 -->
+    <delete id="deleteCommentByUser">
+        DELETE FROM comments WHERE comment_id = #{commentId} AND user_id = #{userId}
+    </delete>
 </mapper>
