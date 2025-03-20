@@ -11,7 +11,6 @@ const AdminCompaniesManage = () => {
     companyOwnerName: '',
     companyPhone: '',
     companyRegistrationNumber: '',
-    companyApprovalStatus: '',
     sortOrderBy: '법인명',
     isDESC: false
   });
@@ -21,7 +20,7 @@ const AdminCompaniesManage = () => {
 
   useEffect(() => {
     fetchCompanies();
-  }, [searchParams.sortOrderBy, searchParams.isDESC, searchParams.companyApprovalStatus]);
+  }, [searchParams.sortOrderBy, searchParams.isDESC]);
 
   const fetchCompanies = () => {
     setLoading(true);
@@ -31,8 +30,7 @@ const AdminCompaniesManage = () => {
       companyName: searchParams.companyName || undefined,
       companyOwnerName: searchParams.companyOwnerName || undefined,
       companyPhone: searchParams.companyPhone || undefined,
-      companyRegistrationNumber: searchParams.companyRegistrationNumber || undefined,
-      companyApprovalStatus: searchParams.companyApprovalStatus || undefined
+      companyRegistrationNumber: searchParams.companyRegistrationNumber || undefined
     };
 
     axios.get('/api/admin/companies', { params })
@@ -93,6 +91,17 @@ const AdminCompaniesManage = () => {
         });
   };
 
+  const confirmDelete = (company) => {
+    confirmModal.openModal({
+      title: '기업 삭제',
+      message: `${company.companyName} 기업을 삭제하시겠습니까? 이 작업은 되돌릴 수 없으며, 해당 기업의 모든 공고가 삭제됩니다.`,
+      confirmText: '삭제',
+      cancelText: '취소',
+      type: 'warning',
+      onConfirm: () => handleDelete(company.companyId)
+    });
+  };
+
   const handleApprove = (companyId) => {
     axios.patch(`/api/admin/companies/${companyId}/status`, { companyApprovalStatus: 'approved' })
         .then(() => {
@@ -118,17 +127,6 @@ const AdminCompaniesManage = () => {
             type: 'error'
           });
         });
-  };
-
-  const confirmDelete = (company) => {
-    confirmModal.openModal({
-      title: '기업 삭제',
-      message: `${company.companyName} 기업을 삭제하시겠습니까? 이 작업은 되돌릴 수 없으며, 해당 기업의 모든 공고가 삭제됩니다.`,
-      confirmText: '삭제',
-      cancelText: '취소',
-      type: 'warning',
-      onConfirm: () => handleDelete(company.companyId)
-    });
   };
 
   const confirmApprove = (company) => {
@@ -174,11 +172,19 @@ const AdminCompaniesManage = () => {
       <div>
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold">기업 관리</h2>
-          {pendingCompaniesCount > 0 && (
-              <div className="bg-yellow-100 text-yellow-800 py-1 px-3 rounded-full text-sm font-medium">
-                승인 대기 기업: {pendingCompaniesCount}개
-              </div>
-          )}
+          <div className="flex items-center space-x-3">
+            {pendingCompaniesCount > 0 && (
+                <div className="bg-yellow-100 text-yellow-800 py-1 px-3 rounded-full text-sm font-medium">
+                  승인 대기 기업: {pendingCompaniesCount}개
+                </div>
+            )}
+            <button
+                onClick={() => navigate('/admin/companies/approval')}
+                className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+            >
+              기업 승인 관리
+            </button>
+          </div>
         </div>
 
         <div className="mb-6 bg-white p-4 shadow rounded-lg">

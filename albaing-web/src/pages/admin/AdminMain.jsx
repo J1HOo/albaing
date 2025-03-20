@@ -75,6 +75,15 @@ const AdminMain = () => {
                                 </NavLink>
                             </li>
                             <li>
+                                <NavLink to="/admin/companies/approval"
+                                         className={({isActive}) =>
+                                             `block p-2 rounded ${isActive ? 'bg-blue-100 text-blue-800' : 'hover:bg-gray-100'}`
+                                         }
+                                >
+                                    기업 승인
+                                </NavLink>
+                            </li>
+                            <li>
                                 <NavLink to="/admin/job-posts"
                                          className={({isActive}) =>
                                              `block p-2 rounded ${isActive ? 'bg-blue-100 text-blue-800' : 'hover:bg-gray-100'}`

@@ -54,6 +54,7 @@ import AdminUserDetail from "../pages/admin/manage/users/AdminUserDetail";
 import AdminJobPostDetail from "../pages/admin/manage/jobposts/AdminJobPostDetail";
 import AdminReviewEdit from "../pages/admin/manage/reviews/AdminReviewEdit";
 import AdminApplicationsManage from "../pages/admin/manage/applications/AdminApplicationsManagee";
+import AdminCompaniesApproval from "../pages/admin/manage/companies/AdminCompaniesApproval";
 
 // 메인 레이아웃 컴포넌트
 const MainLayout = ({children}) => (
@@ -128,6 +129,7 @@ function PathRoute() {
                         <Route path="users" element={<AdminUsersManage />} />
                         <Route path="users/:userId" element={<AdminUserDetail />} />
                         <Route path="companies" element={<AdminCompaniesManage />} />
+                        <Route path="companies/approval" element={<AdminCompaniesApproval />} />
                         <Route path="companies/:companyId" element={<AdminCompanyDetail />} />
                         <Route path="job-posts" element={<AdminJobPostsManage />} />
                         <Route path="job-posts/:jobPostId" element={<AdminJobPostDetail />} />

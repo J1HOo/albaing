@@ -2,12 +2,10 @@ package com.jobjob.albaing.mapper;
 
 import com.jobjob.albaing.dto.Company;
 import org.apache.ibatis.annotations.Mapper;
-import org.springframework.data.repository.query.Param;
-import org.springframework.web.multipart.MultipartFile;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 import java.util.Map;
-
 
 @Mapper
 public interface CompanyMapper {
@@ -30,6 +28,7 @@ public interface CompanyMapper {
     // 회사 이메일 찾기
     Company findCompanyEmail(String companyName, String companyPhone);
 
+    // 이메일로 회사 정보 조회
     Company getCompanyByEmail(String email);
 
     // 비밀번호 재설정 (암호화된 비밀번호 저장)
@@ -39,14 +38,21 @@ public interface CompanyMapper {
     // 회사 상세 정보 불러오기
     Company companyDetail(long companyId);
 
-    //회사 상세 정보 수정
+    // 회사 상세 정보 수정
     void updateDetail(Company company);
 
-    //회사 로고 수정
-    int updateLogo(long companyId, String companyLogo);
+    // 회사 승인 상태 업데이트
+    void updateApprovalStatus(@Param("companyId") long companyId,
+                              @Param("approvalStatus") String approvalStatus);
 
-    // 모든 회사 목록 조회
+    // 회사 삭제
+    void deleteCompanyById(long companyId);
+
+    // 모든 회사 목록 조회 (승인된 회사)
     List<Company> getAllCompanies();
+
+    // 승인 대기 중인 회사 목록 조회
+    List<Company> getPendingCompanies();
 
     // 회사명으로 검색
     List<Company> searchCompaniesByName(@Param("keyword") String keyword);
