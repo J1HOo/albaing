@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { LoadingSpinner, useModal } from '../../../../components';
+import {useAuth} from "../../../../contexts/AuthContext";
+import {useErrorHandler} from "../../../../components/ErrorHandler";
 
 const AdminApplicationsManage = () => {
     const [applications, setApplications] = useState([]);
@@ -15,9 +17,10 @@ const AdminApplicationsManage = () => {
         isDESC: true
     });
 
-    const confirmModal = useModal();
     const navigate = useNavigate();
     const location = useLocation();
+    const { handleError, handleSuccess } = useErrorHandler();
+    const { userType } = useAuth();
 
     useEffect(() => {
         const queryParams = new URLSearchParams(location.search);
@@ -51,16 +54,10 @@ const AdminApplicationsManage = () => {
         axios.get('/api/admin/job-applications', { params })
             .then(response => {
                 setApplications(response.data);
+                setLoading(false);
             })
             .catch(error => {
-                console.error('지원 내역 로딩 실패:', error);
-                confirmModal.openModal({
-                    title: '오류',
-                    message: '지원 내역을 불러오는데 실패했습니다.',
-                    type: 'error'
-                });
-            })
-            .finally(() => {
+                handleError(error, '지원 내역을 불러오는데 실패했습니다.');
                 setLoading(false);
             });
     };
@@ -81,16 +78,10 @@ const AdminApplicationsManage = () => {
         axios.get(url)
             .then(response => {
                 setApplications(response.data);
+                setLoading(false);
             })
             .catch(error => {
-                console.error('필터링된 지원 내역 로딩 실패:', error);
-                confirmModal.openModal({
-                    title: '오류',
-                    message: '지원 내역을 불러오는데 실패했습니다.',
-                    type: 'error'
-                });
-            })
-            .finally(() => {
+                handleError(error, '필터링된 지원 내역을 불러오는데 실패했습니다.');
                 setLoading(false);
             });
     };
@@ -117,24 +108,11 @@ const AdminApplicationsManage = () => {
     };
 
     const handleStatusChange = (applicationId, status) => {
-        const statusText = {
-            'approving': '승인 대기',
-            'approved': '승인',
-            'denied': '거절'
-        }[status];
+        setLoading(true);
 
-        confirmModal.openModal({
-            title: '상태 변경 확인',
-            message: `지원 상태를 '${statusText}'로 변경하시겠습니까?`,
-            confirmText: '변경',
-            cancelText: '취소',
-            type: 'warning',
-            onConfirm: () => updateApplicationStatus(applicationId, status)
-        });
-    };
-
-    const updateApplicationStatus = (applicationId, status) => {
-        axios.put(`/api/admin/job-applications/${applicationId}/status`, { approveStatus: status })
+        axios.put(`/api/admin/job-applications/${applicationId}/status`, {
+            approveStatus: status
+        })
             .then(() => {
                 setApplications(prev =>
                     prev.map(app =>
@@ -144,20 +122,22 @@ const AdminApplicationsManage = () => {
                     )
                 );
 
-                confirmModal.openModal({
-                    title: '성공',
-                    message: '지원 상태가 변경되었습니다.',
-                    type: 'success'
-                });
+                handleSuccess(`지원 상태가 ${status === 'approved' ? '승인' : status === 'denied' ? '거절' : '대기'}로 변경되었습니다.`);
+                setLoading(false);
             })
             .catch(error => {
-                console.error('지원 상태 변경 실패:', error);
-                confirmModal.openModal({
-                    title: '오류',
-                    message: '지원 상태 변경에 실패했습니다.',
-                    type: 'error'
-                });
+                handleError(error, '지원 상태 변경에 실패했습니다.');
+                setLoading(false);
             });
+    };
+
+    // 이력서 확인 핸들러 - 권한 체크 추가
+    const handleViewResume = (resumeId, userId) => {
+        if (userType === 'admin') {
+            navigate(`/admin/resumes/${resumeId}/user/${userId}`);
+        } else {
+            handleError(null, '이력서를 확인할 권한이 없습니다.');
+        }
     };
 
     const formatDate = (dateString) => {
@@ -309,12 +289,7 @@ const AdminApplicationsManage = () => {
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                     <div className="flex space-x-2">
-                                        <button
-                                            onClick={() => navigate(`/resumes/${application.resumeId}/user/${application.userId}`)}
-                                            className="text-indigo-600 hover:text-indigo-900"
-                                        >
-                                            이력서 확인
-                                        </button>
+                                        <button onClick={() => handleViewResume(application.resumeId, application.userId)}>이력서 확인</button>
 
                                         {application.approveStatus === 'approving' && (
                                             <>

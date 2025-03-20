@@ -25,7 +25,11 @@ export const AuthProvider = ({ children }) => {
                 if (response.status === 200 && response.data) {
                     let userData;
                     if (response.data.userId) {
-                        userData = { type: 'personal', data: response.data };
+                        const isAdmin = response.data.userIsAdmin === true;
+                        userData = {
+                            type: isAdmin ? 'admin' : 'personal',
+                            data: response.data
+                        };
                     } else if (response.data.companyId) {
                         userData = { type: 'company', data: response.data };
                     }

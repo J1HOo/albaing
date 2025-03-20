@@ -2,13 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { LoadingSpinner, useModal } from '../../../../components';
+import {useErrorHandler} from "../../../../components/ErrorHandler";
 
 const AdminNoticeManage = () => {
     const [notices, setNotices] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
-    const confirmModal = useModal();
+
     const navigate = useNavigate();
+    const { handleError, handleSuccess } = useErrorHandler();
 
     useEffect(() => {
         fetchNotices();
@@ -16,52 +18,35 @@ const AdminNoticeManage = () => {
 
     const fetchNotices = () => {
         setLoading(true);
+
         axios.get('/api/notices')
             .then(response => {
                 setNotices(response.data);
+                setLoading(false);
             })
             .catch(error => {
-                console.error('공지사항 목록 로딩 실패:', error);
-                confirmModal.openModal({
-                    title: '오류',
-                    message: '공지사항 목록을 불러오는데 실패했습니다.',
-                    type: 'error'
-                });
-            })
-            .finally(() => {
+                handleError(error, '공지사항 목록을 불러오는데 실패했습니다.');
                 setLoading(false);
             });
     };
 
     const handleDelete = (noticeId) => {
+        if (!window.confirm('정말로 이 공지사항을 삭제하시겠습니까?')) {
+            return;
+        }
+
+        setLoading(true);
+
         axios.delete(`/api/admin/notices/${noticeId}`)
             .then(() => {
                 setNotices(notices.filter(notice => notice.noticeId !== noticeId));
-                confirmModal.openModal({
-                    title: '성공',
-                    message: '공지사항이 삭제되었습니다.',
-                    type: 'success'
-                });
+                handleSuccess('공지사항이 성공적으로 삭제되었습니다.');
+                setLoading(false);
             })
             .catch(error => {
-                console.error('공지사항 삭제 실패:', error);
-                confirmModal.openModal({
-                    title: '오류',
-                    message: '공지사항 삭제에 실패했습니다.',
-                    type: 'error'
-                });
+                handleError(error, '공지사항 삭제에 실패했습니다.');
+                setLoading(false);
             });
-    };
-
-    const confirmDelete = (notice) => {
-        confirmModal.openModal({
-            title: '공지사항 삭제',
-            message: `"${notice.noticeTitle}" 공지사항을 삭제하시겠습니까?`,
-            confirmText: '삭제',
-            cancelText: '취소',
-            type: 'warning',
-            onConfirm: () => handleDelete(notice.noticeId)
-        });
     };
 
     const filteredNotices = notices.filter(notice =>
@@ -129,7 +114,7 @@ const AdminNoticeManage = () => {
                                             수정
                                         </button>
                                         <button
-                                            onClick={() => confirmDelete(notice)}
+                                            onClick={() => handleDelete(notice.noticeId)}
                                             className="text-red-600 hover:text-red-900"
                                         >
                                             삭제

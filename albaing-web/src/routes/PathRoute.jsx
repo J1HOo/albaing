@@ -53,7 +53,7 @@ import NoticeDetail from "../pages/notice/NoticeDetail";
 import AdminUserDetail from "../pages/admin/manage/users/AdminUserDetail";
 import AdminJobPostDetail from "../pages/admin/manage/jobposts/AdminJobPostDetail";
 import AdminReviewEdit from "../pages/admin/manage/reviews/AdminReviewEdit";
-import AdminApplicationsManage from "../pages/admin/manage/applications/AdminApplicationsManagee";
+import AdminApplicationsManage from "../pages/admin/manage/applications/AdminApplicationsManage";
 import AdminCompaniesApproval from "../pages/admin/manage/companies/AdminCompaniesApproval";
 
 // 메인 레이아웃 컴포넌트

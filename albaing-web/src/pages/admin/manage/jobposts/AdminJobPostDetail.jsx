@@ -2,13 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { LoadingSpinner, useModal } from '../../../../components';
+import {useErrorHandler} from "../../../../components/ErrorHandler";
 
 const AdminJobPostDetail = () => {
     const { jobPostId } = useParams();
     const [jobPost, setJobPost] = useState(null);
     const [loading, setLoading] = useState(true);
-    const confirmModal = useModal();
+    const [isEditing, setIsEditing] = useState(false);
+    const [editForm, setEditForm] = useState(null);
     const navigate = useNavigate();
+    const { handleError, handleSuccess } = useErrorHandler();
 
     useEffect(() => {
         fetchJobPostDetail();
@@ -16,86 +19,75 @@ const AdminJobPostDetail = () => {
 
     const fetchJobPostDetail = () => {
         setLoading(true);
+
         axios.get(`/api/admin/job-posts/${jobPostId}`)
             .then(response => {
                 setJobPost(response.data);
+                setEditForm({...response.data});
+                setLoading(false);
             })
             .catch(error => {
-                console.error('공고 상세 정보 로딩 실패:', error);
-                confirmModal.openModal({
-                    title: '오류',
-                    message: '공고 정보를 불러오는데 실패했습니다.',
-                    type: 'error'
-                });
-            })
-            .finally(() => {
+                handleError(error, '공고 정보를 불러오는데 실패했습니다.');
                 setLoading(false);
             });
     };
 
     const handleStatusChange = (status) => {
-        confirmModal.openModal({
-            title: '상태 변경 확인',
-            message: `이 공고를 ${status ? '공개' : '비공개'}로 변경하시겠습니까?`,
-            confirmText: '변경',
-            cancelText: '취소',
-            type: 'warning',
-            onConfirm: () => updateJobPostStatus(status)
-        });
-    };
+        setLoading(true);
 
-    const updateJobPostStatus = (status) => {
-        axios.patch(`/api/admin/job-posts/${jobPostId}/status?status=${status}`)
+        axios.patch(`/api/admin/job-posts/${jobPostId}/status`, {
+            status: status
+        })
             .then(() => {
                 setJobPost(prev => ({
                     ...prev,
                     jobPostStatus: status
                 }));
-
-                confirmModal.openModal({
-                    title: '성공',
-                    message: `공고가 ${status ? '공개' : '비공개'}로 변경되었습니다.`,
-                    type: 'success'
-                });
+                handleSuccess(`공고가 ${status ? '공개' : '비공개'}로 변경되었습니다.`);
+                setLoading(false);
             })
             .catch(error => {
-                console.error('공고 상태 변경 실패:', error);
-                confirmModal.openModal({
-                    title: '오류',
-                    message: '공고 상태 변경에 실패했습니다.',
-                    type: 'error'
-                });
+                handleError(error, '공고 상태 변경에 실패했습니다.');
+                setLoading(false);
             });
     };
 
     const handleDelete = () => {
-        confirmModal.openModal({
-            title: '공고 삭제',
-            message: `${jobPost.jobPostTitle} 공고를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.`,
-            confirmText: '삭제',
-            cancelText: '취소',
-            type: 'danger',
-            onConfirm: () => deleteJobPost()
-        });
-    };
+        if (!window.confirm(`${jobPost.jobPostTitle} 공고를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.`)) {
+            return;
+        }
 
-    const deleteJobPost = () => {
-        axios.delete(`/api/admin/job-posts/${jobPostId}`)
+        setLoading(true);
+
+        // 관련 지원내역 먼저 삭제
+        axios.delete(`/api/admin/job-posts/${jobPostId}/applications`)
             .then(() => {
-                confirmModal.openModal({
-                    title: '성공',
-                    message: '공고가 삭제되었습니다.',
-                    type: 'success',
-                    onClose: () => navigate('/admin/job-posts')
-                });
+                // 공고 삭제
+                return axios.delete(`/api/admin/job-posts/${jobPostId}`);
+            })
+            .then(() => {
+                handleSuccess('공고가 성공적으로 삭제되었습니다.');
+                navigate('/admin/job-posts');
             })
             .catch(error => {
-                console.error('공고 삭제 실패:', error);
-                confirmModal.openModal({
-                    title: '오류',
-                    message: '공고 삭제에 실패했습니다.',
-                    type: 'error'
-                });
+                handleError(error, '공고 삭제에 실패했습니다.');
+                setLoading(false);
+            });
+    };
+
+    const handleUpdateJobPost = () => {
+        setLoading(true);
+
+        axios.put(`/api/admin/job-posts/${jobPostId}`, editForm)
+            .then(() => {
+                handleSuccess('공고 정보가 성공적으로 수정되었습니다.');
+                setJobPost(editForm);
+                setIsEditing(false);
+                setLoading(false);
+            })
+            .catch(error => {
+                handleError(error, '공고 정보 수정에 실패했습니다.');
+                setLoading(false);
             });
     };
 

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { LoadingSpinner, useModal } from '../../../../components';
+import {useErrorHandler} from "../../../../components/ErrorHandler";
 
 const AdminReviewEdit = () => {
     const { reviewId } = useParams();
@@ -11,8 +12,8 @@ const AdminReviewEdit = () => {
     });
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
-    const confirmModal = useModal();
     const navigate = useNavigate();
+    const { handleError, handleSuccess } = useErrorHandler();
 
     useEffect(() => {
         fetchReview();
@@ -20,22 +21,17 @@ const AdminReviewEdit = () => {
 
     const fetchReview = () => {
         setLoading(true);
+
         axios.get(`/api/admin/reviews/${reviewId}`)
             .then(response => {
                 setReview({
                     reviewTitle: response.data.reviewTitle,
                     reviewContent: response.data.reviewContent
                 });
+                setLoading(false);
             })
             .catch(error => {
-                console.error('리뷰 정보 로딩 실패:', error);
-                confirmModal.openModal({
-                    title: '오류',
-                    message: '리뷰 정보를 불러오는데 실패했습니다.',
-                    type: 'error'
-                });
-            })
-            .finally(() => {
+                handleError(error, '리뷰 정보를 불러오는데 실패했습니다.');
                 setLoading(false);
             });
     };
@@ -51,43 +47,20 @@ const AdminReviewEdit = () => {
     const handleSubmit = (e) => {
         e.preventDefault();
 
-        if (!review.reviewTitle.trim()) {
-            confirmModal.openModal({
-                title: '입력 오류',
-                message: '제목을 입력해주세요.',
-                type: 'warning'
-            });
-            return;
-        }
-
-        if (!review.reviewContent.trim()) {
-            confirmModal.openModal({
-                title: '입력 오류',
-                message: '내용을 입력해주세요.',
-                type: 'warning'
-            });
+        if (!review.reviewTitle.trim() || !review.reviewContent.trim()) {
+            handleError(null, '제목과 내용을 모두 입력해주세요.');
             return;
         }
 
         setSubmitting(true);
+
         axios.put(`/api/admin/reviews/${reviewId}`, review)
             .then(() => {
-                confirmModal.openModal({
-                    title: '성공',
-                    message: '리뷰가 수정되었습니다.',
-                    type: 'success',
-                    onClose: () => navigate('/admin/reviews')
-                });
+                handleSuccess('리뷰가 성공적으로 수정되었습니다.');
+                navigate('/admin/reviews');
             })
             .catch(error => {
-                console.error('리뷰 수정 실패:', error);
-                confirmModal.openModal({
-                    title: '오류',
-                    message: '리뷰 수정에 실패했습니다.',
-                    type: 'error'
-                });
-            })
-            .finally(() => {
+                handleError(error, '리뷰 수정에 실패했습니다.');
                 setSubmitting(false);
             });
     };

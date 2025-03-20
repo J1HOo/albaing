@@ -2,13 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { LoadingSpinner, useModal } from '../../../../components';
+import {useErrorHandler} from "../../../../components/ErrorHandler";
 
 const AdminCompanyDetail = () => {
     const { companyId } = useParams();
     const [company, setCompany] = useState(null);
     const [loading, setLoading] = useState(true);
-    const confirmModal = useModal();
+    const [isEditing, setIsEditing] = useState(false);
+    const [editForm, setEditForm] = useState(null);
     const navigate = useNavigate();
+    const { handleError, handleSuccess } = useErrorHandler();
 
     const statusMap = {
         'approved': '승인',
@@ -22,86 +25,75 @@ const AdminCompanyDetail = () => {
 
     const fetchCompanyDetail = () => {
         setLoading(true);
+
         axios.get(`/api/admin/companies/${companyId}`)
             .then(response => {
                 setCompany(response.data);
+                setEditForm({...response.data});
+                setLoading(false);
             })
             .catch(error => {
-                console.error('기업 상세 정보 로딩 실패:', error);
-                confirmModal.openModal({
-                    title: '오류',
-                    message: '기업 정보를 불러오는데 실패했습니다.',
-                    type: 'error'
-                });
-            })
-            .finally(() => {
+                handleError(error, '기업 정보를 불러오는데 실패했습니다.');
                 setLoading(false);
             });
     };
 
     const handleStatusChange = (status) => {
-        confirmModal.openModal({
-            title: '상태 변경 확인',
-            message: `이 기업을 ${statusMap[status]}(으)로 변경하시겠습니까?`,
-            confirmText: '변경',
-            cancelText: '취소',
-            type: 'warning',
-            onConfirm: () => updateCompanyStatus(status)
-        });
-    };
+        setLoading(true);
 
-    const updateCompanyStatus = (status) => {
-        axios.patch(`/api/admin/companies/${companyId}/status`, { companyApprovalStatus: status })
+        axios.patch(`/api/admin/companies/${companyId}/status`, {
+            companyApprovalStatus: status
+        })
             .then(() => {
                 setCompany(prev => ({
                     ...prev,
                     companyApprovalStatus: status
                 }));
-
-                confirmModal.openModal({
-                    title: '성공',
-                    message: '기업 상태가 변경되었습니다.',
-                    type: 'success'
-                });
+                handleSuccess(`기업 상태가 ${statusMap[status]}(으)로 변경되었습니다.`);
+                setLoading(false);
             })
             .catch(error => {
-                console.error('기업 상태 변경 실패:', error);
-                confirmModal.openModal({
-                    title: '오류',
-                    message: '기업 상태 변경에 실패했습니다.',
-                    type: 'error'
-                });
+                handleError(error, '기업 상태 변경에 실패했습니다.');
+                setLoading(false);
             });
     };
 
     const handleDelete = () => {
-        confirmModal.openModal({
-            title: '기업 삭제',
-            message: `${company.companyName} 기업을 삭제하시겠습니까? 이 작업은 되돌릴 수 없으며, 관련된 모든 공고가 비공개 처리됩니다.`,
-            confirmText: '삭제',
-            cancelText: '취소',
-            type: 'warning',
-            onConfirm: () => deleteCompany()
-        });
-    };
+        if (!window.confirm(`${company.companyName} 기업을 삭제하시겠습니까? 이 작업은 되돌릴 수 없으며, 관련된 모든 공고가 비공개 처리됩니다.`)) {
+            return;
+        }
 
-    const deleteCompany = () => {
-        axios.delete(`/api/admin/companies/${companyId}`)
+        setLoading(true);
+
+        // 관련 데이터 먼저 삭제 - 지원내역, 공고 등
+        axios.delete(`/api/admin/companies/${companyId}/related-data`)
             .then(() => {
-                confirmModal.openModal({
-                    title: '성공',
-                    message: '기업이 삭제되었습니다.',
-                    type: 'success',
-                    onClose: () => navigate('/admin/companies')
-                });
+                // 기업 삭제
+                return axios.delete(`/api/admin/companies/${companyId}`);
+            })
+            .then(() => {
+                handleSuccess('기업이 성공적으로 삭제되었습니다.');
+                navigate('/admin/companies');
             })
             .catch(error => {
-                console.error('기업 삭제 실패:', error);
-                confirmModal.openModal({
-                    title: '오류',
-                    message: '기업 삭제에 실패했습니다.',
-                    type: 'error'
-                });
+                handleError(error, '기업 삭제에 실패했습니다.');
+                setLoading(false);
+            });
+    };
+
+    const handleUpdateCompany = () => {
+        setLoading(true);
+
+        axios.put(`/api/admin/companies/${companyId}`, editForm)
+            .then(() => {
+                handleSuccess('기업 정보가 성공적으로 수정되었습니다.');
+                setCompany(editForm);
+                setIsEditing(false);
+                setLoading(false);
+            })
+            .catch(error => {
+                handleError(error, '기업 정보 수정에 실패했습니다.');
+                setLoading(false);
             });
     };
 

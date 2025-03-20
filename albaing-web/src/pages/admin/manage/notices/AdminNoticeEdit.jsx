@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import { LoadingSpinner, useModal } from '../../../../components';
-import ReactQuill from 'react-quill';
+import { LoadingSpinner } from '../../../../components';
+import {useErrorHandler} from "../../../../components/ErrorHandler";
 import 'react-quill/dist/quill.snow.css';
+import ReactQuill from 'react-quill';
+import axios from 'axios';
 
 const AdminNoticeEdit = () => {
     const { noticeId } = useParams();
     const isEditMode = !!noticeId;
     const navigate = useNavigate();
-    const alertModal = useModal();
+    const { handleError, handleSuccess } = useErrorHandler();
 
     const [formData, setFormData] = useState({
         noticeTitle: '',
@@ -25,24 +26,21 @@ const AdminNoticeEdit = () => {
         }
     }, [noticeId]);
 
-    const fetchNotice = async () => {
-        try {
-            setLoading(true);
-            const response = await axios.get(`/api/notices/${noticeId}`);
-            setFormData({
-                noticeTitle: response.data.noticeTitle,
-                noticeContent: response.data.noticeContent,
+    const fetchNotice = () => {
+        setLoading(true);
+
+        axios.get(`/api/notices/${noticeId}`)
+            .then(response => {
+                setFormData({
+                    noticeTitle: response.data.noticeTitle,
+                    noticeContent: response.data.noticeContent,
+                });
+                setLoading(false);
+            })
+            .catch(error => {
+                handleError(error, '공지사항을 불러오는데 실패했습니다.');
+                setLoading(false);
             });
-        } catch (error) {
-            console.error('공지사항 로딩 실패:', error);
-            alertModal.openModal({
-                title: '오류',
-                message: '공지사항을 불러오는데 실패했습니다.',
-                type: 'error'
-            });
-        } finally {
-            setLoading(false);
-        }
     };
 
     const handleChange = (e) => {
@@ -60,57 +58,35 @@ const AdminNoticeEdit = () => {
         }));
     };
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = (e) => {
         e.preventDefault();
 
         if (!formData.noticeTitle.trim()) {
-            alertModal.openModal({
-                title: '입력 오류',
-                message: '제목을 입력해주세요.',
-                type: 'warning'
-            });
+            handleError(null, '제목을 입력해주세요.');
             return;
         }
 
         if (!formData.noticeContent.trim()) {
-            alertModal.openModal({
-                title: '입력 오류',
-                message: '내용을 입력해주세요.',
-                type: 'warning'
-            });
+            handleError(null, '내용을 입력해주세요.');
             return;
         }
 
-        try {
-            setSubmitting(true);
+        setSubmitting(true);
 
-            if (isEditMode) {
-                await axios.put(`/api/admin/notices/${noticeId}`, formData);
-                alertModal.openModal({
-                    title: '성공',
-                    message: '공지사항이 수정되었습니다.',
-                    type: 'success',
-                    onClose: () => navigate('/admin/notices')
-                });
-            } else {
-                await axios.post('/api/admin/notices', formData);
-                alertModal.openModal({
-                    title: '성공',
-                    message: '공지사항이 등록되었습니다.',
-                    type: 'success',
-                    onClose: () => navigate('/admin/notices')
-                });
-            }
-        } catch (error) {
-            console.error('공지사항 저장 실패:', error);
-            alertModal.openModal({
-                title: '오류',
-                message: `공지사항 ${isEditMode ? '수정' : '등록'}에 실패했습니다.`,
-                type: 'error'
+        // Promise 체인 사용
+        const apiCall = isEditMode
+            ? axios.put(`/api/admin/notices/${noticeId}`, formData)
+            : axios.post('/api/admin/notices', formData);
+
+        apiCall
+            .then(response => {
+                handleSuccess(`공지사항이 성공적으로 ${isEditMode ? '수정' : '등록'}되었습니다.`);
+                navigate('/admin/notices');
+            })
+            .catch(error => {
+                handleError(error, `공지사항 ${isEditMode ? '수정' : '등록'}에 실패했습니다.`);
+                setSubmitting(false);
             });
-        } finally {
-            setSubmitting(false);
-        }
     };
 
     if (loading) return <LoadingSpinner message="공지사항 정보를 불러오는 중..." />;

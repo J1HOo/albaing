@@ -2,13 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { LoadingSpinner, useModal } from '../../../../components';
+import {useErrorHandler} from "../../../../components/ErrorHandler";
 
 const AdminUserDetail = () => {
     const { userId } = useParams();
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
-    const confirmModal = useModal();
     const navigate = useNavigate();
+    const { handleError, handleSuccess } = useErrorHandler();
 
     useEffect(() => {
         fetchUserDetail();
@@ -16,53 +17,55 @@ const AdminUserDetail = () => {
 
     const fetchUserDetail = () => {
         setLoading(true);
+
         axios.get(`/api/admin/users/${userId}`)
             .then(response => {
                 setUser(response.data);
+                setLoading(false);
             })
             .catch(error => {
-                console.error('사용자 상세 정보 로딩 실패:', error);
-                confirmModal.openModal({
-                    title: '오류',
-                    message: '사용자 정보를 불러오는데 실패했습니다.',
-                    type: 'error'
-                });
-            })
-            .finally(() => {
+                handleError(error, '사용자 정보를 불러오는데 실패했습니다.');
                 setLoading(false);
             });
     };
 
     const handleDelete = () => {
-        confirmModal.openModal({
-            title: '사용자 삭제',
-            message: `${user.userName} 사용자를 삭제하시겠습니까? 이 작업은 되돌릴 수 없으며, 관련된 모든 이력서와 지원 내역이 삭제됩니다.`,
-            confirmText: '삭제',
-            cancelText: '취소',
-            type: 'warning',
-            onConfirm: () => deleteUser()
-        });
-    };
+        if (!window.confirm(`${user.userName} 사용자를 삭제하시겠습니까? 이 작업은 되돌릴 수 없으며, 관련된 모든 이력서와 지원 내역이 삭제됩니다.`)) {
+            return;
+        }
 
-    const deleteUser = () => {
-        axios.delete(`/api/admin/users/${userId}`)
+        setLoading(true);
+
+        // 관련 데이터 먼저 삭제 - userId와 연결된 모든 지원 내역, 리뷰, 댓글 등
+        axios.delete(`/api/admin/users/${userId}/related-data`)
             .then(() => {
-                confirmModal.openModal({
-                    title: '성공',
-                    message: '사용자가 삭제되었습니다.',
-                    type: 'success',
-                    onClose: () => navigate('/admin/users')
-                });
+                // 유저 삭제
+                return axios.delete(`/api/admin/users/${userId}`);
+            })
+            .then(() => {
+                handleSuccess('사용자가 성공적으로 삭제되었습니다.');
+                navigate('/admin/users');
             })
             .catch(error => {
-                console.error('사용자 삭제 실패:', error);
-                confirmModal.openModal({
-                    title: '오류',
-                    message: '사용자 삭제에 실패했습니다.',
-                    type: 'error'
-                });
+                handleError(error, '사용자 삭제에 실패했습니다.');
+                setLoading(false);
             });
     };
+
+    const handleUpdateUser = (updatedData) => {
+        setLoading(true);
+
+        axios.put(`/api/admin/users/${userId}`, updatedData)
+            .then(() => {
+                handleSuccess('사용자 정보가 성공적으로 수정되었습니다.');
+                fetchUserDetail(); // 새로운 정보 다시 불러오기
+            })
+            .catch(error => {
+                handleError(error, '사용자 정보 수정에 실패했습니다.');
+                setLoading(false);
+            });
+    };
+
 
     const formatDate = (dateString) => {
         if (!dateString) return '';

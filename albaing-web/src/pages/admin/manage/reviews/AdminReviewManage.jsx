@@ -2,13 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { LoadingSpinner, useModal } from '../../../../components';
+import {useErrorHandler} from "../../../../components/ErrorHandler";
 
 const AdminReviewManage = () => {
     const [reviews, setReviews] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
-
-    const confirmModal = useModal();
+    const [fetchRetries, setFetchRetries] = useState(0);
+    const { handleError, handleSuccess } = useErrorHandler();
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -18,52 +19,64 @@ const AdminReviewManage = () => {
     const fetchReviews = () => {
         setLoading(true);
 
+        // 타임아웃 설정
+        const timeoutId = setTimeout(() => {
+            if (loading && fetchRetries < 3) {
+                console.log(`Retry fetching reviews: attempt ${fetchRetries + 1}`);
+                setFetchRetries(prev => prev + 1);
+                fetchReviews();
+            }
+        }, 10000); // 10초 후 재시도
+
         axios.get('/api/admin/reviews')
             .then(response => {
+                clearTimeout(timeoutId);
                 setReviews(response.data);
+                setLoading(false);
+                setFetchRetries(0); // 성공하면 재시도 카운터 초기화
             })
             .catch(error => {
-                console.error('리뷰 목록 로딩 실패:', error);
-                confirmModal.openModal({
-                    title: '오류',
-                    message: '리뷰 목록을 불러오는데 실패했습니다.',
-                    type: 'error'
-                });
-            })
-            .finally(() => {
+                clearTimeout(timeoutId);
+                handleError(error, '리뷰 목록을 불러오는데 실패했습니다.');
                 setLoading(false);
+
+                // 오류 발생 시 헤더에 토큰 존재 여부 확인
+                if (fetchRetries < 3) {
+                    console.log(`Will retry fetching reviews in 3 seconds...`);
+                    setTimeout(() => {
+                        setFetchRetries(prev => prev + 1);
+                        fetchReviews();
+                    }, 3000);
+                }
             });
     };
 
     const handleDelete = (reviewId) => {
-        axios.delete(`/api/admin/reviews/${reviewId}`)
+        if (!window.confirm('정말로 이 리뷰를 삭제하시겠습니까?')) {
+            return;
+        }
+
+        setLoading(true);
+
+        // 관련 댓글 먼저 삭제
+        axios.delete(`/api/admin/reviews/${reviewId}/comments`)
+            .then(() => {
+                // 리뷰 삭제
+                return axios.delete(`/api/admin/reviews/${reviewId}`);
+            })
             .then(() => {
                 setReviews(reviews.filter(review => review.reviewId !== reviewId));
-                confirmModal.openModal({
-                    title: '성공',
-                    message: '리뷰가 삭제되었습니다.',
-                    type: 'success'
-                });
+                handleSuccess('리뷰가 성공적으로 삭제되었습니다.');
+                setLoading(false);
             })
             .catch(error => {
-                console.error('리뷰 삭제 실패:', error);
-                confirmModal.openModal({
-                    title: '오류',
-                    message: '리뷰 삭제에 실패했습니다.',
-                    type: 'error'
-                });
+                handleError(error, '리뷰 삭제에 실패했습니다.');
+                setLoading(false);
             });
     };
 
-    const confirmDelete = (review) => {
-        confirmModal.openModal({
-            title: '리뷰 삭제',
-            message: `"${review.reviewTitle}" 리뷰를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.`,
-            confirmText: '삭제',
-            cancelText: '취소',
-            type: 'warning',
-            onConfirm: () => handleDelete(review.reviewId)
-        });
+    const handleViewReview = (companyId, reviewId) => {
+        navigate(`/companies/${companyId}/reviews/${reviewId}`);
     };
 
     const filteredReviews = reviews.filter(review =>
@@ -139,7 +152,7 @@ const AdminReviewManage = () => {
                                             수정
                                         </button>
                                         <button
-                                            onClick={() => confirmDelete(review)}
+                                            onClick={() => handleDelete(review.reviewId)}
                                             className="text-red-600 hover:text-red-900"
                                         >
                                             삭제
