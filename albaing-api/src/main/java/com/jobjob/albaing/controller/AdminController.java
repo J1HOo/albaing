@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,6 +23,9 @@ public class AdminController {
 
     @Autowired
     private UserServiceImpl userService;
+
+    @Autowired
+    private ResumeServiceImpl resumeService;
 
     @Autowired
     private CompanyServiceImpl companyService;
@@ -379,6 +383,55 @@ public class AdminController {
         List<ViewJobApplication> applications = adminService.adminSearchJobApplications(
             userName, companyName, jobPostTitle, sortOrderBy, isDESC, limit);
         return ResponseEntity.ok(applications);
+    }
+
+    // 필터링된 지원 내역 조회 API
+    @GetMapping("/job-applications")
+    public ResponseEntity<?> getFilteredApplications(
+        @RequestParam(required = false) String userId,
+        @RequestParam(required = false) String jobPostId,
+        HttpSession session
+    ) {
+        if (!isAdmin(session)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(Map.of("message", "관리자 권한이 필요합니다."));
+        }
+
+        List<JobApplication> applications = new ArrayList<>();
+
+        if (userId != null && !userId.isEmpty()) {
+            Resume resume = resumeService.getResumeByUserId(Integer.parseInt(userId));
+            if (resume != null) {
+                applications.addAll(jobApplicationService.getJobApplications(resume.getResumeId()));
+            }
+        } else if (jobPostId != null && !jobPostId.isEmpty()) {
+            applications = jobApplicationService.getJobApplicationsByJobPostId(Integer.parseInt(jobPostId));
+        } else {
+            return ResponseEntity.badRequest().body(Map.of("message", "필수 파라미터가 누락되었습니다."));
+        }
+
+        return ResponseEntity.ok(applications);
+    }
+
+    // 지원 상태 변경 API
+    @PutMapping("/applications/{jobApplicationId}/status")
+    public ResponseEntity<?> updateApplicationStatus(
+        @PathVariable int jobApplicationId,
+        @RequestBody Map<String, String> statusRequest,
+        HttpSession session
+    ) {
+        if (!isAdmin(session)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(Map.of("message", "관리자 권한이 필요합니다."));
+        }
+
+        String approveStatus = statusRequest.get("approveStatus");
+        if (approveStatus == null) {
+            return ResponseEntity.badRequest().body(Map.of("message", "상태값이 필요합니다."));
+        }
+
+        jobApplicationService.updateJobApplicationStatus(jobApplicationId, approveStatus);
+        return ResponseEntity.ok(Map.of("message", "상태가 업데이트되었습니다."));
     }
 
     //---------------------------

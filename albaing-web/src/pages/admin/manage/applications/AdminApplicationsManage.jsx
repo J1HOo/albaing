@@ -27,34 +27,32 @@ const AdminApplicationsManage = () => {
 
         if (userId || jobPostId) {
             fetchApplicationsWithFilter(userId, jobPostId);
-        } else {
+        } else if (!location.search) {
             fetchApplications();
         }
     }, [location.search]);
 
     useEffect(() => {
-        if (!location.search) {
+        if (!location.search && !loading) {
             fetchApplications();
         }
     }, [searchParams.sortOrderBy, searchParams.isDESC]);
 
     const fetchApplications = () => {
-        setLoading(true);
+        if (loading) return;
 
+        setLoading(true);
         axios.get('/api/admin/applications', {
-            params: {
-                userName: searchParams.userName || undefined,
-                companyName: searchParams.companyName || undefined,
-                jobPostTitle: searchParams.jobPostTitle || undefined,
-                approveStatus: searchParams.approveStatus || undefined
-            }
+            params: { /* ... */ }
         })
             .then(response => {
                 setApplications(response.data);
             })
             .catch(error => {
-                handleError(error, '지원 내역을 불러오는데 실패했습니다.')
-                .finally(() => setLoading(false));
+                handleError(error, '로딩 실패');
+            })
+            .finally(() => {
+                setLoading(false);
             });
     };
 
@@ -115,7 +113,6 @@ const AdminApplicationsManage = () => {
     };
 
 
-    // 이력서 확인 핸들러 - 권한 체크 추가
     const handleViewResume = (resumeId) => {
         navigate(`/resumes/${resumeId}`);
     };

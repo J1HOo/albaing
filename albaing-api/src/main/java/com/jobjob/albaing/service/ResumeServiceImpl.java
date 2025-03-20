@@ -21,7 +21,6 @@ public class ResumeServiceImpl implements ResumeService {
     // 회원가입 시 이력서 생성
     @Override
     public void createResumeForUser(User user) {
-        // userId가 null인 경우 이메일로 사용자 정보 조회
         User targetUser = user;
         if (user.getUserId() == null) {
             targetUser = userMapper.getUserByEmail(user.getUserEmail());
