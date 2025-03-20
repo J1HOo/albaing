@@ -35,21 +35,9 @@ public interface ReviewService {
     //리뷰 댓글 삭제
     void deleteComment(long commentId, long userId);
 
-
-    // 어드민 회사 전체 리스트
-    List<Map<String, Object>> getAllReviewsForAdmin();
-
-    // 어드민 리뷰 수정
-    boolean updateReviewByAdmin(Review review);
-
-    // 어드민 리뷰 삭제
-    void deleteReviewByAdmin(long reviewId);
-
-    // 어드민 댓글 삭제
-    void deleteCommentByAdmin(long commentId);
-
     // 회사 기능
     boolean deleteReviewByCompany(long reviewId, long companyId);
+
     boolean deleteCommentByCompany(long commentId, long reviewId, long companyId);
 
     List<Review> getReviewsByUser(long userId);

@@ -1,16 +1,12 @@
 package com.jobjob.albaing.controller;
 
 import com.jobjob.albaing.dto.JobApplication;
-import com.jobjob.albaing.dto.User;
 import com.jobjob.albaing.service.JobApplicationServiceImpl;
 import com.jobjob.albaing.service.MyApplicationService;
-import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
+
 
 import java.util.List;
 import java.util.HashMap;
@@ -22,14 +18,10 @@ public class JobApplicationController {
 
     @Autowired
     private JobApplicationServiceImpl jobApplicationService;
+
     @Autowired
     private MyApplicationService myApplicationService;
 
-    private boolean isAdmin() {
-        HttpSession session = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getSession();
-        User user = (User) session.getAttribute("userSession");
-        return user != null && user.getUserIsAdmin() != null && user.getUserIsAdmin();
-    }
 
     // (새로 추가) 이력서 기준 지원 내역 조회
     @GetMapping("resume/{resumeId}")
@@ -85,22 +77,5 @@ public class JobApplicationController {
         private String approveStatus;
         public String getApproveStatus() { return approveStatus; }
         public void setApproveStatus(String approveStatus) { this.approveStatus = approveStatus; }
-    }
-
-    @GetMapping("/api/admin/applications")
-    public ResponseEntity<List<JobApplication>> getAllApplications(
-        @RequestParam(required = false) String userName,
-        @RequestParam(required = false) String companyName,
-        @RequestParam(required = false) String jobPostTitle,
-        @RequestParam(required = false) String approveStatus
-    ) {
-        // 관리자 권한 확인
-        if (!isAdmin()) {
-            return ResponseEntity.status(403).build();
-        }
-
-        List<JobApplication> applications = jobApplicationService.getAllApplications(
-            userName, companyName, jobPostTitle, approveStatus);
-        return ResponseEntity.ok(applications);
     }
 }

@@ -41,13 +41,6 @@ public interface CompanyMapper {
     // 회사 상세 정보 수정
     void updateDetail(Company company);
 
-    // 회사 승인 상태 업데이트
-    void updateApprovalStatus(@Param("companyId") long companyId,
-                              @Param("approvalStatus") String approvalStatus);
-
-    // 회사 삭제
-    void deleteCompanyById(long companyId);
-
     // 모든 회사 목록 조회 (승인된 회사)
     List<Company> getAllCompanies();
 

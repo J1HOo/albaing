@@ -2,23 +2,16 @@ package com.jobjob.albaing.controller;
 
 import com.jobjob.albaing.dto.Comment;
 import com.jobjob.albaing.dto.Review;
-import com.jobjob.albaing.dto.Company;
 import com.jobjob.albaing.dto.User;
 import com.jobjob.albaing.service.FileService;
-import com.jobjob.albaing.service.FileServiceImpl;
-import com.jobjob.albaing.service.ResumeServiceImpl;
 import com.jobjob.albaing.service.ReviewServiceImpl;
 import com.jobjob.albaing.service.UserServiceImpl;
-import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -27,19 +20,12 @@ public class UserController {
 
     @Autowired
     private UserServiceImpl userService;
-    @Autowired
-    private ResumeServiceImpl resumeService;
+
     @Autowired
     private ReviewServiceImpl reviewService;
 
     @Autowired
     private FileService fileService;
-
-    private boolean isAdmin() {
-        HttpSession session = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getSession();
-        User user = (User) session.getAttribute("userSession");
-        return user != null && user.getUserIsAdmin() != null && user.getUserIsAdmin();
-    }
 
     // 마이페이지 - 사용자 정보 조회
     @GetMapping("/{userId}")
@@ -114,33 +100,5 @@ public class UserController {
     @DeleteMapping("/user/{userId}/comments/{commentId}")
     public void deleteUserComment(@PathVariable long userId, @PathVariable long commentId) {
         reviewService.deleteCommentByUser(commentId, userId);
-    }
-
-    @GetMapping("/api/admin/users")
-    public ResponseEntity<List<User>> getAllUsers(
-        @RequestParam(required = false) String userName,
-        @RequestParam(required = false) String userEmail,
-        @RequestParam(required = false) String userPhone,
-        @RequestParam(required = false) String sortOrderBy,
-        @RequestParam(required = false) Boolean isDESC
-    ) {
-        // 관리자 권한 확인
-        if (!isAdmin()) {
-            return ResponseEntity.status(403).build();
-        }
-
-        List<User> users = userService.getAllUsers(userName, userEmail, userPhone, sortOrderBy, isDESC);
-        return ResponseEntity.ok(users);
-    }
-
-    @DeleteMapping("/api/admin/users/{userId}")
-    public ResponseEntity<Void> deleteUser(@PathVariable Long userId) {
-        // 관리자 권한 확인
-        if (!isAdmin()) {
-            return ResponseEntity.status(403).build();
-        }
-
-        userService.deleteUser(userId);
-        return ResponseEntity.ok().build();
     }
 }

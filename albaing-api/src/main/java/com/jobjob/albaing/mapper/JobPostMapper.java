@@ -25,10 +25,6 @@ public interface JobPostMapper {
 
     List<JobPost> getJobPostsByCompanyId(long companyId);
 
-    List<Long> getJobPostIdsByCompanyId(long companyId);
-
-    void deleteJobPostById(long jobPostId);
-
     List<JobPost> mainPageJobPostsAlignByDueDateASC();
 
     List<JobPost> mainPageJobPostsAlignByDueDateDESC();

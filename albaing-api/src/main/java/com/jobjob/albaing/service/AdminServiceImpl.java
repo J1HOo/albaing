@@ -23,33 +23,34 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public List<ViewResume> adminSearchResumes(String userName, String resumeTitle, String resumeJobCategory, String resumeJobType, String sortOrderBy, Boolean isDESC, Integer limit) {
-        return adminMapper.adminSearchResumes(userName, resumeTitle, resumeJobCategory, resumeJobType, sortOrderBy, isDESC, limit);
-    }
-
-    @Override
-    public List<ViewJobApplication> adminSearchJobApplications(String userName, String companyName, String jobPostTitle, String sortOrderBy, Boolean isDESC, Integer limit) {
-        return adminMapper.adminSearchJobApplications(userName, companyName, jobPostTitle, sortOrderBy, isDESC, limit);
-    }
-
-    @Override
-    public List<Company> adminSearchCompanies(String companyName, String companyOwnerName, String companyPhone, String companyRegistrationNumber, String companyApprovalStatus, String sortOrderBy, Boolean isDESC, Integer limit) {
-        return adminMapper.adminSearchCompanies(companyName, companyOwnerName, companyPhone, companyRegistrationNumber, companyApprovalStatus, sortOrderBy, isDESC, limit);
-    }
-
-    @Override
-    public List<ViewJobPost> adminSearchJobPosts(String companyName, String jobPostTitle, String jobPostStatus, String sortOrderBy, Boolean isDESC, Integer limit) {
-        return adminMapper.adminSearchJobPosts(companyName, jobPostTitle, jobPostStatus, sortOrderBy, isDESC, limit);
-    }
-
-    @Override
     public User adminUserDetail(String userId) {
         return adminMapper.adminUserDetail(userId);
     }
 
     @Override
+    public void adminUserUpdate(User user) {
+        adminMapper.adminUserUpdate(user);
+    }
+
+    @Override
     public void adminUserDelete(String userId) {
         adminMapper.adminUserDelete(userId);
+    }
+
+    @Override
+    @Transactional
+    public void deleteUserWithRelatedData(String userId) {
+        adminMapper.deleteApplicationsByUserId(userId);
+        adminMapper.deleteScrapsByUserId(userId);
+        adminMapper.deleteCommentsByUserId(userId);
+        adminMapper.deleteReviewsByUserId(userId);
+        adminMapper.adminResumeDelete(userId);
+        adminMapper.adminUserDelete(userId);
+    }
+
+    @Override
+    public List<ViewResume> adminSearchResumes(String userName, String resumeTitle, String resumeJobCategory, String resumeJobType, String sortOrderBy, Boolean isDESC, Integer limit) {
+        return adminMapper.adminSearchResumes(userName, resumeTitle, resumeJobCategory, resumeJobType, sortOrderBy, isDESC, limit);
     }
 
     @Override
@@ -63,6 +64,11 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
+    public List<Company> adminSearchCompanies(String companyName, String companyOwnerName, String companyPhone, String companyRegistrationNumber, String companyApprovalStatus, String sortOrderBy, Boolean isDESC, Integer limit) {
+        return adminMapper.adminSearchCompanies(companyName, companyOwnerName, companyPhone, companyRegistrationNumber, companyApprovalStatus, sortOrderBy, isDESC, limit);
+    }
+
+    @Override
     public Company adminCompanyDetail(String companyId) {
         return adminMapper.adminCompanyDetail(companyId);
     }
@@ -70,38 +76,6 @@ public class AdminServiceImpl implements AdminService {
     @Override
     public void adminCompanyDelete(String companyId) {
         adminMapper.adminCompanyDelete(companyId);
-    }
-
-    @Override
-    public JobPost adminJobPostDetail(String jobPostId) {
-        return adminMapper.adminJobPostDetail(jobPostId);
-    }
-
-    @Override
-    public void adminJobPostDelete(String jobPostId) {
-        adminMapper.adminJobPostDelete(jobPostId);
-    }
-
-    @Override
-    public void adminJobPostStatusChange(String CompanyId) {
-        adminMapper.adminJobPostStatusChange(CompanyId);
-    }
-
-    @Override
-    public Map<String, Object> getDashboardStats() {
-        Map<String, Object> stats = new HashMap<>();
-        stats.put("userCount", adminMapper.countAllUsers());
-        stats.put("companyCount", adminMapper.countAllCompanies());
-        stats.put("jobPostCount", adminMapper.countAllJobPosts());
-        stats.put("applicationCount", adminMapper.countAllApplications());
-        stats.put("reviewCount", adminMapper.countAllReviews());
-        stats.put("pendingCompanyCount", adminMapper.countPendingCompanies());
-        return stats;
-    }
-
-    @Override
-    public void adminUserUpdate(User user) {
-        adminMapper.adminUserUpdate(user);
     }
 
     @Override
@@ -123,45 +97,49 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     @Transactional
-    public void deleteUserWithRelatedData(String userId) {
-        // 지원 내역 삭제
-        adminMapper.deleteApplicationsByUserId(userId);
-
-        // 스크랩 삭제
-        adminMapper.deleteScrapsByUserId(userId);
-
-        // 리뷰 댓글 삭제
-        adminMapper.deleteCommentsByUserId(userId);
-
-        // 리뷰 삭제
-        adminMapper.deleteReviewsByUserId(userId);
-
-        // 이력서 삭제
-        adminMapper.adminResumeDelete(userId);
-
-        // 사용자 삭제
-        adminMapper.adminUserDelete(userId);
+    public void deleteCompanyWithRelatedData(String companyId) {
+        adminMapper.deleteApplicationsByCompanyId(companyId);
+        adminMapper.deleteScrapsByCompanyId(companyId);
+        adminMapper.deleteCommentsByCompanyId(companyId);
+        adminMapper.deleteReviewsByCompanyId(companyId);
+        adminMapper.deleteJobPostsByCompanyId(companyId);
+        adminMapper.adminCompanyDelete(companyId);
     }
 
     @Override
-    @Transactional
-    public void deleteCompanyWithRelatedData(String companyId) {
-        // 공고 지원 내역 삭제
-        adminMapper.deleteApplicationsByCompanyId(companyId);
+    public List<ViewJobPost> adminSearchJobPosts(String companyName, String jobPostTitle, String jobPostStatus, String sortOrderBy, Boolean isDESC, Integer limit) {
+        return adminMapper.adminSearchJobPosts(companyName, jobPostTitle, jobPostStatus, sortOrderBy, isDESC, limit);
+    }
 
-        // 스크랩 삭제
-        adminMapper.deleteScrapsByCompanyId(companyId);
+    @Override
+    public JobPost adminJobPostDetail(String jobPostId) {
+        return adminMapper.adminJobPostDetail(jobPostId);
+    }
 
-        // 리뷰 댓글 삭제
-        adminMapper.deleteCommentsByCompanyId(companyId);
+    @Override
+    public void adminJobPostDelete(String jobPostId) {
+        adminMapper.adminJobPostDelete(jobPostId);
+    }
 
-        // 리뷰 삭제
-        adminMapper.deleteReviewsByCompanyId(companyId);
+    @Override
+    public void adminJobPostStatusChange(String CompanyId) {
+        adminMapper.adminJobPostStatusChange(CompanyId);
+    }
 
-        // 채용 공고 삭제
-        adminMapper.deleteJobPostsByCompanyId(companyId);
+    @Override
+    public List<ViewJobApplication> adminSearchJobApplications(String userName, String companyName, String jobPostTitle, String sortOrderBy, Boolean isDESC, Integer limit) {
+        return adminMapper.adminSearchJobApplications(userName, companyName, jobPostTitle, sortOrderBy, isDESC, limit);
+    }
 
-        // 기업 삭제
-        adminMapper.adminCompanyDelete(companyId);
+    @Override
+    public Map<String, Object> getDashboardStats() {
+        Map<String, Object> stats = new HashMap<>();
+        stats.put("userCount", adminMapper.countAllUsers());
+        stats.put("companyCount", adminMapper.countAllCompanies());
+        stats.put("jobPostCount", adminMapper.countAllJobPosts());
+        stats.put("applicationCount", adminMapper.countAllApplications());
+        stats.put("reviewCount", adminMapper.countAllReviews());
+        stats.put("pendingCompanyCount", adminMapper.countPendingCompanies());
+        return stats;
     }
 }

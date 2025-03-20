@@ -16,6 +16,5 @@ public interface JobApplicationService {
 
     List<JobApplication> getApplicationsByCompany(int companyId);
 
-    List<JobApplication> getAllApplications(String userName, String companyName, String jobPostTitle, String approveStatus);
 
 }

@@ -18,8 +18,4 @@ public interface UserService {
 
     // 사용자 정보 수정
     void updateUser(User user);
-
-    List<User> getAllUsers(String userName, String userEmail, String userPhone, String sortOrderBy, Boolean isDESC);
-    void deleteUser(Long userId);
-
 }

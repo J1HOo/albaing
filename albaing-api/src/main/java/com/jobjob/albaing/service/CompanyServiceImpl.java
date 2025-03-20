@@ -52,39 +52,6 @@ public class CompanyServiceImpl implements CompanyService {
         companyMapper.registerCompany(company);
     }
 
-    // 회사 승인 상태 업데이트
-    @Override
-    @Transactional
-    public boolean updateApprovalStatus(long companyId, String approvalStatus) {
-        try {
-            companyMapper.updateApprovalStatus(companyId, approvalStatus);
-            return true;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
-    // 회사 삭제
-    @Override
-    @Transactional
-    public boolean deleteCompany(long companyId) {
-        try {
-            // 회사에 속한 공고도 먼저 삭제 또는 상태 변경
-            List<Long> jobPostIds = jobPostMapper.getJobPostIdsByCompanyId(companyId);
-            for (Long jobPostId : jobPostIds) {
-                jobPostMapper.deleteJobPostById(jobPostId);
-            }
-
-            // 회사 삭제
-            companyMapper.deleteCompanyById(companyId);
-            return true;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
     // 회사명으로 검색
     @Override
     public List<Company> searchCompaniesByName(String keyword) {

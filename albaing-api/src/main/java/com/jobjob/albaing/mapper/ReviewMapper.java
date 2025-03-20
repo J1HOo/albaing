@@ -38,18 +38,6 @@ public interface ReviewMapper {
     //리뷰 댓글 삭제
     void deleteComment(long commentId, long userId);
 
-    // 어드민 회사 전체 리스트
-    List<Map<String, Object>> getAllReviewsForAdmin();
-
-    // 어드민 리뷰 수정
-    int updateReviewByAdmin(Review review);
-
-    // 어드민 리뷰 삭제
-    void deleteReviewByAdmin(long reviewId);
-
-    // 어드민 댓글 삭제
-    void deleteCommentByAdmin(long commentId);
-
     // 자회사 리뷰 가져오기
     Review getReviewById(long reviewId);
 

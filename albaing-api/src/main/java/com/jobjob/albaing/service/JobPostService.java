@@ -30,6 +30,4 @@ public interface JobPostService {
 
     List<ViewJobPost> searchJobPosts(String regionSelect, String jobCategorySelect, String searchKeyword);
 
-    List<JobPost> getAllJobPosts(String companyName, String jobPostTitle, Boolean jobPostStatus);
-    void deleteJobPost(Long jobPostId);
 }

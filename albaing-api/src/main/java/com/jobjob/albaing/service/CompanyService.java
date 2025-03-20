@@ -23,12 +23,6 @@ public interface CompanyService {
     // 회사 등록
     void registerCompany(Company company);
 
-    // 회사 승인 상태 업데이트
-    boolean updateApprovalStatus(long companyId, String approvalStatus);
-
-    // 회사 삭제
-    boolean deleteCompany(long companyId);
-
     // 회사명으로 검색
     List<Company> searchCompaniesByName(String keyword);
 
