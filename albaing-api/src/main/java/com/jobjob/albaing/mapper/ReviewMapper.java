@@ -56,4 +56,13 @@ public interface ReviewMapper {
     void deleteReviewByUser(long reviewId, long userId);
 
     void deleteCommentByUser(long commentId, long userId);
+
+    List<Map<String, Object>> getAllReviewsForAdmin();
+
+    int updateReviewByAdmin(Review review);
+
+    void deleteReviewByAdmin(long reviewId);
+
+    void deleteCommentByAdmin(long commentId);
+
 }

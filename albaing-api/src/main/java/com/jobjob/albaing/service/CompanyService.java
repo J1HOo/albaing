@@ -1,6 +1,7 @@
 package com.jobjob.albaing.service;
 
 import com.jobjob.albaing.dto.Company;
+import org.apache.ibatis.annotations.Mapper;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -28,4 +29,6 @@ public interface CompanyService {
 
     // 로고 이미지 업로드 및 업데이트
     String uploadLogoImage(MultipartFile logoImage);
+
+    void updateApprovalStatus(long companyId, String status);
 }

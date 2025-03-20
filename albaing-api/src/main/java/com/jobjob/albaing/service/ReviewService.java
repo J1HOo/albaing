@@ -48,4 +48,12 @@ public interface ReviewService {
 
     void deleteCommentByUser(long commentId, long userId);
 
+    List<Map<String, Object>> getAllReviewsForAdmin();
+
+    boolean updateReviewByAdmin(Review review);
+
+    void deleteReviewByAdmin(long reviewId);
+
+    void deleteCommentByAdmin(long commentId);
+
 }

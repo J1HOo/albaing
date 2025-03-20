@@ -49,4 +49,6 @@ public interface CompanyMapper {
 
     // 회사명으로 검색
     List<Company> searchCompaniesByName(@Param("keyword") String keyword);
+
+    void updateApprovalStatus(@Param("companyId") long companyId, @Param("status") String status);
 }

@@ -2,12 +2,11 @@ package com.jobjob.albaing.service;
 
 import com.jobjob.albaing.dto.Company;
 import com.jobjob.albaing.mapper.CompanyMapper;
-import com.jobjob.albaing.mapper.JobPostMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -15,9 +14,6 @@ public class CompanyServiceImpl implements CompanyService {
 
     @Autowired
     private CompanyMapper companyMapper;
-
-    @Autowired
-    private JobPostMapper jobPostMapper;
 
     @Autowired
     private FileService fileService;
@@ -70,6 +66,22 @@ public class CompanyServiceImpl implements CompanyService {
         } catch (Exception e) {
             e.printStackTrace();
             return null;
+        }
+    }
+
+    @Override
+    public void updateApprovalStatus(long companyId, String status) {
+        Company company = companyMapper.companyDetail(companyId);
+        if (company != null) {
+            try {
+                company.setCompanyApprovalStatus(Company.ApprovalStatus.valueOf(status));
+                company.setCompanyUpdatedAt(LocalDateTime.now());
+                companyMapper.updateApprovalStatus(companyId, status);
+            } catch (IllegalArgumentException e) {
+                throw new RuntimeException("유효하지 않은 상태 값입니다: " + status, e);
+            }
+        } else {
+            throw new RuntimeException("기업 정보를 찾을 수 없습니다: " + companyId);
         }
     }
 }

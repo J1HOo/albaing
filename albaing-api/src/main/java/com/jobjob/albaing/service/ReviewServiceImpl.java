@@ -75,30 +75,6 @@ public class ReviewServiceImpl implements ReviewService {
         reviewMapper.deleteComment(commentId, userId);
     }
 
-    // 어드민 회사 전체 리스트
-    @Override
-    public List<Map<String, Object>> getAllReviewsForAdmin() {
-        return reviewMapper.getAllReviewsForAdmin();
-    }
-
-    // 어드민 리뷰 수정
-    @Override
-    public boolean updateReviewByAdmin(Review review) {
-        return reviewMapper.updateReviewByAdmin(review) > 0;
-    }
-
-    // 어드민 리뷰 삭제
-    @Override
-    public void deleteReviewByAdmin(long reviewId) {
-        reviewMapper.deleteReviewByAdmin(reviewId);
-    }
-
-    // 어드민 댓글 삭제
-    @Override
-    public void deleteCommentByAdmin(long commentId) {
-        reviewMapper.deleteCommentByAdmin(commentId);
-    }
-
     // 자회사 리뷰 삭제
     @Override
     public boolean deleteReviewByCompany(long reviewId, long companyId) {
@@ -149,5 +125,25 @@ public class ReviewServiceImpl implements ReviewService {
     @Override
     public void deleteCommentByUser(long commentId, long userId) {
         reviewMapper.deleteCommentByUser(commentId, userId);
+    }
+
+    @Override
+    public List<Map<String, Object>> getAllReviewsForAdmin() {
+        return reviewMapper.getAllReviewsForAdmin();
+    }
+
+    @Override
+    public boolean updateReviewByAdmin(Review review) {
+        return reviewMapper.updateReviewByAdmin(review) > 0;
+    }
+
+    @Override
+    public void deleteReviewByAdmin(long reviewId) {
+        reviewMapper.deleteReviewByAdmin(reviewId);
+    }
+
+    @Override
+    public void deleteCommentByAdmin(long commentId) {
+        reviewMapper.deleteCommentByAdmin(commentId);
     }
 }

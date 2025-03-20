@@ -16,5 +16,4 @@ public interface JobApplicationService {
 
     List<JobApplication> getApplicationsByCompany(int companyId);
 
-
 }
