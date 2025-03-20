@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { LoadingSpinner, useModal } from '../../../../components';
-import {useAuth} from "../../../../contexts/AuthContext";
 import {useErrorHandler} from "../../../../components/ErrorHandler";
 
 const AdminApplicationsManage = () => {
@@ -20,7 +19,6 @@ const AdminApplicationsManage = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const { handleError, handleSuccess } = useErrorHandler();
-    const { userType } = useAuth();
 
     useEffect(() => {
         const queryParams = new URLSearchParams(location.search);
@@ -43,22 +41,20 @@ const AdminApplicationsManage = () => {
     const fetchApplications = () => {
         setLoading(true);
 
-        const params = {
-            ...searchParams,
-            userName: searchParams.userName || undefined,
-            companyName: searchParams.companyName || undefined,
-            jobPostTitle: searchParams.jobPostTitle || undefined,
-            approveStatus: searchParams.approveStatus || undefined
-        };
-
-        axios.get('/api/admin/job-applications', { params })
+        axios.get('/api/admin/applications', {
+            params: {
+                userName: searchParams.userName || undefined,
+                companyName: searchParams.companyName || undefined,
+                jobPostTitle: searchParams.jobPostTitle || undefined,
+                approveStatus: searchParams.approveStatus || undefined
+            }
+        })
             .then(response => {
                 setApplications(response.data);
-                setLoading(false);
             })
             .catch(error => {
-                handleError(error, '지원 내역을 불러오는데 실패했습니다.');
-                setLoading(false);
+                handleError(error, '지원 내역을 불러오는데 실패했습니다.')
+                .finally(() => setLoading(false));
             });
     };
 
@@ -107,22 +103,10 @@ const AdminApplicationsManage = () => {
     };
 
     const handleStatusChange = (applicationId, status) => {
-        setLoading(true);
-
-        axios.put(`/api/admin/job-applications/${applicationId}/status`, {
-            approveStatus: status
-        })
+        axios.put(`/api/applications/${applicationId}`, { approveStatus: status })
             .then(() => {
-                setApplications(prev =>
-                    prev.map(app =>
-                        app.jobApplicationId === applicationId
-                            ? { ...app, approveStatus: status }
-                            : app
-                    )
-                );
-
-                handleSuccess(`지원 상태가 ${status === 'approved' ? '승인' : status === 'denied' ? '거절' : '대기'}로 변경되었습니다.`);
-                setLoading(false);
+                fetchApplications();
+                handleSuccess(`지원 상태가 변경되었습니다.`);
             })
             .catch(error => {
                 handleError(error, '지원 상태 변경에 실패했습니다.');
@@ -130,13 +114,10 @@ const AdminApplicationsManage = () => {
             });
     };
 
+
     // 이력서 확인 핸들러 - 권한 체크 추가
-    const handleViewResume = (resumeId, userId) => {
-        if (userType === 'admin') {
-            navigate(`/admin/resumes/${resumeId}/user/${userId}`);
-        } else {
-            handleError(null, '이력서를 확인할 권한이 없습니다.');
-        }
+    const handleViewResume = (resumeId) => {
+        navigate(`/resumes/${resumeId}`);
     };
 
     const formatDate = (dateString) => {

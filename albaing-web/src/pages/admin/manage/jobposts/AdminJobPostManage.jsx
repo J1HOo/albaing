@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { LoadingSpinner, useModal } from '../../../../components';
+import {ConfirmModal, LoadingSpinner, useModal} from '../../../../components';
 
 const AdminJobPostsManage = () => {
   const [jobPosts, setJobPosts] = useState([]);
@@ -31,7 +31,13 @@ const AdminJobPostsManage = () => {
       jobPostStatus: searchParams.jobPostStatus || undefined
     };
 
-    axios.get('/api/admin/job-posts', { params })
+    axios.get('/api/admin/job-posts', {
+      params: {
+        companyName: searchParams.companyName || undefined,
+        jobPostTitle: searchParams.jobPostTitle || undefined,
+        jobPostStatus: searchParams.jobPostStatus || undefined
+      }
+    })
       .then(response => {
         setJobPosts(response.data);
       })
@@ -71,48 +77,44 @@ const AdminJobPostsManage = () => {
 
   const handleDelete = (jobPostId) => {
     axios.delete(`/api/admin/job-posts/${jobPostId}`)
-      .then(() => {
-        setJobPosts(jobPosts.filter(post => post.jobPostId !== jobPostId));
-        confirmModal.openModal({
-          title: '성공',
-          message: '공고가 삭제되었습니다.',
-          type: 'success'
+        .then(() => {
+          setJobPosts(prev => prev.filter(post => post.jobPostId !== jobPostId));
+          confirmModal.openModal({
+            title: '성공',
+            message: '공고가 삭제되었습니다.',
+            type: 'success'
+          });
+        })
+        .catch(error => {
+          console.error('공고 삭제 실패:', error);
+          confirmModal.openModal({
+            title: '오류',
+            message: '공고 삭제에 실패했습니다.',
+            type: 'error'
+          });
         });
-      })
-      .catch(error => {
-        console.error('공고 삭제 실패:', error);
-        confirmModal.openModal({
-          title: '오류',
-          message: '공고 삭제에 실패했습니다.',
-          type: 'error'
-        });
-      });
   };
 
   const toggleJobPostStatus = (jobPostId, currentStatus) => {
-    axios.patch(`/api/admin/job-posts/${jobPostId}/status?status=${!currentStatus}`)
-      .then(() => {
-        // 상태 업데이트
-        setJobPosts(prev => prev.map(post =>
-          post.jobPostId === jobPostId
-            ? { ...post, jobPostStatus: !currentStatus }
-            : post
-        ));
-
-        confirmModal.openModal({
-          title: '성공',
-          message: `공고가 ${!currentStatus ? '공개' : '비공개'}로 설정되었습니다.`,
-          type: 'success'
+    axios.patch(`/api/jobs/${jobPostId}/status?status=${!currentStatus}`)
+        .then(() => {
+          setJobPosts(prev => prev.map(post =>
+              post.jobPostId === jobPostId ? {...post, jobPostStatus: !currentStatus} : post
+          ));
+          confirmModal.openModal({
+            title: '성공',
+            message: `공고가 ${!currentStatus ? '공개' : '비공개'}로 설정되었습니다.`,
+            type: 'success'
+          });
+        })
+        .catch(error => {
+          console.error('공고 상태 변경 실패:', error);
+          confirmModal.openModal({
+            title: '오류',
+            message: '공고 상태 변경에 실패했습니다.',
+            type: 'error'
+          });
         });
-      })
-      .catch(error => {
-        console.error('공고 상태 변경 실패:', error);
-        confirmModal.openModal({
-          title: '오류',
-          message: '공고 상태 변경에 실패했습니다.',
-          type: 'error'
-        });
-      });
   };
 
   const confirmDelete = (jobPost) => {
@@ -285,6 +287,15 @@ const AdminJobPostsManage = () => {
           </tbody>
         </table>
       </div>
+      {confirmModal.isOpen && (
+          <ConfirmModal
+              isOpen={confirmModal.isOpen}
+              onClose={confirmModal.closeModal}
+              onConfirm={confirmModal.modalProps.onConfirm}
+              title={confirmModal.modalProps.title}
+              message={confirmModal.modalProps.message}
+          />
+      )}
     </div>
   );
 };

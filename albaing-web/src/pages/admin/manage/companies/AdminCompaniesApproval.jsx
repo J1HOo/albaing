@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { LoadingSpinner, useModal } from '../../../../components';
+import {ConfirmModal, LoadingSpinner, useModal} from '../../../../components';
 
 const AdminCompaniesApproval = () => {
     const [pendingCompanies, setPendingCompanies] = useState([]);
@@ -171,6 +171,16 @@ const AdminCompaniesApproval = () => {
                     ))}
                 </div>
             )}
+            {confirmModal.isOpen && (
+                <ConfirmModal
+                    isOpen={confirmModal.isOpen}
+                    onClose={confirmModal.closeModal}
+                    onConfirm={confirmModal.modalProps.onConfirm}
+                    title={confirmModal.modalProps.title}
+                    message={confirmModal.modalProps.message}
+                />
+            )}
+
         </div>
     );
 };

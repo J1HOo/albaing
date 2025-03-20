@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { LoadingSpinner, useModal } from '../../../../components';
+import { LoadingSpinner } from '../../../../components';
 import {useErrorHandler} from "../../../../components/ErrorHandler";
 
 const AdminJobPostDetail = () => {

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { LoadingSpinner, useModal } from '../../../../components';
+import { LoadingSpinner } from '../../../../components';
 import { useErrorHandler } from "../../../../components/ErrorHandler";
 
 const AdminUserDetail = () => {
@@ -45,7 +45,6 @@ const AdminUserDetail = () => {
 
         setLoading(true);
 
-        // 단일 API 호출로 유저 삭제 (관련 데이터는 서버에서 처리)
         axios.delete(`/api/admin/users/${userId}`)
             .then(() => {
                 handleSuccess('사용자가 성공적으로 삭제되었습니다.');
@@ -70,14 +69,12 @@ const AdminUserDetail = () => {
         handleUpdateUser(editForm);
     };
 
-    const handleUpdateUser = (updatedData) => {
-        setLoading(true);
-
-        axios.put(`/api/admin/users/${userId}`, updatedData)
+    const handleUpdateUser = () => {
+        axios.put(`/api/user/update/${userId}`, editForm)
             .then(() => {
-                handleSuccess('사용자 정보가 성공적으로 수정되었습니다.');
+                fetchUserDetail();
                 setIsEditing(false);
-                fetchUserDetail(); // 새로운 정보 다시 불러오기
+                handleSuccess('사용자 정보가 수정되었습니다.');
             })
             .catch(error => {
                 handleError(error, '사용자 정보 수정에 실패했습니다.');

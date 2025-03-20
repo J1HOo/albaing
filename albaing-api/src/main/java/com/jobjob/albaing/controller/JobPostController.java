@@ -1,12 +1,16 @@
 package com.jobjob.albaing.controller;
 
 import com.jobjob.albaing.dto.JobPost;
+import com.jobjob.albaing.dto.User;
 import com.jobjob.albaing.dto.ViewJobPost;
 import com.jobjob.albaing.service.JobPostService;
 import com.jobjob.albaing.service.ResumeServiceImpl;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.util.HashMap;
 import java.util.List;
@@ -21,6 +25,12 @@ public class JobPostController {
 
     @Autowired
     private ResumeServiceImpl resumeService;
+
+    private boolean isAdmin() {
+        HttpSession session = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getSession();
+        User user = (User) session.getAttribute("userSession");
+        return user != null && user.getUserIsAdmin() != null && user.getUserIsAdmin();
+    }
 
     // GET /api/jobs
     @GetMapping
@@ -141,5 +151,31 @@ public class JobPostController {
                                                     @RequestParam(required = false) String jobCategorySelect,
                                                     @RequestParam(required = false) String searchKeyword) {
         return jobPostService.searchJobPosts(regionSelect, jobCategorySelect, searchKeyword);
+    }
+
+    @GetMapping("/api/admin/job-posts")
+    public ResponseEntity<List<JobPost>> getAllJobPosts(
+        @RequestParam(required = false) String companyName,
+        @RequestParam(required = false) String jobPostTitle,
+        @RequestParam(required = false) Boolean jobPostStatus
+    ) {
+        // 관리자 권한 확인
+        if (!isAdmin()) {
+            return ResponseEntity.status(403).build();
+        }
+
+        List<JobPost> jobPosts = jobPostService.getAllJobPosts(companyName, jobPostTitle, jobPostStatus);
+        return ResponseEntity.ok(jobPosts);
+    }
+
+    @DeleteMapping("/api/admin/job-posts/{jobPostId}")
+    public ResponseEntity<Void> deleteJobPost(@PathVariable Long jobPostId) {
+        // 관리자 권한 확인
+        if (!isAdmin()) {
+            return ResponseEntity.status(403).build();
+        }
+
+        jobPostService.deleteJobPost(jobPostId);
+        return ResponseEntity.ok().build();
     }
 }

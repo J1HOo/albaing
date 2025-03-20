@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { LoadingSpinner, useModal } from '../../../../components';
+import {LoadingSpinner, useModal} from '../../../../components';
 import {useErrorHandler} from "../../../../components/ErrorHandler";
 
 const AdminCompanyDetail = () => {
@@ -12,12 +12,6 @@ const AdminCompanyDetail = () => {
     const [editForm, setEditForm] = useState(null);
     const navigate = useNavigate();
     const { handleError, handleSuccess } = useErrorHandler();
-
-    const statusMap = {
-        'approved': '승인',
-        'approving': '승인 대기',
-        'hidden': '비공개'
-    };
 
     useEffect(() => {
         fetchCompanyDetail();
@@ -39,18 +33,12 @@ const AdminCompanyDetail = () => {
     };
 
     const handleStatusChange = (status) => {
-        setLoading(true);
-
         axios.patch(`/api/admin/companies/${companyId}/status`, {
             companyApprovalStatus: status
         })
             .then(() => {
-                setCompany(prev => ({
-                    ...prev,
-                    companyApprovalStatus: status
-                }));
-                handleSuccess(`기업 상태가 ${statusMap[status]}(으)로 변경되었습니다.`);
-                setLoading(false);
+                setCompany(prev => ({...prev, companyApprovalStatus: status}));
+                handleSuccess(`기업 상태가 변경되었습니다.`);
             })
             .catch(error => {
                 handleError(error, '기업 상태 변경에 실패했습니다.');

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { LoadingSpinner, useModal } from '../../../../components';
+import {ConfirmModal, LoadingSpinner, useModal} from '../../../../components';
 
 const AdminUsersManage = () => {
     const [users, setUsers] = useState([]);
@@ -21,29 +21,31 @@ const AdminUsersManage = () => {
         fetchUsers();
     }, [searchParams.sortOrderBy, searchParams.isDESC]);
 
-    const fetchUsers = async () => {
-        try {
-            setLoading(true);
+    const fetchUsers = () => {
+        setLoading(true);
 
-            const params = {
-                ...searchParams,
-                userName: searchParams.userName || undefined,
-                userEmail: searchParams.userEmail || undefined,
-                userPhone: searchParams.userPhone || undefined
-            };
+        const params = {
+            ...searchParams,
+            userName: searchParams.userName || undefined,
+            userEmail: searchParams.userEmail || undefined,
+            userPhone: searchParams.userPhone || undefined
+        };
 
-            const response = await axios.get('/api/admin/users', { params });
-            setUsers(response.data);
-        } catch (error) {
-            console.error('회원 목록 로딩 실패:', error);
-            confirmModal.openModal({
-                title: '오류',
-                message: '회원 목록을 불러오는데 실패했습니다.',
-                type: 'error'
+        axios.get('/api/admin/users', { params })
+            .then(response => {
+                setUsers(response.data);
+            })
+            .catch(error => {
+                console.error('회원 목록 로딩 실패:', error);
+                confirmModal.openModal({
+                    title: '오류',
+                    message: '회원 목록을 불러오는데 실패했습니다.',
+                    type: 'error'
+                });
+            })
+            .finally(() => {
+                setLoading(false);
             });
-        } finally {
-            setLoading(false);
-        }
     };
 
     const handleSearch = (e) => {
@@ -240,6 +242,15 @@ const AdminUsersManage = () => {
                     </tbody>
                 </table>
             </div>
+            {confirmModal.isOpen && (
+                <ConfirmModal
+                    isOpen={confirmModal.isOpen}
+                    onClose={confirmModal.closeModal}
+                    onConfirm={confirmModal.modalProps.onConfirm}
+                    title={confirmModal.modalProps.title}
+                    message={confirmModal.modalProps.message}
+                />
+            )}
         </div>
     );
 };

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { LoadingSpinner, useModal } from '../../../../components';
+import {ConfirmModal, LoadingSpinner, useModal} from '../../../../components';
 
 const AdminCompaniesManage = () => {
   const [companies, setCompanies] = useState([]);
@@ -107,14 +107,8 @@ const AdminCompaniesManage = () => {
   const handleApprove = (companyId) => {
     axios.patch(`/api/admin/companies/${companyId}/status`, { companyApprovalStatus: 'approved' })
         .then(() => {
-          setCompanies(prev =>
-              prev.map(company =>
-                  company.companyId === companyId
-                      ? { ...company, companyApprovalStatus: 'approved' }
-                      : company
-              )
-          );
-
+          // 전체 목록 리로드
+          fetchCompanies();
           confirmModal.openModal({
             title: '성공',
             message: '기업이 승인되었습니다.',
@@ -357,6 +351,16 @@ const AdminCompaniesManage = () => {
             </tbody>
           </table>
         </div>
+
+        {confirmModal.isOpen && (
+            <ConfirmModal
+                isOpen={confirmModal.isOpen}
+                onClose={confirmModal.closeModal}
+                onConfirm={confirmModal.modalProps.onConfirm}
+                title={confirmModal.modalProps.title}
+                message={confirmModal.modalProps.message}
+            />
+        )}
       </div>
   );
 };
