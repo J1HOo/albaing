@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 @RestController
 @RequestMapping("/api/admin")
@@ -20,16 +19,19 @@ public class AdminController {
 
     // 개인 검색
     @GetMapping("/users")
-    public List<AdminUser> adminSearchUsers(@RequestParam(required = false) String userName,
-                                            @RequestParam(required = false) String userEmail,
-                                            @RequestParam(required = false) String userPhone,
-                                            @RequestParam(required = false) String sortOrderBy,
-                                            @RequestParam(required = false) Boolean isDESC) {
-        if (Objects.equals(sortOrderBy, "") || sortOrderBy == null) {
+    public List<AdminUser> adminSearchUsers(
+        @RequestParam(required = false) String userName,
+        @RequestParam(required = false) String userEmail,
+        @RequestParam(required = false) String userPhone,
+        @RequestParam(required = false) String sortOrderBy,
+        @RequestParam(required = false) Boolean isDESC,
+        @RequestParam(required = false) Integer limit) {
+
+        if (sortOrderBy == null || sortOrderBy.isEmpty()) {
             sortOrderBy = "이름";
         }
 
-        return adminService.adminSearchUsers(userName, userEmail, userPhone, sortOrderBy, isDESC);
+        return adminService.adminSearchUsers(userName, userEmail, userPhone, sortOrderBy, isDESC, limit);
     }
 
     // 개인 정보 수정
@@ -51,9 +53,10 @@ public class AdminController {
                                                @RequestParam(required = false) String resumeCategory,
                                                @RequestParam(required = false) String resumeJobType,
                                                @RequestParam(defaultValue = "이름") String sortOrderBy,
-                                               @RequestParam(required = false) Boolean isDESC) {
+                                               @RequestParam(required = false) Boolean isDESC,
+                                               @RequestParam(required = false) Integer limit) {
 
-        return adminService.adminSearchResumes(userName, resumeTitle, resumeCategory, resumeJobType, sortOrderBy, isDESC);
+        return adminService.adminSearchResumes(userName, resumeTitle, resumeCategory, resumeJobType, sortOrderBy, isDESC, limit);
     }
 
     // 공고지원 검색
@@ -62,9 +65,10 @@ public class AdminController {
                                                                @RequestParam(required = false) String companyName,
                                                                @RequestParam(required = false) String jobPostTitle,
                                                                @RequestParam(defaultValue = "지원자명") String sortOrderBy,
-                                                               @RequestParam(required = false) Boolean isDESC) {
+                                                               @RequestParam(required = false) Boolean isDESC,
+                                                               @RequestParam(required = false) Integer limit) {
 
-        return adminService.adminSearchJobApplications(userName, companyName, jobPostTitle, sortOrderBy, isDESC);
+        return adminService.adminSearchJobApplications(userName, companyName, jobPostTitle, sortOrderBy, isDESC, limit);
     }
 
     // 법인 검색
@@ -74,9 +78,10 @@ public class AdminController {
                                               @RequestParam(required = false) String companyPhone,
                                               @RequestParam(required = false) String companyRegistrationNumber,
                                               @RequestParam(defaultValue = "법인명") String sortOrderBy,
-                                              @RequestParam(required = false) Boolean isDESC) {
+                                              @RequestParam(required = false) Boolean isDESC,
+                                              @RequestParam(required = false) Integer limit) {
 
-        return adminService.adminSearchCompanies(companyName, companyOwnerName, companyPhone, companyRegistrationNumber, sortOrderBy, isDESC);
+        return adminService.adminSearchCompanies(companyName, companyOwnerName, companyPhone, companyRegistrationNumber, sortOrderBy, isDESC, limit);
     }
 
     @PatchMapping("/companies/{companyId}/status")
@@ -103,9 +108,10 @@ public class AdminController {
                                                  @RequestParam(required = false) String jobPostTitle,
                                                  @RequestParam(required = false) String jobPostStatus,
                                                  @RequestParam(defaultValue = "공고 제목") String sortOrderBy,
-                                                 @RequestParam(required = false) Boolean isDESC) {
+                                                 @RequestParam(required = false) Boolean isDESC,
+                                                 @RequestParam(required = false) Integer limit) {
 
-        return adminService.adminSearchJobPosts(companyName, jobPostTitle, jobPostStatus, sortOrderBy, isDESC);
+        return adminService.adminSearchJobPosts(companyName, jobPostTitle, jobPostStatus, sortOrderBy, isDESC, limit);
     }
 
     // 개인 상세 조회
