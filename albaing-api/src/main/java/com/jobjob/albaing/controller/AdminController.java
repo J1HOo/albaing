@@ -71,36 +71,6 @@ public class AdminController {
         return adminService.adminSearchJobApplications(userName, companyName, jobPostTitle, sortOrderBy, isDESC, limit);
     }
 
-    // 법인 검색
-    @GetMapping("/companies")
-    public List<Company> adminSearchCompanies(@RequestParam(required = false) String companyName,
-                                              @RequestParam(required = false) String companyOwnerName,
-                                              @RequestParam(required = false) String companyPhone,
-                                              @RequestParam(required = false) String companyRegistrationNumber,
-                                              @RequestParam(defaultValue = "법인명") String sortOrderBy,
-                                              @RequestParam(required = false) Boolean isDESC,
-                                              @RequestParam(required = false) Integer limit) {
-
-        return adminService.adminSearchCompanies(companyName, companyOwnerName, companyPhone, companyRegistrationNumber, sortOrderBy, isDESC, limit);
-    }
-
-    @PatchMapping("/companies/{companyId}/status")
-    public ResponseEntity<?> updateCompanyStatus(
-        @PathVariable String companyId,
-        @RequestBody Map<String, String> statusRequest) {
-
-        try {
-            String status = statusRequest.get("companyApprovalStatus");
-            if (status == null || status.isEmpty()) {
-                return ResponseEntity.badRequest().body(Map.of("message", "상태 값이 없습니다."));
-            }
-
-            adminService.updateCompanyStatus(companyId, status);
-            return ResponseEntity.ok().build();
-        } catch (Exception e) {
-            return ResponseEntity.status(500).body(Map.of("message", "기업 상태 변경 중 오류가 발생했습니다."));
-        }
-    }
 
     // 공고 검색
     @GetMapping("/job-posts")
@@ -133,19 +103,6 @@ public class AdminController {
         return adminService.adminResumeDetail(resumeId);
     }
 
-    // 회사 상세 조회
-    @GetMapping("/companies/{companyId}")
-    public Company adminCompanyDetail(@PathVariable String companyId) {
-        return adminService.adminCompanyDetail(companyId);
-    }
-
-    // 회사 유저 삭제 + 공고 상태 전환
-    @DeleteMapping("/companies/{companyId}")
-    public void adminCompanyDelete(@PathVariable String companyId) {
-        adminService.adminCompanyDelete(companyId);
-        // 공고 상태 비공개로 전환
-        adminService.adminJobPostStatusChange(companyId);
-    }
 
     // 공고 상세 조회
     @GetMapping("/job-posts/{jobPostId}")
