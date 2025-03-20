@@ -2,12 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { LoadingSpinner, useModal } from '../../../../components';
-import {useErrorHandler} from "../../../../components/ErrorHandler";
+import { useErrorHandler } from "../../../../components/ErrorHandler";
 
 const AdminUserDetail = () => {
     const { userId } = useParams();
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [isEditing, setIsEditing] = useState(false);
+    const [editForm, setEditForm] = useState(null);
     const navigate = useNavigate();
     const { handleError, handleSuccess } = useErrorHandler();
 
@@ -15,12 +17,19 @@ const AdminUserDetail = () => {
         fetchUserDetail();
     }, [userId]);
 
+    useEffect(() => {
+        if (user) {
+            setEditForm({...user});
+        }
+    }, [user]);
+
     const fetchUserDetail = () => {
         setLoading(true);
 
         axios.get(`/api/admin/users/${userId}`)
             .then(response => {
                 setUser(response.data);
+                setEditForm({...response.data});
                 setLoading(false);
             })
             .catch(error => {
@@ -30,18 +39,14 @@ const AdminUserDetail = () => {
     };
 
     const handleDelete = () => {
-        if (!window.confirm(`${user.userName} 사용자를 삭제하시겠습니까? 이 작업은 되돌릴 수 없으며, 관련된 모든 이력서와 지원 내역이 삭제됩니다.`)) {
+        if (!window.confirm(`${user.userName} 사용자를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.`)) {
             return;
         }
 
         setLoading(true);
 
-        // 관련 데이터 먼저 삭제 - userId와 연결된 모든 지원 내역, 리뷰, 댓글 등
-        axios.delete(`/api/admin/users/${userId}/related-data`)
-            .then(() => {
-                // 유저 삭제
-                return axios.delete(`/api/admin/users/${userId}`);
-            })
+        // 단일 API 호출로 유저 삭제 (관련 데이터는 서버에서 처리)
+        axios.delete(`/api/admin/users/${userId}`)
             .then(() => {
                 handleSuccess('사용자가 성공적으로 삭제되었습니다.');
                 navigate('/admin/users');
@@ -52,12 +57,26 @@ const AdminUserDetail = () => {
             });
     };
 
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setEditForm(prev => ({
+            ...prev,
+            [name]: value
+        }));
+    };
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        handleUpdateUser(editForm);
+    };
+
     const handleUpdateUser = (updatedData) => {
         setLoading(true);
 
         axios.put(`/api/admin/users/${userId}`, updatedData)
             .then(() => {
                 handleSuccess('사용자 정보가 성공적으로 수정되었습니다.');
+                setIsEditing(false);
                 fetchUserDetail(); // 새로운 정보 다시 불러오기
             })
             .catch(error => {
@@ -65,7 +84,6 @@ const AdminUserDetail = () => {
                 setLoading(false);
             });
     };
-
 
     const formatDate = (dateString) => {
         if (!dateString) return '';
@@ -86,6 +104,12 @@ const AdminUserDetail = () => {
                         className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
                     >
                         목록으로
+                    </button>
+                    <button
+                        onClick={() => setIsEditing(!isEditing)}
+                        className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                    >
+                        {isEditing ? '수정 취소' : '정보 수정'}
                     </button>
                 </div>
             </div>
@@ -127,41 +151,137 @@ const AdminUserDetail = () => {
 
                 {/* 사용자 상세 정보 */}
                 <div className="p-6">
-                    <dl className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-6">
-                        <div>
-                            <dt className="text-sm font-medium text-gray-500">이메일</dt>
-                            <dd className="mt-1 text-sm text-gray-900">{user.userEmail}</dd>
-                        </div>
+                    {isEditing ? (
+                        <form onSubmit={handleSubmit} className="space-y-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-6">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700">이름</label>
+                                    <input
+                                        type="text"
+                                        name="userName"
+                                        value={editForm.userName}
+                                        onChange={handleInputChange}
+                                        className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
+                                    />
+                                </div>
 
-                        <div>
-                            <dt className="text-sm font-medium text-gray-500">전화번호</dt>
-                            <dd className="mt-1 text-sm text-gray-900">{user.userPhone}</dd>
-                        </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700">이메일</label>
+                                    <input
+                                        type="email"
+                                        name="userEmail"
+                                        value={editForm.userEmail}
+                                        onChange={handleInputChange}
+                                        className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
+                                    />
+                                </div>
 
-                        <div>
-                            <dt className="text-sm font-medium text-gray-500">생년월일</dt>
-                            <dd className="mt-1 text-sm text-gray-900">{formatDate(user.userBirthdate)}</dd>
-                        </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700">전화번호</label>
+                                    <input
+                                        type="text"
+                                        name="userPhone"
+                                        value={editForm.userPhone}
+                                        onChange={handleInputChange}
+                                        className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
+                                    />
+                                </div>
 
-                        <div>
-                            <dt className="text-sm font-medium text-gray-500">성별</dt>
-                            <dd className="mt-1 text-sm text-gray-900">
-                                {user.userGender === 'male' ? '남성' : user.userGender === 'female' ? '여성' : '기타'}
-                            </dd>
-                        </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700">성별</label>
+                                    <select
+                                        name="userGender"
+                                        value={editForm.userGender || ''}
+                                        onChange={handleInputChange}
+                                        className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
+                                    >
+                                        <option value="">선택</option>
+                                        <option value="male">남성</option>
+                                        <option value="female">여성</option>
+                                    </select>
+                                </div>
 
-                        <div>
-                            <dt className="text-sm font-medium text-gray-500">주소</dt>
-                            <dd className="mt-1 text-sm text-gray-900">{user.userAddress || '정보 없음'}</dd>
-                        </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700">주소</label>
+                                    <input
+                                        type="text"
+                                        name="userAddress"
+                                        value={editForm.userAddress || ''}
+                                        onChange={handleInputChange}
+                                        className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
+                                    />
+                                </div>
 
-                        <div>
-                            <dt className="text-sm font-medium text-gray-500">가입일</dt>
-                            <dd className="mt-1 text-sm text-gray-900">{formatDate(user.userCreatedAt)}</dd>
-                        </div>
-                    </dl>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700">관리자 권한</label>
+                                    <div className="mt-2">
+                                        <label className="inline-flex items-center">
+                                            <input
+                                                type="checkbox"
+                                                name="userIsAdmin"
+                                                checked={editForm.userIsAdmin || false}
+                                                onChange={(e) => setEditForm({...editForm, userIsAdmin: e.target.checked})}
+                                                className="h-4 w-4 text-blue-600 border-gray-300 rounded"
+                                            />
+                                            <span className="ml-2 text-sm text-gray-700">관리자 권한 부여</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
 
-                    {/* 추가 정보 - 이력서 링크 등 */}
+                            <div className="flex justify-end space-x-2">
+                                <button
+                                    type="button"
+                                    onClick={() => setIsEditing(false)}
+                                    className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md"
+                                >
+                                    취소
+                                </button>
+                                <button
+                                    type="submit"
+                                    className="px-4 py-2 bg-blue-600 text-white rounded-md"
+                                >
+                                    저장
+                                </button>
+                            </div>
+                        </form>
+                    ) : (
+                        <dl className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-6">
+                            <div>
+                                <dt className="text-sm font-medium text-gray-500">이메일</dt>
+                                <dd className="mt-1 text-sm text-gray-900">{user.userEmail}</dd>
+                            </div>
+
+                            <div>
+                                <dt className="text-sm font-medium text-gray-500">전화번호</dt>
+                                <dd className="mt-1 text-sm text-gray-900">{user.userPhone}</dd>
+                            </div>
+
+                            <div>
+                                <dt className="text-sm font-medium text-gray-500">생년월일</dt>
+                                <dd className="mt-1 text-sm text-gray-900">{formatDate(user.userBirthdate)}</dd>
+                            </div>
+
+                            <div>
+                                <dt className="text-sm font-medium text-gray-500">성별</dt>
+                                <dd className="mt-1 text-sm text-gray-900">
+                                    {user.userGender === 'male' ? '남성' : user.userGender === 'female' ? '여성' : '기타'}
+                                </dd>
+                            </div>
+
+                            <div>
+                                <dt className="text-sm font-medium text-gray-500">주소</dt>
+                                <dd className="mt-1 text-sm text-gray-900">{user.userAddress || '정보 없음'}</dd>
+                            </div>
+
+                            <div>
+                                <dt className="text-sm font-medium text-gray-500">가입일</dt>
+                                <dd className="mt-1 text-sm text-gray-900">{formatDate(user.userCreatedAt)}</dd>
+                            </div>
+                        </dl>
+                    )}
+
+                    {/* 추가 정보 - 이력서 및 지원내역 링크 */}
                     <div className="mt-8">
                         <h4 className="text-lg font-medium text-gray-700 mb-2">추가 정보</h4>
                         <div className="flex space-x-2">
@@ -170,6 +290,12 @@ const AdminUserDetail = () => {
                                 className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
                             >
                                 지원 내역 보기
+                            </button>
+                            <button
+                                onClick={() => navigate(`/admin/resumes?userId=${user.userId}`)}
+                                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                            >
+                                이력서 보기
                             </button>
                         </div>
                     </div>

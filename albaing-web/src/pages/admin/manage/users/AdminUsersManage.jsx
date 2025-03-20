@@ -67,25 +67,6 @@ const AdminUsersManage = () => {
         }));
     };
 
-    const handleDelete = async (userId) => {
-        try {
-            await axios.delete(`/api/admin/users/${userId}`);
-            setUsers(users.filter(user => user.userId !== userId));
-            confirmModal.openModal({
-                title: '성공',
-                message: '회원이 삭제되었습니다.',
-                type: 'success'
-            });
-        } catch (error) {
-            console.error('회원 삭제 실패:', error);
-            confirmModal.openModal({
-                title: '오류',
-                message: '회원 삭제에 실패했습니다.',
-                type: 'error'
-            });
-        }
-    };
-
     const confirmDelete = (user) => {
         confirmModal.openModal({
             title: '회원 삭제',
@@ -95,6 +76,29 @@ const AdminUsersManage = () => {
             type: 'warning',
             onConfirm: () => handleDelete(user.userId)
         });
+    };
+
+    const handleDelete = (userId) => {
+        axios.delete(`/api/admin/users/${userId}/related-data`)
+            .then(() => {
+                return axios.delete(`/api/admin/users/${userId}`);
+            })
+            .then(() => {
+                setUsers(users.filter(user => user.userId !== userId));
+                confirmModal.openModal({
+                    title: '성공',
+                    message: '회원이 삭제되었습니다.',
+                    type: 'success'
+                });
+            })
+            .catch(error => {
+                console.error('회원 삭제 실패:', error);
+                confirmModal.openModal({
+                    title: '오류',
+                    message: '회원 삭제에 실패했습니다.',
+                    type: 'error'
+                });
+            });
     };
 
     const formatDate = (dateString) => {

@@ -41,6 +41,9 @@
                 DESC
             </if>
         </trim>
+        <if test="limit != null">
+            LIMIT #{limit}
+        </if>
     </select>
 
     <update id="adminUserUpdate">
@@ -51,10 +54,10 @@
             user_phone = #{userPhone},
             user_gender = #{userGender},
             user_address = #{userAddress},
+            user_is_admin = #{userIsAdmin},
             user_updated_at = NOW()
         WHERE user_id = #{userId}
     </update>
-
 
     <!--  개인 이력서 조회 : 제목, 직업 분류, 근무 형태로 검색 -->
     <!--  String userName, resumeTitle, resumeJobCategory, resumeJobType 을 받아 해당 항목과 부분 이상 일치하는 항목 찾기-->
@@ -79,6 +82,9 @@
                 <if test="resumeJobType != null and resumeJobType != ''">
                     AND RESUMES.resume_job_type LIKE CONCAT('%', #{resumeJobType}, '%')
                 </if>
+                <if test="userId != null and userId != ''">
+                    AND USERS.user_id = #{userId}
+                </if>
             </trim>
         </where>
         <trim prefix="ORDER BY">
@@ -95,6 +101,9 @@
                 DESC
             </if>
         </trim>
+        <if test="limit != null">
+            LIMIT #{limit}
+        </if>
     </select>
 
     <!--  공고 지원 조회 : 지원자명, 법인명, 공고 제목 으로 검색 -->
@@ -133,6 +142,9 @@
                 DESC
             </if>
         </trim>
+        <if test="limit != null">
+            LIMIT #{limit}
+        </if>
     </select>
 
     <!--  기업 회원 조회 : 법인명, 대표자명, 전화번호, 사업자등록번호 로 검색, 가입 승인 대기중인 기업 회원 조회에서도 사용 -->
@@ -157,6 +169,9 @@
                 <if test="companyRegistrationNumber != null and companyRegistrationNumber != ''">
                     AND company_registration_number LIKE CONCAT('%', #{companyRegistrationNumber}, '%')
                 </if>
+                <if test="companyApprovalStatus != null and companyApprovalStatus != ''">
+                    AND company_approval_status = #{companyApprovalStatus}
+                </if>
             </trim>
         </where>
         <trim prefix="ORDER BY">
@@ -169,10 +184,16 @@
             <if test="sortOrderBy == '사업자등록번호'">
                 company_registration_number
             </if>
+            <if test="sortOrderBy == '가입일'">
+                company_created_at
+            </if>
             <if test="isDESC == true">
                 DESC
             </if>
         </trim>
+        <if test="limit != null">
+            LIMIT #{limit}
+        </if>
     </select>
 
     <!-- 공고 조회 : 법인명, 공고 제목, 공고 상태 로 검색 -->
@@ -193,7 +214,7 @@
                     AND job_post_title LIKE CONCAT('%', #{jobPostTitle}, '%')
                 </if>
                 <if test="jobPostStatus != null and jobPostStatus != ''">
-                    AND job_post_status LIKE CONCAT('%', #{jobPostStatus}, '%')
+                    AND job_post_status = #{jobPostStatus}
                 </if>
             </trim>
         </where>
@@ -211,6 +232,9 @@
                 DESC
             </if>
         </trim>
+        <if test="limit != null">
+            LIMIT #{limit}
+        </if>
     </select>
 
     <!-- 개인 회원 상세 정보 조회 -->

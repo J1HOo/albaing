@@ -59,18 +59,14 @@ const AdminCompanyDetail = () => {
     };
 
     const handleDelete = () => {
-        if (!window.confirm(`${company.companyName} 기업을 삭제하시겠습니까? 이 작업은 되돌릴 수 없으며, 관련된 모든 공고가 비공개 처리됩니다.`)) {
+        if (!window.confirm(`${company.companyName} 기업을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.`)) {
             return;
         }
 
         setLoading(true);
 
-        // 관련 데이터 먼저 삭제 - 지원내역, 공고 등
-        axios.delete(`/api/admin/companies/${companyId}/related-data`)
-            .then(() => {
-                // 기업 삭제
-                return axios.delete(`/api/admin/companies/${companyId}`);
-            })
+        // 기업 삭제 (관련 데이터는 서버에서 처리)
+        axios.delete(`/api/admin/companies/${companyId}`)
             .then(() => {
                 handleSuccess('기업이 성공적으로 삭제되었습니다.');
                 navigate('/admin/companies');

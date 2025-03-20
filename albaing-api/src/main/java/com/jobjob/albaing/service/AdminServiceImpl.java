@@ -33,8 +33,8 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public List<Company> adminSearchCompanies(String companyName, String companyOwnerName, String companyPhone, String companyRegistrationNumber, String sortOrderBy, Boolean isDESC, Integer limit) {
-        return adminMapper.adminSearchCompanies(companyName, companyOwnerName, companyPhone, companyRegistrationNumber, sortOrderBy, isDESC, limit);
+    public List<Company> adminSearchCompanies(String companyName, String companyOwnerName, String companyPhone, String companyRegistrationNumber, String companyApprovalStatus, String sortOrderBy, Boolean isDESC, Integer limit) {
+        return adminMapper.adminSearchCompanies(companyName, companyOwnerName, companyPhone, companyRegistrationNumber, companyApprovalStatus, sortOrderBy, isDESC, limit);
     }
 
     @Override

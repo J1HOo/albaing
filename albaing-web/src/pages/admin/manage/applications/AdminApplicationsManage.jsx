@@ -65,17 +65,16 @@ const AdminApplicationsManage = () => {
     const fetchApplicationsWithFilter = (userId, jobPostId) => {
         setLoading(true);
 
-        let url;
+        let url = '/api/admin/job-applications';
+        let params = {};
+
         if (userId) {
-            url = `/api/admin/job-applications/user/${userId}`;
+            params.userId = userId;
         } else if (jobPostId) {
-            url = `/api/admin/job-applications/job-post/${jobPostId}`;
-        } else {
-            fetchApplications();
-            return;
+            params.jobPostId = jobPostId;
         }
 
-        axios.get(url)
+        axios.get(url, { params })
             .then(response => {
                 setApplications(response.data);
                 setLoading(false);

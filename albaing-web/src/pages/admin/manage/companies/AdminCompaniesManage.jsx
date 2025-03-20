@@ -11,6 +11,7 @@ const AdminCompaniesManage = () => {
     companyOwnerName: '',
     companyPhone: '',
     companyRegistrationNumber: '',
+    companyApprovalStatus: '',
     sortOrderBy: '법인명',
     isDESC: false
   });
@@ -71,6 +72,18 @@ const AdminCompaniesManage = () => {
     }));
   };
 
+
+  const confirmDelete = (company) => {
+    confirmModal.openModal({
+      title: '기업 삭제',
+      message: `${company.companyName} 기업을 삭제하시겠습니까? 이 작업은 되돌릴 수 없으며, 해당 기업의 모든 공고가 삭제됩니다.`,
+      confirmText: '삭제',
+      cancelText: '취소',
+      type: 'warning',
+      onConfirm: () => handleDelete(company.companyId)
+    });
+  };
+
   const handleDelete = (companyId) => {
     axios.delete(`/api/admin/companies/${companyId}`)
         .then(() => {
@@ -89,17 +102,6 @@ const AdminCompaniesManage = () => {
             type: 'error'
           });
         });
-  };
-
-  const confirmDelete = (company) => {
-    confirmModal.openModal({
-      title: '기업 삭제',
-      message: `${company.companyName} 기업을 삭제하시겠습니까? 이 작업은 되돌릴 수 없으며, 해당 기업의 모든 공고가 삭제됩니다.`,
-      confirmText: '삭제',
-      cancelText: '취소',
-      type: 'warning',
-      onConfirm: () => handleDelete(company.companyId)
-    });
   };
 
   const handleApprove = (companyId) => {
