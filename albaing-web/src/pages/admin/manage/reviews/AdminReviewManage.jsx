@@ -8,7 +8,6 @@ const AdminReviewManage = () => {
     const [reviews, setReviews] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
-    const [fetchRetries, setFetchRetries] = useState(0);
     const { handleError, handleSuccess } = useErrorHandler();
     const navigate = useNavigate();
 
@@ -20,6 +19,7 @@ const AdminReviewManage = () => {
         setLoading(true);
         axios.get('/api/admin/reviews')
             .then(response => {
+                console.log("받아온 리뷰 데이터: ", response.data);
                 setReviews(response.data);
                 setLoading(false);
             })
@@ -30,24 +30,26 @@ const AdminReviewManage = () => {
     };
 
     const handleDelete = (reviewId) => {
+        if (!window.confirm("이 리뷰를 삭제하시겠습니까?")) return;
+
         axios.delete(`/api/admin/reviews/${reviewId}`)
             .then(() => {
-                fetchReviews();
+                setReviews(prev => prev.filter(review => review.reviewId !== reviewId));
                 handleSuccess('리뷰가 삭제되었습니다.');
             })
             .catch(error => {
                 handleError(error, '리뷰 삭제에 실패했습니다.');
-                setLoading(false);
             });
     };
 
-    const filteredReviews = reviews.filter(review =>
-        review.reviewTitle?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        review.userName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        review.companyName?.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const filteredReviews = searchTerm ? reviews.filter(review =>
+        (review.reviewTitle && review.reviewTitle.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (review.userName && review.userName.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (review.companyName && review.companyName.toLowerCase().includes(searchTerm.toLowerCase()))
+    ) : reviews;
 
     const formatDate = (dateString) => {
+        if (!dateString) return '';
         const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
         return new Date(dateString).toLocaleDateString('ko-KR', options);
     };
@@ -68,71 +70,77 @@ const AdminReviewManage = () => {
                 />
             </div>
 
-            <div className="bg-white shadow-md rounded-lg overflow-hidden">
-                <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
-                    <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">제목</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">회사명</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">작성자</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">작성일</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">관리</th>
-                    </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                    {filteredReviews.length > 0 ? (
-                        filteredReviews.map((review) => (
-                            <tr key={review.reviewId}>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    {review.reviewId}
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                    {review.reviewTitle}
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    {review.companyName}
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    {review.userName}
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    {formatDate(review.reviewCreatedAt)}
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    <div className="flex space-x-2">
-                                        <button
-                                            onClick={() => navigate(`/companies/${review.companyId}/reviews/${review.reviewId}`)}
-                                            className="text-indigo-600 hover:text-indigo-900"
-                                        >
-                                            보기
-                                        </button>
-                                        <button
-                                            onClick={() => navigate(`/admin/reviews/${review.reviewId}/edit`)}
-                                            className="text-blue-600 hover:text-blue-900"
-                                        >
-                                            수정
-                                        </button>
-                                        <button
-                                            onClick={() => handleDelete(review.reviewId)}
-                                            className="text-red-600 hover:text-red-900"
-                                        >
-                                            삭제
-                                        </button>
-                                    </div>
+            {reviews && reviews.length > 0 ? (
+                <div className="bg-white shadow-md rounded-lg overflow-hidden">
+                    <table className="min-w-full divide-y divide-gray-200">
+                        <thead className="bg-gray-50">
+                        <tr>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">제목</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">회사명</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">작성자</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">작성일</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">관리</th>
+                        </tr>
+                        </thead>
+                        <tbody className="bg-white divide-y divide-gray-200">
+                        {filteredReviews.length > 0 ? (
+                            filteredReviews.map((review) => (
+                                <tr key={review.reviewId || review.review_id}>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        {review.reviewId || review.review_id}
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                        {review.reviewTitle || review.review_title}
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        {review.companyName || review.company_name}
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        {review.userName || review.user_name}
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        {formatDate(review.reviewCreatedAt || review.review_created_at)}
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        <div className="flex space-x-2">
+                                            <button
+                                                onClick={() => navigate(`/companies/${review.companyId || review.company_id}/reviews/${review.reviewId || review.review_id}`)}
+                                                className="text-indigo-600 hover:text-indigo-900"
+                                            >
+                                                보기
+                                            </button>
+                                            <button
+                                                onClick={() => navigate(`/admin/reviews/${review.reviewId || review.review_id}/edit`)}
+                                                className="text-blue-600 hover:text-blue-900"
+                                            >
+                                                수정
+                                            </button>
+                                            <button
+                                                onClick={() => handleDelete(review.reviewId || review.review_id)}
+                                                className="text-red-600 hover:text-red-900"
+                                            >
+                                                삭제
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))
+                        ) : (
+                            <tr>
+                                <td colSpan="6" className="px-6 py-4 text-center text-gray-500">
+                                    {searchTerm ? '검색 결과가 없습니다.' : '등록된 리뷰가 없습니다.'}
                                 </td>
                             </tr>
-                        ))
-                    ) : (
-                        <tr>
-                            <td colSpan="6" className="px-6 py-4 text-center text-gray-500">
-                                {searchTerm ? '검색 결과가 없습니다.' : '등록된 리뷰가 없습니다.'}
-                            </td>
-                        </tr>
-                    )}
-                    </tbody>
-                </table>
-            </div>
+                        )}
+                        </tbody>
+                    </table>
+                </div>
+            ) : (
+                <div className="bg-white p-6 rounded-lg shadow text-center">
+                    <p className="text-gray-500">등록된 리뷰가 없습니다.</p>
+                </div>
+            )}
         </div>
     );
 };

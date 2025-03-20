@@ -27,29 +27,35 @@ const AdminApplicationsManage = () => {
 
         if (userId || jobPostId) {
             fetchApplicationsWithFilter(userId, jobPostId);
-        } else if (!location.search) {
+        } else {
             fetchApplications();
         }
     }, [location.search]);
 
+    // 정렬 변경시에만 호출
     useEffect(() => {
-        if (!location.search && !loading) {
+        if (!location.search) {
             fetchApplications();
         }
     }, [searchParams.sortOrderBy, searchParams.isDESC]);
 
     const fetchApplications = () => {
-        if (loading) return;
-
         setLoading(true);
         axios.get('/api/admin/applications', {
-            params: { /* ... */ }
+            params: {
+                userName: searchParams.userName || undefined,
+                companyName: searchParams.companyName || undefined,
+                jobPostTitle: searchParams.jobPostTitle || undefined,
+                approveStatus: searchParams.approveStatus || undefined,
+                sortOrderBy: searchParams.sortOrderBy,
+                isDESC: searchParams.isDESC
+            }
         })
             .then(response => {
                 setApplications(response.data);
             })
             .catch(error => {
-                handleError(error, '로딩 실패');
+                handleError(error, '지원 내역 로딩 실패');
             })
             .finally(() => {
                 setLoading(false);
@@ -71,10 +77,11 @@ const AdminApplicationsManage = () => {
         axios.get(url, { params })
             .then(response => {
                 setApplications(response.data);
-                setLoading(false);
             })
             .catch(error => {
                 handleError(error, '필터링된 지원 내역을 불러오는데 실패했습니다.');
+            })
+            .finally(() => {
                 setLoading(false);
             });
     };
@@ -103,15 +110,20 @@ const AdminApplicationsManage = () => {
     const handleStatusChange = (applicationId, status) => {
         axios.put(`/api/admin/applications/${applicationId}/status`, { approveStatus: status })
             .then(() => {
-                fetchApplications();
+                // 현재 지원내역 목록에서 상태 업데이트
+                setApplications(prev =>
+                    prev.map(app =>
+                        app.jobApplicationId === applicationId
+                            ? {...app, approveStatus: status}
+                            : app
+                    )
+                );
                 handleSuccess(`지원 상태가 변경되었습니다.`);
             })
             .catch(error => {
                 handleError(error, '지원 상태 변경에 실패했습니다.');
-                setLoading(false);
             });
     };
-
 
     const handleViewResume = (resumeId) => {
         navigate(`/resumes/${resumeId}`);
@@ -266,7 +278,12 @@ const AdminApplicationsManage = () => {
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                     <div className="flex space-x-2">
-                                        <button onClick={() => handleViewResume(application.resumeId, application.userId)}>이력서 확인</button>
+                                        <button
+                                            onClick={() => handleViewResume(application.resumeId, application.userId)}
+                                            className="text-blue-600 hover:text-blue-900"
+                                        >
+                                            이력서 확인
+                                        </button>
 
                                         {application.approveStatus === 'approving' && (
                                             <>
