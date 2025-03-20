@@ -48,7 +48,7 @@ export default function Footer() {
                             <ul className="space-y-2 text-gray-600">
                                 <li><Link to="/customer/faq" className="hover:text-blue-600">자주 묻는 질문</Link></li>
                                 <li><Link to="/customer/contact" className="hover:text-blue-600">문의하기</Link></li>
-                                <li><Link to="/notice" className="hover:text-blue-600">공지사항</Link></li>
+                                <li><Link to="/notices" className="hover:text-blue-600">공지사항</Link></li>
                             </ul>
                         </div>
 
