@@ -573,63 +573,65 @@ const ResumeEdit = () => {
                             </button>
                         </div>
 
-                        {/* 기존 경력 데이터를 배열 형태로 변환 */}
-                        {(
-                            Array.isArray(resumeData.careerHistory)
+                        {/* 경력 데이터 배열 변환 처리 */}
+                        {(() => {
+                            const careerList = Array.isArray(resumeData.careerHistory)
                                 ? resumeData.careerHistory
                                 : resumeData.careerHistory
-                                    ? [resumeData.careerHistory]  // 객체일 경우 배열로 변환
-                                    : []
-                        ).length > 0 ? (
-                            /* 경력 목록 */
-                            resumeData.careerHistory.map((career, index) => (
-                                <div key={index} className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-all mb-4">
-                                    {/* 회사명 & 직무 정보 */}
-                                    <div className="flex items-center mb-4">
-                        <span className="inline-block bg-blue-100 text-blue-800 p-3 rounded-full mr-4">
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none"
-                                 viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                                      d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                            </svg>
-                        </span>
-                                        <div>
-                                            <h3 className="text-xl font-bold text-gray-900">{career.careerCompanyName || '회사명 미입력'}</h3>
-                                            <p className="text-gray-600">{career.careerJobDescription || '직무 미입력'}</p>
-                                        </div>
-                                    </div>
+                                    ? [resumeData.careerHistory]  // 객체라면 배열로 변환
+                                    : [];  // 값이 없으면 빈 배열
 
-                                    {/* 입사/퇴사일 & 직무 내용 */}
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-                                        <div className="p-4 bg-gray-50 rounded-lg">
-                                            <div className="text-sm text-gray-500 mb-1">입사일</div>
-                                            <div className="font-medium">{career.careerJoinDate || '미입력'}</div>
-                                        </div>
-
-                                        <div className="p-4 bg-gray-50 rounded-lg">
-                                            <div className="text-sm text-gray-500 mb-1">퇴사일</div>
-                                            <div className="font-medium">{career.careerQuitDate || '재직중'}</div>
-                                        </div>
-
-                                        <div className="p-4 bg-gray-50 rounded-lg col-span-2">
-                                            <div className="text-sm text-gray-500 mb-1">직무 내용</div>
-                                            <div className="font-medium">{career.careerJobDescription || '미입력'}</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            ))
-                        ) : (
-                            /* 경력 정보가 없을 때 */
-                            <div className="text-center py-12 bg-gray-50 rounded-lg border border-gray-200">
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mx-auto text-gray-400 mb-3"
-                                     fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            return careerList.length > 0 ? (
+                                /* 경력 목록 */
+                                careerList.map((career, index) => (
+                                    <div key={index} className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-all mb-4">
+                                        {/* 회사명 & 직무 정보 */}
+                                        <div className="flex items-center mb-4">
+                            <span className="inline-block bg-blue-100 text-blue-800 p-3 rounded-full mr-4">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none"
+                                     viewBox="0 0 24 24" stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                                          d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                                          d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
                                 </svg>
-                                <p className="text-lg font-medium text-gray-500 mb-1">등록된 경력 정보가 없습니다.</p>
-                                <p className="text-sm text-gray-400 mb-4">위에 있는 '추가' 버튼을 눌러 경력 정보를 등록해주세요.</p>
-                            </div>
-                        )}
+                            </span>
+                                            <div>
+                                                <h3 className="text-xl font-bold text-gray-900">{career.careerCompanyName || '회사명 미입력'}</h3>
+                                                <p className="text-gray-600">{career.careerJobDescription || '직무 미입력'}</p>
+                                            </div>
+                                        </div>
+
+                                        {/* 입사/퇴사일 & 직무 내용 */}
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+                                            <div className="p-4 bg-gray-50 rounded-lg">
+                                                <div className="text-sm text-gray-500 mb-1">입사일</div>
+                                                <div className="font-medium">{career.careerJoinDate || '미입력'}</div>
+                                            </div>
+
+                                            <div className="p-4 bg-gray-50 rounded-lg">
+                                                <div className="text-sm text-gray-500 mb-1">퇴사일</div>
+                                                <div className="font-medium">{career.careerQuitDate || '재직중'}</div>
+                                            </div>
+
+                                            <div className="p-4 bg-gray-50 rounded-lg col-span-2">
+                                                <div className="text-sm text-gray-500 mb-1">직무 내용</div>
+                                                <div className="font-medium">{career.careerJobDescription || '미입력'}</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))
+                            ) : (
+                                /* 경력 정보가 없을 때 */
+                                <div className="text-center py-12 bg-gray-50 rounded-lg border border-gray-200">
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mx-auto text-gray-400 mb-3"
+                                         fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                                              d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                                    </svg>
+                                    <p className="text-lg font-medium text-gray-500 mb-1">등록된 경력 정보가 없습니다.</p>
+                                    <p className="text-sm text-gray-400 mb-4">위에 있는 '추가' 버튼을 눌러 경력 정보를 등록해주세요.</p>
+                                </div>
+                            );
+                        })()}
                     </div>
                 )}
 
