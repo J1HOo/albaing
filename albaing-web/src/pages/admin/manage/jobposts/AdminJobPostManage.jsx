@@ -96,7 +96,7 @@ const AdminJobPostsManage = () => {
   };
 
   const toggleJobPostStatus = (jobPostId, currentStatus) => {
-    axios.patch(`/api/jobs/${jobPostId}/status?status=${!currentStatus}`)
+      axios.patch(`/api/admin/job-posts/${jobPostId}/status`, { status: !currentStatus })
         .then(() => {
           setJobPosts(prev => prev.map(post =>
               post.jobPostId === jobPostId ? {...post, jobPostStatus: !currentStatus} : post

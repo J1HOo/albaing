@@ -392,7 +392,7 @@ public class AdminController {
                 .body(Map.of("message", "관리자 권한이 필요합니다."));
         }
 
-        List<Map<String, Object>> reviews = reviewService.getAllReviewsForAdmin();
+        List<Map<String, Object>> reviews = adminService.getAllReviewsForAdmin();
         return ResponseEntity.ok(reviews);
     }
 
@@ -436,7 +436,7 @@ public class AdminController {
         }
 
         review.setReviewId(reviewId);
-        boolean success = reviewService.updateReviewByAdmin(review);
+        boolean success = adminService.updateReviewByAdmin(review);
         if (success) {
             return ResponseEntity.ok().build();
         } else {
@@ -452,7 +452,7 @@ public class AdminController {
                 .body(Map.of("message", "관리자 권한이 필요합니다."));
         }
 
-        reviewService.deleteReviewByAdmin(reviewId);
+        adminService.deleteReviewByAdmin(reviewId);
         return ResponseEntity.ok().build();
     }
 
@@ -466,7 +466,7 @@ public class AdminController {
                 .body(Map.of("message", "관리자 권한이 필요합니다."));
         }
 
-        reviewService.deleteCommentByAdmin(commentId);
+        adminService.deleteCommentByAdmin(commentId);
         return ResponseEntity.ok().build();
     }
 

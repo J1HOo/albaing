@@ -142,4 +142,24 @@ public class AdminServiceImpl implements AdminService {
         stats.put("pendingCompanyCount", adminMapper.countPendingCompanies());
         return stats;
     }
+
+    @Override
+    public boolean updateReviewByAdmin(Review review) {
+        return adminMapper.updateReviewByAdmin(review) > 0;
+    }
+
+    @Override
+    public void deleteReviewByAdmin(long reviewId) {
+        adminMapper.deleteReviewByAdmin(reviewId);
+    }
+
+    @Override
+    public void deleteCommentByAdmin(long commentId) {
+        adminMapper.deleteCommentByAdmin(commentId);
+    }
+
+    @Override
+    public List<Map<String, Object>> getAllReviewsForAdmin() {
+        return adminMapper.getAllReviewsForAdmin();
+    }
 }

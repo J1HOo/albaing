@@ -126,24 +126,4 @@ public class ReviewServiceImpl implements ReviewService {
     public void deleteCommentByUser(long commentId, long userId) {
         reviewMapper.deleteCommentByUser(commentId, userId);
     }
-
-    @Override
-    public List<Map<String, Object>> getAllReviewsForAdmin() {
-        return reviewMapper.getAllReviewsForAdmin();
-    }
-
-    @Override
-    public boolean updateReviewByAdmin(Review review) {
-        return reviewMapper.updateReviewByAdmin(review) > 0;
-    }
-
-    @Override
-    public void deleteReviewByAdmin(long reviewId) {
-        reviewMapper.deleteReviewByAdmin(reviewId);
-    }
-
-    @Override
-    public void deleteCommentByAdmin(long commentId) {
-        reviewMapper.deleteCommentByAdmin(commentId);
-    }
 }

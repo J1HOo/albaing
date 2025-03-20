@@ -35,4 +35,13 @@ public interface AdminService {
 
     // 대시보드 통계
     Map<String, Object> getDashboardStats();
+
+    List<Map<String, Object>> getAllReviewsForAdmin();
+
+    boolean updateReviewByAdmin(Review review);
+
+    void deleteReviewByAdmin(long reviewId);
+
+    void deleteCommentByAdmin(long commentId);
+
 }

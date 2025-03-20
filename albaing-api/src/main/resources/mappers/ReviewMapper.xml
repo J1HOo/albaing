@@ -37,44 +37,6 @@
         AND r.company_id = #{companyId}
     </delete>
 
-    <!-- 어드민 리뷰 상세 조회 -->
-    <select id="selectReviewDetailAdmin">
-        SELECT review_id, company_id, review_title, review_content, review_created_at, review_updated_at
-        FROM reviews
-        WHERE review_id = #{reviewId}
-    </select>
-
-    <!-- 어드민 리뷰 댓글 조회 -->
-    <select id="selectReviewCommentsAdmin">
-        SELECT comment_id, review_id, comment_content, comment_created_at
-        FROM comments
-        WHERE review_id = #{reviewId}
-        ORDER BY comment_created_at DESC
-    </select>
-
-    <!-- 어드민 리뷰 수정 -->
-    <update id="updateReviewByAdmin">
-        UPDATE reviews
-        SET review_title = #{reviewTitle},
-            review_content = #{reviewContent},
-            review_updated_at = NOW()
-        WHERE review_id = #{reviewId}
-    </update>
-
-    <!-- 어드민 리뷰 삭제 -->
-    <delete id="deleteReviewByAdmin">
-        DELETE
-        FROM reviews
-        WHERE review_id = #{reviewId}
-    </delete>
-
-    <!-- 어드민 댓글 삭제 -->
-    <delete id="deleteCommentByAdmin">
-        DELETE
-        FROM comments
-        WHERE comment_id = #{commentId}
-    </delete>
-
     <!-- 상세 페이지 기업 채용 공고 출력 -->
     <select id="showPosts">
         SELECT job_post_title, job_post_job_category,
@@ -200,5 +162,15 @@
     <!-- 내가 작성한 댓글 삭제 -->
     <delete id="deleteCommentByUser">
         DELETE FROM comments WHERE comment_id = #{commentId} AND user_id = #{userId}
+    </delete>
+
+    <delete id="deleteCommentsByUserId">
+        DELETE FROM COMMENTS
+        WHERE user_id = #{userId}
+    </delete>
+
+    <delete id="deleteReviewsByUserId">
+        DELETE FROM REVIEWS
+        WHERE user_id = #{userId}
     </delete>
 </mapper>

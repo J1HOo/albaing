@@ -19,7 +19,7 @@ const AdminNoticeManage = () => {
     const fetchNotices = () => {
         setLoading(true);
 
-        axios.get('/api/notices')
+        axios.get('/api/admin/notices')
             .then(response => {
                 setNotices(response.data);
                 setLoading(false);

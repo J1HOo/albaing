@@ -4,6 +4,7 @@ import com.jobjob.albaing.dto.*;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
+import java.util.Map;
 
 @Mapper
 public interface AdminMapper {
@@ -51,4 +52,9 @@ public interface AdminMapper {
     int countAllApplications();
     int countAllReviews();
     int countPendingCompanies();
+
+    List<Map<String, Object>> getAllReviewsForAdmin();
+    int updateReviewByAdmin(Review review);
+    void deleteReviewByAdmin(long reviewId);
+    void deleteCommentByAdmin(long commentId);
 }

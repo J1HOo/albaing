@@ -103,7 +103,7 @@ const AdminApplicationsManage = () => {
     };
 
     const handleStatusChange = (applicationId, status) => {
-        axios.put(`/api/applications/${applicationId}`, { approveStatus: status })
+        axios.put(`/api/admin/applications/${applicationId}/status`, { approveStatus: status })
             .then(() => {
                 fetchApplications();
                 handleSuccess(`지원 상태가 변경되었습니다.`);
