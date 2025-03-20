@@ -19,7 +19,6 @@ const AdminReviewManage = () => {
         setLoading(true);
         axios.get('/api/admin/reviews')
             .then(response => {
-                console.log("받아온 리뷰 데이터: ", response.data);
                 setReviews(response.data);
                 setLoading(false);
             })
