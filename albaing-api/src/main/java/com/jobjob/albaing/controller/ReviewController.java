@@ -7,6 +7,7 @@ import com.jobjob.albaing.dto.User;
 import com.jobjob.albaing.service.ReviewServiceImpl;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -43,7 +44,7 @@ public class ReviewController {
         review.setCompanyId(companyId);
         review.setUserId(user.getUserId());
         reviewService.addReview(review);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(Map.of("reviewId", review.getReviewId()));
     }
 
     // 리뷰 조회
@@ -325,6 +326,20 @@ public class ReviewController {
             return ResponseEntity.ok().build();
         } else {
             return ResponseEntity.status(404).body(Map.of("message", "댓글이 존재하지 않거나 삭제할 권한이 없습니다."));
+        }
+    }
+
+    // 특정 리뷰에 대한 댓글 수 조회
+    @GetMapping("/reviews/{reviewId}/comments/count")
+    public ResponseEntity<Long> getCommentsCountByReview(@PathVariable long reviewId) {
+        try {
+            Long commentCount = reviewService.getCommentsByReview(reviewId);
+            if (commentCount == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);  // 리뷰가 없을 경우
+            }
+            return ResponseEntity.ok(commentCount);  // 댓글 수 반환
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);  // 서버 오류 처리
         }
     }
 }

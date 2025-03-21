@@ -1,8 +1,7 @@
 import { useState } from "react";
 import axios from "axios";
-import {useModal} from "../index";
 
-const ReviewModal = ({ companyId, onClose, onSubmit }) => {
+const ReviewModal = ({ companyId, onClose, onSubmit, onCommentAdded }) => {
     const [reviewTitle, setReviewTitle] = useState("");
     const [reviewContent, setReviewContent] = useState("");
     const [loading, setLoading] = useState(false);
@@ -24,13 +23,6 @@ const ReviewModal = ({ companyId, onClose, onSubmit }) => {
         setError("");
 
         try {
-            console.log("리뷰 작성 요청 데이터:", {
-                companyId: parseInt(companyId),
-                reviewTitle,
-                reviewContent
-            });
-
-            // 직접 API 호출
             const response = await axios.post(`/api/companies/${companyId}/reviews`, {
                 companyId: parseInt(companyId),
                 reviewTitle,
@@ -39,19 +31,28 @@ const ReviewModal = ({ companyId, onClose, onSubmit }) => {
                 withCredentials: true
             });
 
+            const reviewId = response.data.reviewId;
+            const newReview = response.data
+
+            if (typeof onSubmit === 'function') {
+                await onSubmit(newReview); // 부모 컴포넌트의 상태 갱신 함수 호출
+            }
+
             if (typeof onSubmit === 'function') {
                 await onSubmit({
                     companyId: parseInt(companyId),
                     reviewTitle,
-                    reviewContent
+                    reviewContent,
+                    reviewId
                 });
             }
 
-            onClose();
-        } catch (err) {
-            console.error("리뷰 작성 오류:", err);
-            console.error("오류 응답:", err.response);
+            if (onCommentAdded) {
+                onCommentAdded(); // 댓글 수 증가 처리
+            }
 
+            onClose(); // 모달 닫기
+        } catch (err) {
             if (err.response?.status === 401) {
                 setError("리뷰를 작성하려면 로그인이 필요합니다.");
             } else {

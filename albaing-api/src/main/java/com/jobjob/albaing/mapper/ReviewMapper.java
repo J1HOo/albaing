@@ -61,11 +61,18 @@ public interface ReviewMapper {
 
     int deleteCommentByCompany(Map<String, Object> params);
 
+    // 내가 작성한 리뷰 목록 조회
     List<Review> getReviewsByUser(long userId);
 
+    // 내가 작성한 댓글 목록 조회
     List<Comment> getCommentsByUser(long userId);
 
+    // 내가 작성한 리뷰 삭제
     void deleteReviewByUser(long reviewId, long userId);
 
+    // 내가 작성한 댓글 삭제
     void deleteCommentByUser(long commentId, long userId);
+
+    // 특정 리뷰글의 댓글 수
+    Long getCommentsByReview(long reviewId);
 }
