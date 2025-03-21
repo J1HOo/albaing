@@ -33,10 +33,13 @@ public interface ResumeMapper {
         EducationHistory getEducationHistoryByResumeId(int resumeId);
 
         // 경력 정보 수정
-        void updateCareer(ResumeUpdateRequest resumeUpdateRequest);
+        void updateCareer(CareerHistory careerHistory);
 
         // 경력 정보 조회
-        CareerHistory getCareerHistoryByResumeId(int resumeId);
+        List<CareerHistory> getCareerHistoryByResumeId(int resumeId);
+
+        //경력 삭제
+        int deleteCareer(Integer careerId);
 
 
 

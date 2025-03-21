@@ -264,29 +264,28 @@ const ResumeEdit = () => {
         setError(null);
         setSuccess(false);
 
-        // careerHistory가 배열인지 확인
-        const careerHistoryData = Array.isArray(resumeData.careerHistory) ? resumeData.careerHistory : [];
-
+        // careerHistory가 배열인지 확인하고 임시 ID 처리
+        const careerHistoryData = Array.isArray(resumeData.careerHistory)
+            ? resumeData.careerHistory.map(career => {
+                const processedCareer = {...career};
+                // 임시 ID 제거
+                if (typeof processedCareer.careerId === 'string' && processedCareer.careerId.startsWith('temp-')) {
+                    delete processedCareer.careerId;
+                }
+                return processedCareer;
+            })
+            : [];
 
         const requestData = {
             resume: {
                 resumeId: resumeData.resumeId,
                 userId: resumeData.userId,
                 resumeTitle: resumeData.resumeTitle,
-                resumeLocation: resumeData.resumeLocation || '',
-                resumeJobCategory: resumeData.resumeJobCategory || '',
-                resumeJobType: resumeData.resumeJobType || '',
-                resumeJobDuration: resumeData.resumeJobDuration || '',
-                resumeWorkSchedule: resumeData.resumeWorkSchedule || '',
-                resumeWorkTime: resumeData.resumeWorkTime || '',
-                resumeJobSkill: resumeData.resumeJobSkill || '',
-                resumeIntroduction: resumeData.resumeIntroduction || ''
+                // 기타 필드들...
             },
             educationHistory: resumeData.educationHistory || null,
-            // 배열이 아닌 단일 객체로 전송해야 할 경우
-            careerHistory: careerHistoryData.length > 0 ? careerHistoryData[careerHistoryData.length - 1] : null
-            // 또는 백엔드가 객체 배열을 처리할 수 있도록 수정한 경우:
-            // careerHistory: careerHistoryData
+            // 여러 경력 정보를 배열로 전송
+            careerHistories: careerHistoryData
         };
 
         apiResumeService.updateResume(resumeData.resumeId, requestData)
@@ -656,8 +655,6 @@ const ResumeEdit = () => {
                                 </svg>
                                 추가
                             </button>
-
-
                         </div>
 
 

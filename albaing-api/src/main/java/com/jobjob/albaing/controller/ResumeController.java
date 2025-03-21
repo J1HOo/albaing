@@ -4,7 +4,11 @@ package com.jobjob.albaing.controller;
 import com.jobjob.albaing.dto.*;
 import com.jobjob.albaing.service.ResumeServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/resume")
@@ -39,6 +43,18 @@ public class ResumeController {
     @PostMapping("/resume/create")
     public void createResumeForUser(@RequestBody User user) {
         resumeService.createResumeForUser(user);
+    }
+
+    //경력 삭제 delete
+    @DeleteMapping("/careers/{careerId}")
+    public ResponseEntity<Map<String, String>> deleteCareer(@PathVariable Integer careerId) {
+        resumeService.deleteCareer(careerId);
+
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "경력 정보가 성공적으로 삭제되었습니다.");
+        response.put("careerId", careerId.toString());
+
+        return ResponseEntity.ok(response);
     }
 
 }

@@ -219,7 +219,7 @@
             career_quit_date = #{careerHistory.careerQuitDate},
             career_job_description = #{careerHistory.careerJobDescription},
             career_is_career = #{careerHistory.careerIsCareer}
-        WHERE resume_id = #{resume.resumeId}
+        WHERE career_id = #{careerHistory.careerId}
     </update>
 
     <select id="getCareerHistoryByResumeId">
@@ -227,4 +227,9 @@
         FROM CAREER_HISTORIES
         WHERE resume_id = #{resumeId}
     </select>
+
+    <delete id="deleteCareer">
+        DELETE FROM CAREER_HISTORIES
+        WHERE career_id = #{careerId}
+    </delete>
 </mapper>
