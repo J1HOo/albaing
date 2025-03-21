@@ -1,14 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import { LoadingSpinner } from '../../../../components';
-import {useErrorHandler} from "../../../../components/ErrorHandler";
+import { useErrorHandler } from "../../../../components/ErrorHandler";
+import AdminDataTable from "../../AdminDataTable";
+import adminApiService from '../../../../service/apiAdminService';
 
 const AdminReviewManage = () => {
     const [reviews, setReviews] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [searchTerm, setSearchTerm] = useState('');
-    const { handleError, handleSuccess } = useErrorHandler();
+    const [totalItems, setTotalItems] = useState(0);
+    const [searchParams, setSearchParams] = useState({
+        searchTerm: '',
+        currentPage: 1,
+        rowsPerPage: 10,
+        sortField: 'review_created_at',
+        sortDirection: 'desc'
+    });
+
+    const { handleError, handleSuccess, confirmAction } = useErrorHandler();
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -17,9 +25,40 @@ const AdminReviewManage = () => {
 
     const fetchReviews = () => {
         setLoading(true);
-        axios.get('/api/admin/reviews')
+        adminApiService.getAllReviews()
             .then(response => {
-                setReviews(response.data);
+                const data = response.reviews || response;
+
+                // 검색어 필터링
+                let filteredData = data;
+                if (searchParams.searchTerm) {
+                    const term = searchParams.searchTerm.toLowerCase();
+                    filteredData = data.filter(review =>
+                        (review.reviewTitle || review.review_title || '').toLowerCase().includes(term) ||
+                        (review.userName || review.user_name || '').toLowerCase().includes(term) ||
+                        (review.companyName || review.company_name || '').toLowerCase().includes(term)
+                    );
+                }
+
+                // 정렬
+                const sortField = searchParams.sortField;
+                const sortDirection = searchParams.sortDirection;
+
+                filteredData.sort((a, b) => {
+                    const fieldA = getNestedField(a, sortField);
+                    const fieldB = getNestedField(b, sortField);
+
+                    if (fieldA < fieldB) return sortDirection === 'asc' ? -1 : 1;
+                    if (fieldA > fieldB) return sortDirection === 'asc' ? 1 : -1;
+                    return 0;
+                });
+
+                // 페이지네이션
+                setTotalItems(filteredData.length);
+                const startIdx = (searchParams.currentPage - 1) * searchParams.rowsPerPage;
+                const endIdx = startIdx + searchParams.rowsPerPage;
+
+                setReviews(filteredData.slice(startIdx, endIdx));
                 setLoading(false);
             })
             .catch(error => {
@@ -28,24 +67,80 @@ const AdminReviewManage = () => {
             });
     };
 
-    const handleDelete = (reviewId) => {
-        if (!window.confirm("이 리뷰를 삭제하시겠습니까?")) return;
+    // 중첩 필드 값 가져오기 (review_created_at 또는 reviewCreatedAt 처리를 위함)
+    const getNestedField = (obj, field) => {
+        // 스네이크 케이스와 카멜 케이스 모두 확인
+        const camelField = field.replace(/_([a-z])/g, (g) => g[1].toUpperCase());
+        const snakeField = field;
 
-        axios.delete(`/api/admin/reviews/${reviewId}`)
-            .then(() => {
-                setReviews(prev => prev.filter(review => review.reviewId !== reviewId));
-                handleSuccess('리뷰가 삭제되었습니다.');
-            })
-            .catch(error => {
-                handleError(error, '리뷰 삭제에 실패했습니다.');
-            });
+        return obj[camelField] !== undefined ? obj[camelField] : obj[snakeField];
     };
 
-    const filteredReviews = searchTerm ? reviews.filter(review =>
-        (review.reviewTitle && review.reviewTitle.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        (review.userName && review.userName.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        (review.companyName && review.companyName.toLowerCase().includes(searchTerm.toLowerCase()))
-    ) : reviews;
+    const handleDelete = (reviewId) => {
+        confirmAction(
+            "이 리뷰를 삭제하시겠습니까?",
+            () => {
+                adminApiService.deleteReview(reviewId)
+                    .then(() => {
+                        setReviews(prev => prev.filter(review =>
+                            (review.reviewId || review.review_id) !== reviewId
+                        ));
+                        handleSuccess('리뷰가 삭제되었습니다.');
+                    })
+                    .catch(error => {
+                        handleError(error, '리뷰 삭제에 실패했습니다.');
+                    });
+            },
+            {
+                title: '리뷰 삭제',
+                confirmText: '삭제',
+                cancelText: '취소',
+                type: 'warning',
+                isDestructive: true
+            }
+        );
+    };
+
+    const handleSearch = (searchTerm, page = 1, rowsPerPage = searchParams.rowsPerPage) => {
+        setSearchParams(prev => ({
+            ...prev,
+            searchTerm,
+            currentPage: page,
+            rowsPerPage
+        }));
+
+        setTimeout(fetchReviews, 0);
+    };
+
+    const handleSort = (field, direction) => {
+        // 컬럼 키를 실제 필드명으로 변환
+        const fieldMap = {
+            'reviewId': 'review_id',
+            'reviewTitle': 'review_title',
+            'companyName': 'company_name',
+            'userName': 'user_name',
+            'reviewCreatedAt': 'review_created_at'
+        };
+
+        setSearchParams(prev => ({
+            ...prev,
+            sortField: fieldMap[field] || field,
+            sortDirection: direction,
+            currentPage: 1
+        }));
+
+        setTimeout(fetchReviews, 0);
+    };
+
+    const handlePageChange = (page, rowsPerPage = searchParams.rowsPerPage) => {
+        setSearchParams(prev => ({
+            ...prev,
+            currentPage: page,
+            rowsPerPage
+        }));
+
+        setTimeout(fetchReviews, 0);
+    };
 
     const formatDate = (dateString) => {
         if (!dateString) return '';
@@ -53,93 +148,93 @@ const AdminReviewManage = () => {
         return new Date(dateString).toLocaleDateString('ko-KR', options);
     };
 
-    if (loading) return <LoadingSpinner message="리뷰 목록을 불러오는 중..." />;
+    // 테이블 컬럼 설정
+    const columns = [
+        {
+            key: 'reviewId',
+            label: 'ID',
+            sortable: true,
+            render: (value, row) => value || row.review_id
+        },
+        {
+            key: 'reviewTitle',
+            label: '제목',
+            sortable: true,
+            filterable: true,
+            render: (value, row) => value || row.review_title
+        },
+        {
+            key: 'companyName',
+            label: '회사명',
+            sortable: true,
+            filterable: true,
+            render: (value, row) => value || row.company_name
+        },
+        {
+            key: 'userName',
+            label: '작성자',
+            sortable: true,
+            filterable: true,
+            render: (value, row) => value || row.user_name
+        },
+        {
+            key: 'reviewCreatedAt',
+            label: '작성일',
+            sortable: true,
+            render: (value, row) => formatDate(value || row.review_created_at)
+        }
+    ];
+
+    // 행 액션 렌더링
+    const renderRowActions = (review) => {
+        const reviewId = review.reviewId || review.review_id;
+        const companyId = review.companyId || review.company_id;
+
+        return (
+            <div className="flex space-x-2">
+                <button
+                    onClick={() => navigate(`/companies/${companyId}/reviews/${reviewId}`)}
+                    className="text-indigo-600 hover:text-indigo-900"
+                >
+                    보기
+                </button>
+                <button
+                    onClick={() => navigate(`/admin/reviews/${reviewId}/edit`)}
+                    className="text-blue-600 hover:text-blue-900"
+                >
+                    수정
+                </button>
+                <button
+                    onClick={() => handleDelete(reviewId)}
+                    className="text-red-600 hover:text-red-900"
+                >
+                    삭제
+                </button>
+            </div>
+        );
+    };
 
     return (
-        <div>
-            <h2 className="text-2xl font-bold mb-6">리뷰 관리</h2>
-
-            <div className="mb-6">
-                <input
-                    type="text"
-                    placeholder="리뷰 제목, 작성자, 기업명으로 검색..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full p-2 border rounded"
-                />
+        <div className="space-y-6">
+            <div className="flex justify-between items-center">
+                <h2 className="text-2xl font-bold">리뷰 관리</h2>
             </div>
 
-            {reviews && reviews.length > 0 ? (
-                <div className="bg-white shadow-md rounded-lg overflow-hidden">
-                    <table className="min-w-full divide-y divide-gray-200">
-                        <thead className="bg-gray-50">
-                        <tr>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">제목</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">회사명</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">작성자</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">작성일</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">관리</th>
-                        </tr>
-                        </thead>
-                        <tbody className="bg-white divide-y divide-gray-200">
-                        {filteredReviews.length > 0 ? (
-                            filteredReviews.map((review) => (
-                                <tr key={review.reviewId || review.review_id}>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        {review.reviewId || review.review_id}
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                        {review.reviewTitle || review.review_title}
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        {review.companyName || review.company_name}
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        {review.userName || review.user_name}
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        {formatDate(review.reviewCreatedAt || review.review_created_at)}
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        <div className="flex space-x-2">
-                                            <button
-                                                onClick={() => navigate(`/companies/${review.companyId || review.company_id}/reviews/${review.reviewId || review.review_id}`)}
-                                                className="text-indigo-600 hover:text-indigo-900"
-                                            >
-                                                보기
-                                            </button>
-                                            <button
-                                                onClick={() => navigate(`/admin/reviews/${review.reviewId || review.review_id}/edit`)}
-                                                className="text-blue-600 hover:text-blue-900"
-                                            >
-                                                수정
-                                            </button>
-                                            <button
-                                                onClick={() => handleDelete(review.reviewId || review.review_id)}
-                                                className="text-red-600 hover:text-red-900"
-                                            >
-                                                삭제
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            ))
-                        ) : (
-                            <tr>
-                                <td colSpan="6" className="px-6 py-4 text-center text-gray-500">
-                                    {searchTerm ? '검색 결과가 없습니다.' : '등록된 리뷰가 없습니다.'}
-                                </td>
-                            </tr>
-                        )}
-                        </tbody>
-                    </table>
-                </div>
-            ) : (
-                <div className="bg-white p-6 rounded-lg shadow text-center">
-                    <p className="text-gray-500">등록된 리뷰가 없습니다.</p>
-                </div>
-            )}
+            <AdminDataTable
+                title="리뷰 목록"
+                data={reviews}
+                columns={columns}
+                isLoading={loading}
+                totalItems={totalItems}
+                onSearch={handleSearch}
+                onSort={handleSort}
+                onPageChange={handlePageChange}
+                renderRowActions={renderRowActions}
+                selectable={false}
+                searchable={true}
+                exportable={true}
+                pagination={true}
+            />
         </div>
     );
 };

@@ -1,4 +1,3 @@
-// ErrorHandler.js
 import { useModal } from "../components";
 
 // API 에러 메시지 해석 및 사용자 친화적 메시지 반환
@@ -38,23 +37,31 @@ export const getErrorMessage = (error) => {
 };
 
 // axios 인터셉터 설정 함수
-export const setupAxiosInterceptors = (axios, navigate) => {
+export const setupAxiosInterceptors = (axios, navigate, setGlobalLoading = null) => {
     // 요청 인터셉터
     axios.interceptors.request.use(
         (config) => {
-            // 요청 시작 시 로딩 상태 표시 (전역 상태에 연결 가능)
-            // window.dispatchEvent(new CustomEvent('axios-loading', { detail: { isLoading: true } }));
+            // 요청 시작 시 로딩 상태 표시
+            if (setGlobalLoading) {
+                setGlobalLoading(true);
+            } else {
+                window.dispatchEvent(new CustomEvent('axios-loading', { detail: { isLoading: true } }));
+            }
 
-            // 요청 헤더에 토큰 추가 등의 작업 가능
-            const token = localStorage.getItem('token');
-            if (token) {
-                config.headers.Authorization = `Bearer ${token}`;
+            // CSRF 토큰이 있는 경우 요청 헤더에 추가
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+            if (csrfToken) {
+                config.headers['X-CSRF-TOKEN'] = csrfToken;
             }
 
             return config;
         },
         (error) => {
-            // window.dispatchEvent(new CustomEvent('axios-loading', { detail: { isLoading: false } }));
+            if (setGlobalLoading) {
+                setGlobalLoading(false);
+            } else {
+                window.dispatchEvent(new CustomEvent('axios-loading', { detail: { isLoading: false } }));
+            }
             return Promise.reject(error);
         }
     );
@@ -63,28 +70,45 @@ export const setupAxiosInterceptors = (axios, navigate) => {
     axios.interceptors.response.use(
         (response) => {
             // 요청 완료 시 로딩 상태 해제
-            // window.dispatchEvent(new CustomEvent('axios-loading', { detail: { isLoading: false } }));
+            if (setGlobalLoading) {
+                setGlobalLoading(false);
+            } else {
+                window.dispatchEvent(new CustomEvent('axios-loading', { detail: { isLoading: false } }));
+            }
             return response;
         },
         (error) => {
-            // window.dispatchEvent(new CustomEvent('axios-loading', { detail: { isLoading: false } }));
+            if (setGlobalLoading) {
+                setGlobalLoading(false);
+            } else {
+                window.dispatchEvent(new CustomEvent('axios-loading', { detail: { isLoading: false } }));
+            }
 
-            // 401 에러(인증 실패)가 발생한 경우 로그인 페이지로 리다이렉트
+            // 401 에러(인증 실패) 처리 - 로그인 페이지로 리다이렉트
             if (error.response && error.response.status === 401) {
-                // 로컬 스토리지에서 사용자 정보와 토큰 제거 (로그아웃 처리)
-                localStorage.removeItem('token');
+                // 세션 스토리지 및 로컬 스토리지 클리어
+                sessionStorage.clear();
                 localStorage.removeItem('authUser');
 
                 // 로그인 페이지로 리다이렉트 (중복 리다이렉트 방지)
-                if (!window.location.pathname.includes('/login')) {
-                    navigate('/login', { state: { from: window.location.pathname, message: '세션이 만료되었습니다. 다시 로그인해주세요.' } });
+                if (navigate && !window.location.pathname.includes('/login')) {
+                    navigate('/login', {
+                        state: {
+                            from: window.location.pathname,
+                            message: '세션이 만료되었습니다. 다시 로그인해주세요.'
+                        }
+                    });
                 }
             }
 
-            // 403 에러(권한 없음)가 발생한 경우 알림 후 홈으로 리다이렉트
+            // 403 에러(권한 없음) 처리
             if (error.response && error.response.status === 403) {
-                if (!window.location.pathname.includes('/login') && !window.location.pathname === '/') {
-                    navigate('/', { state: { message: '해당 작업을 수행할 권한이 없습니다.' } });
+                if (navigate && !window.location.pathname.includes('/login') && window.location.pathname !== '/') {
+                    navigate('/', {
+                        state: {
+                            message: '해당 작업을 수행할 권한이 없습니다.'
+                        }
+                    });
                 }
             }
 
@@ -95,21 +119,21 @@ export const setupAxiosInterceptors = (axios, navigate) => {
 
 // 후크: 에러 모달 표시를 위한 편의 함수
 export const useErrorHandler = () => {
-    const alertModal = useModal();
+    const { openAlertModal, openConfirmModal } = useModal();
 
     // 에러 처리 함수
     const handleError = (error, customMessage = null) => {
         const message = customMessage || getErrorMessage(error);
 
-        alertModal.openModal({
+        openAlertModal({
             title: '오류 발생',
             message: message,
             type: 'error'
         });
 
-        // 에러 콘솔 로깅 (개발 모드에서만)
+        // 개발 모드에서만 콘솔에 자세한 오류 기록
         if (process.env.NODE_ENV === 'development') {
-            console.error('Error details:', error);
+            console.error('에러 상세:', error);
         }
 
         return message;
@@ -117,7 +141,7 @@ export const useErrorHandler = () => {
 
     // 성공 메시지 처리
     const handleSuccess = (message) => {
-        alertModal.openModal({
+        openAlertModal({
             title: '성공',
             message: message,
             type: 'success'
@@ -125,61 +149,176 @@ export const useErrorHandler = () => {
     };
 
     // 확인 모달 표시
-    const confirmAction = (message, onConfirm, title = '확인', confirmText = '확인', cancelText = '취소', type = 'warning') => {
+    const confirmAction = (message, onConfirm, options = {}) => {
+        const {
+            title = '확인',
+            confirmText = '확인',
+            cancelText = '취소',
+            type = 'warning',
+            isDestructive = false
+        } = options;
+
         return new Promise((resolve) => {
-            alertModal.openModal({
+            openConfirmModal({
                 title,
                 message,
                 confirmText,
                 cancelText,
                 type,
+                isDestructive,
                 onConfirm: () => {
                     onConfirm();
                     resolve(true);
-                },
-                onClose: () => {
-                    resolve(false);
                 }
             });
+        });
+    };
+
+    // 경고 표시
+    const handleWarning = (message, title = '주의') => {
+        openAlertModal({
+            title,
+            message,
+            type: 'warning'
+        });
+    };
+
+    // 정보 메시지 표시
+    const handleInfo = (message, title = '안내') => {
+        openAlertModal({
+            title,
+            message,
+            type: 'info'
         });
     };
 
     return {
         handleError,
         handleSuccess,
+        handleWarning,
+        handleInfo,
         confirmAction
     };
 };
 
-// API 호출에 대한 재시도 로직
-export const retryRequest = (apiCall, maxRetries = 3, delayMs = 1000) => {
-    return new Promise((resolve, reject) => {
-        const attempt = (retryCount) => {
-            apiCall()
-                .then(resolve)
-                .catch((error) => {
-                    if (retryCount < maxRetries) {
-                        console.log(`Request failed, retrying (${retryCount + 1}/${maxRetries})...`);
-                        setTimeout(() => attempt(retryCount + 1), delayMs);
-                    } else {
-                        reject(error);
-                    }
-                });
-        };
+// 에러 메시지 컴포넌트
+export const ErrorMessage = ({ message, className = '', onClose }) => (
+    <div className={`mb-4 p-3 bg-red-50 border-l-4 border-red-500 text-red-700 rounded flex items-start justify-between ${className}`}>
+        <div className="flex items-start">
+            <div className="flex-shrink-0 mt-0.5">
+                <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                </svg>
+            </div>
+            <div className="ml-3">
+                <p className="text-sm">{message}</p>
+            </div>
+        </div>
+        {onClose && (
+            <button
+                type="button"
+                className="ml-auto flex-shrink-0 -mt-1 -mr-1 p-1 rounded-full text-red-400 hover:bg-red-100 focus:outline-none"
+                onClick={onClose}
+            >
+                <span className="sr-only">닫기</span>
+                <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                </svg>
+            </button>
+        )}
+    </div>
+);
 
-        attempt(0);
-    });
-};
+// 성공 메시지 컴포넌트
+export const SuccessMessage = ({ message, className = '', onClose }) => (
+    <div className={`mb-4 p-3 bg-green-50 border-l-4 border-green-500 text-green-700 rounded flex items-start justify-between ${className}`}>
+        <div className="flex items-start">
+            <div className="flex-shrink-0 mt-0.5">
+                <svg className="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+            </div>
+            <div className="ml-3">
+                <p className="text-sm">{message}</p>
+            </div>
+        </div>
+        {onClose && (
+            <button
+                type="button"
+                className="ml-auto flex-shrink-0 -mt-1 -mr-1 p-1 rounded-full text-green-400 hover:bg-green-100 focus:outline-none"
+                onClick={onClose}
+            >
+                <span className="sr-only">닫기</span>
+                <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                </svg>
+            </button>
+        )}
+    </div>
+);
 
-// 전역 로딩 상태 관리를 위한 이벤트 리스너 설정
-export const setupLoadingListener = (setGlobalLoading) => {
-    const handleLoadingChange = (event) => {
-        setGlobalLoading(event.detail.isLoading);
-    };
+// 경고 메시지 컴포넌트
+export const WarningMessage = ({ message, className = '', onClose }) => (
+    <div className={`mb-4 p-3 bg-yellow-50 border-l-4 border-yellow-500 text-yellow-700 rounded flex items-start justify-between ${className}`}>
+        <div className="flex items-start">
+            <div className="flex-shrink-0 mt-0.5">
+                <svg className="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                </svg>
+            </div>
+            <div className="ml-3">
+                <p className="text-sm">{message}</p>
+            </div>
+        </div>
+        {onClose && (
+            <button
+                type="button"
+                className="ml-auto flex-shrink-0 -mt-1 -mr-1 p-1 rounded-full text-yellow-400 hover:bg-yellow-100 focus:outline-none"
+                onClick={onClose}
+            >
+                <span className="sr-only">닫기</span>
+                <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                </svg>
+            </button>
+        )}
+    </div>
+);
 
-    window.addEventListener('axios-loading', handleLoadingChange);
+// 정보 메시지 컴포넌트
+export const InfoMessage = ({ message, className = '', onClose }) => (
+    <div className={`mb-4 p-3 bg-blue-50 border-l-4 border-blue-500 text-blue-700 rounded flex items-start justify-between ${className}`}>
+        <div className="flex items-start">
+            <div className="flex-shrink-0 mt-0.5">
+                <svg className="h-5 w-5 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                </svg>
+            </div>
+            <div className="ml-3">
+                <p className="text-sm">{message}</p>
+            </div>
+        </div>
+        {onClose && (
+            <button
+                type="button"
+                className="ml-auto flex-shrink-0 -mt-1 -mr-1 p-1 rounded-full text-blue-400 hover:bg-blue-100 focus:outline-none"
+                onClick={onClose}
+            >
+                <span className="sr-only">닫기</span>
+                <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                </svg>
+            </button>
+        )}
+    </div>
+);
 
-    return () => {
-        window.removeEventListener('axios-loading', handleLoadingChange);
-    };
+export default {
+    getErrorMessage,
+    setupAxiosInterceptors,
+    useErrorHandler,
+    ErrorMessage,
+    SuccessMessage,
+    WarningMessage,
+    InfoMessage
 };

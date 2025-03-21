@@ -1,17 +1,17 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
-import { AlertModal, ConfirmModal } from '../components/index';
+import React, { createContext, useContext, useState } from 'react';
+import AlertModal from '../components/modals/AlertModal';
+import ConfirmModal from '../components/modals/ConfirmModal';
 
 const ModalContext = createContext();
 
- // 모달 컨텍스트 제공자 컴포넌트
 export const ModalProvider = ({ children }) => {
+    // 알림 모달 상태
     const [alertModal, setAlertModal] = useState({
         isOpen: false,
         title: '',
         message: '',
         confirmText: '확인',
         type: 'info',
-        onClose: () => {},
         onConfirm: null,
     });
 
@@ -22,20 +22,19 @@ export const ModalProvider = ({ children }) => {
         message: '',
         confirmText: '확인',
         cancelText: '취소',
+        type: 'warning',
         isDestructive: false,
         onConfirm: () => {},
-        onClose: () => {},
     });
 
     // 알림 모달 열기
-    const openAlertModal = useCallback(({
-                                            title,
-                                            message,
-                                            confirmText,
-                                            type,
-                                            onConfirm,
-                                            onClose
-                                        }) => {
+    const openAlertModal = ({
+                                title,
+                                message,
+                                confirmText,
+                                type,
+                                onConfirm,
+                            }) => {
         setAlertModal({
             isOpen: true,
             title: title || '알림',
@@ -43,108 +42,111 @@ export const ModalProvider = ({ children }) => {
             confirmText: confirmText || '확인',
             type: type || 'info',
             onConfirm: onConfirm || null,
-            onClose: () => {
-                closeAlertModal();
-                if (typeof onClose === 'function') {
-                    setTimeout(() => {
-                        onClose();
-                    }, 100);
-                }
-            },
         });
-    }, []);
+    };
 
     // 알림 모달 닫기
-    const closeAlertModal = useCallback(() => {
+    const closeAlertModal = () => {
         setAlertModal((prev) => ({ ...prev, isOpen: false }));
-    }, []);
-
-    // 알림 모달 확인 버튼 클릭
-    const handleAlertConfirm = useCallback(() => {
-        if (typeof alertModal.onConfirm === 'function') {
-            alertModal.onConfirm();
-        }
-        closeAlertModal();
-    }, [alertModal, closeAlertModal]);
+    };
 
     // 확인 모달 열기
-    const openConfirmModal = useCallback(({
-                                              title,
-                                              message,
-                                              confirmText,
-                                              cancelText,
-                                              isDestructive,
-                                              onConfirm,
-                                              onClose
-                                          }) => {
+    const openConfirmModal = ({
+                                  title,
+                                  message,
+                                  confirmText,
+                                  cancelText,
+                                  type,
+                                  isDestructive,
+                                  onConfirm,
+                              }) => {
         setConfirmModal({
             isOpen: true,
             title: title || '확인',
             message,
             confirmText: confirmText || '확인',
             cancelText: cancelText || '취소',
+            type: type || 'warning',
             isDestructive: isDestructive || false,
             onConfirm: onConfirm || (() => {}),
-            onClose: () => {
-                closeConfirmModal();
-                if (typeof onClose === 'function') {
-                    setTimeout(() => {
-                        onClose();
-                    }, 100);
-                }
-            },
         });
-    }, []);
+    };
 
     // 확인 모달 닫기
-    const closeConfirmModal = useCallback(() => {
+    const closeConfirmModal = () => {
         setConfirmModal((prev) => ({ ...prev, isOpen: false }));
-    }, []);
-
-    // 컨텍스트 값
-    const contextValue = {
-        openAlertModal,
-        closeAlertModal,
-        openConfirmModal,
-        closeConfirmModal,
     };
 
     return (
-        <ModalContext.Provider value={contextValue}>
+        <ModalContext.Provider
+            value={{
+                openAlertModal,
+                closeAlertModal,
+                openConfirmModal,
+                closeConfirmModal,
+            }}
+        >
             {children}
 
-            {/* 모달 컴포넌트들 */}
             <AlertModal
                 isOpen={alertModal.isOpen}
-                onClose={alertModal.onClose}
-                onConfirm={handleAlertConfirm}
+                onClose={closeAlertModal}
                 title={alertModal.title}
                 message={alertModal.message}
                 confirmText={alertModal.confirmText}
                 type={alertModal.type}
+                onConfirm={alertModal.onConfirm}
             />
 
             <ConfirmModal
                 isOpen={confirmModal.isOpen}
-                onClose={confirmModal.onClose}
-                onConfirm={confirmModal.onConfirm}
+                onClose={closeConfirmModal}
                 title={confirmModal.title}
                 message={confirmModal.message}
                 confirmText={confirmModal.confirmText}
                 cancelText={confirmModal.cancelText}
+                type={confirmModal.type}
                 isDestructive={confirmModal.isDestructive}
+                onConfirm={confirmModal.onConfirm}
             />
         </ModalContext.Provider>
     );
 };
 
-// 커스텀 훅
+// 모달 컨텍스트 훅
 export const useModalContext = () => {
     const context = useContext(ModalContext);
     if (!context) {
         throw new Error('useModalContext must be used within a ModalProvider');
     }
     return context;
+};
+
+// 모달 커스텀 훅
+export const useModal = () => {
+    const [isOpen, setIsOpen] = useState(false);
+    const [modalProps, setModalProps] = useState({});
+
+    const openModal = (props = {}) => {
+        setModalProps(props);
+        setIsOpen(true);
+    };
+
+    const closeModal = () => {
+        setIsOpen(false);
+        setTimeout(() => {
+            if (typeof modalProps.onClose === 'function') {
+                modalProps.onClose();
+            }
+        }, 100);
+    };
+
+    return {
+        isOpen,
+        modalProps,
+        openModal,
+        closeModal,
+    };
 };
 
 export default ModalContext;

@@ -1,11 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import {ConfirmModal, LoadingSpinner, useModal} from '../../../../components';
+import { ConfirmModal } from '../../../../components';
+import { useErrorHandler } from "../../../../components/ErrorHandler";
+import { useModal } from "../../../../components";
+import AdminDataTable from "../../AdminDataTable";
+import adminApiService from '../../../../service/apiAdminService';
 
 const AdminCompaniesManage = () => {
   const [companies, setCompanies] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [totalItems, setTotalItems] = useState(0);
   const [searchParams, setSearchParams] = useState({
     companyName: '',
     companyOwnerName: '',
@@ -13,127 +17,143 @@ const AdminCompaniesManage = () => {
     companyRegistrationNumber: '',
     companyApprovalStatus: '',
     sortOrderBy: '법인명',
-    isDESC: false
+    isDESC: false,
+    currentPage: 1,
+    rowsPerPage: 10
   });
 
   const confirmModal = useModal();
   const navigate = useNavigate();
+  const { handleError, handleSuccess, confirmAction } = useErrorHandler();
 
   useEffect(() => {
     fetchCompanies();
-  }, [searchParams.sortOrderBy, searchParams.isDESC]);
+  }, []);
 
   const fetchCompanies = () => {
     setLoading(true);
 
     const params = {
-      ...searchParams,
       companyName: searchParams.companyName || undefined,
       companyOwnerName: searchParams.companyOwnerName || undefined,
       companyPhone: searchParams.companyPhone || undefined,
-      companyRegistrationNumber: searchParams.companyRegistrationNumber || undefined
+      companyRegistrationNumber: searchParams.companyRegistrationNumber || undefined,
+      companyApprovalStatus: searchParams.companyApprovalStatus || undefined,
+      sortOrderBy: searchParams.sortOrderBy,
+      isDESC: searchParams.isDESC,
+      page: searchParams.currentPage,
+      limit: searchParams.rowsPerPage
     };
 
-    axios.get('/api/admin/companies', { params })
+    adminApiService.getCompanies(params)
         .then(response => {
-          setCompanies(response.data);
+          setCompanies(response.companies || response);
+          setTotalItems(response.total || response.length);
+          setLoading(false);
         })
         .catch(error => {
-          console.error('기업 목록 로딩 실패:', error);
-          confirmModal.openModal({
-            title: '오류',
-            message: '기업 목록을 불러오는데 실패했습니다.',
-            type: 'error'
-          });
-        })
-        .finally(() => {
+          handleError(error, '기업 목록을 불러오는데 실패했습니다.');
           setLoading(false);
         });
   };
 
-  const handleSearch = (e) => {
-    e.preventDefault();
+  const handleSearch = (searchTerm, page, rowsPerPage) => {
+    setSearchParams(prev => ({
+      ...prev,
+      companyName: searchTerm,
+      currentPage: page || 1,
+      rowsPerPage: rowsPerPage || prev.rowsPerPage
+    }));
+
     fetchCompanies();
   };
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
+  const handleSort = (key, direction) => {
+    // 컬럼 키를 API 정렬 필드명으로 변환
+    const sortFieldMap = {
+      'companyName': '법인명',
+      'companyOwnerName': '대표자명',
+      'companyRegistrationNumber': '사업자등록번호',
+      'companyCreatedAt': '가입일'
+    };
+
     setSearchParams(prev => ({
       ...prev,
-      [name]: value
+      sortOrderBy: sortFieldMap[key] || key,
+      isDESC: direction === 'desc'
     }));
+
+    fetchCompanies();
   };
 
-  const handleSortChange = (field) => {
+  const handleFilter = (filters) => {
     setSearchParams(prev => ({
       ...prev,
-      sortOrderBy: field,
-      isDESC: prev.sortOrderBy === field ? !prev.isDESC : false
+      ...filters,
+      currentPage: 1
     }));
+
+    fetchCompanies();
   };
 
+  const handlePageChange = (page, rowsPerPage) => {
+    setSearchParams(prev => ({
+      ...prev,
+      currentPage: page,
+      rowsPerPage: rowsPerPage || prev.rowsPerPage
+    }));
 
-  const confirmDelete = (company) => {
-    confirmModal.openModal({
-      title: '기업 삭제',
-      message: `${company.companyName} 기업을 삭제하시겠습니까? 이 작업은 되돌릴 수 없으며, 해당 기업의 모든 공고가 삭제됩니다.`,
-      confirmText: '삭제',
-      cancelText: '취소',
-      type: 'warning',
-      onConfirm: () => handleDelete(company.companyId)
-    });
+    fetchCompanies();
   };
 
   const handleDelete = (companyId) => {
-    axios.delete(`/api/admin/companies/${companyId}`)
+    adminApiService.deleteCompany(companyId)
         .then(() => {
           setCompanies(companies.filter(company => company.companyId !== companyId));
-          confirmModal.openModal({
-            title: '성공',
-            message: '기업이 삭제되었습니다.',
-            type: 'success'
-          });
+          handleSuccess('기업이 삭제되었습니다.');
         })
         .catch(error => {
-          console.error('기업 삭제 실패:', error);
-          confirmModal.openModal({
-            title: '오류',
-            message: '기업 삭제에 실패했습니다.',
-            type: 'error'
-          });
+          handleError(error, '기업 삭제에 실패했습니다.');
         });
   };
 
   const handleApprove = (companyId) => {
-    axios.patch(`/api/admin/companies/${companyId}/status`, { companyApprovalStatus: 'approved' })
+    adminApiService.updateCompanyStatus(companyId, 'approved')
         .then(() => {
           // 전체 목록 리로드
           fetchCompanies();
-          confirmModal.openModal({
-            title: '성공',
-            message: '기업이 승인되었습니다.',
-            type: 'success'
-          });
+          handleSuccess('기업이 승인되었습니다.');
         })
         .catch(error => {
-          console.error('기업 승인 실패:', error);
-          confirmModal.openModal({
-            title: '오류',
-            message: '기업 승인에 실패했습니다.',
-            type: 'error'
-          });
+          handleError(error, '기업 승인에 실패했습니다.');
         });
   };
 
   const confirmApprove = (company) => {
-    confirmModal.openModal({
-      title: '기업 승인',
-      message: `${company.companyName} 기업을 승인하시겠습니까?`,
-      confirmText: '승인',
-      cancelText: '취소',
-      type: 'info',
-      onConfirm: () => handleApprove(company.companyId)
-    });
+    confirmAction(
+        `${company.companyName} 기업을 승인하시겠습니까?`,
+        () => handleApprove(company.companyId),
+        {
+          title: '기업 승인',
+          confirmText: '승인',
+          cancelText: '취소',
+          type: 'info'
+        }
+    );
+  };
+
+  const confirmDelete = (company) => {
+    confirmAction(
+        `${company.companyName} 기업을 삭제하시겠습니까? 이 작업은 되돌릴 수 없으며, 해당 기업의 모든 공고가 삭제됩니다.`,
+        () => handleDelete(company.companyId),
+        {
+          title: '기업 삭제',
+          confirmText: '삭제',
+          cancelText: '취소',
+          type: 'warning',
+          isDestructive: true
+        }
+    );
   };
 
   const formatDate = (dateString) => {
@@ -162,11 +182,75 @@ const AdminCompaniesManage = () => {
       company.companyApprovalStatus === 'approving'
   ).length;
 
-  if (loading) return <LoadingSpinner message="기업 목록을 불러오는 중..." />;
+  // 테이블 컬럼 정의
+  const columns = [
+    {
+      key: 'companyName',
+      label: '법인명',
+      sortable: true,
+      filterable: true
+    },
+    {
+      key: 'companyOwnerName',
+      label: '대표자명',
+      sortable: true,
+      filterable: true
+    },
+    {
+      key: 'companyRegistrationNumber',
+      label: '사업자등록번호',
+      filterable: true
+    },
+    {
+      key: 'companyPhone',
+      label: '전화번호',
+      filterable: true
+    },
+    {
+      key: 'companyApprovalStatus',
+      label: '상태',
+      filterable: true,
+      render: (value) => getStatusBadge(value)
+    },
+    {
+      key: 'companyCreatedAt',
+      label: '가입일',
+      sortable: true,
+      render: (value) => formatDate(value)
+    }
+  ];
+
+  // 테이블 행 액션 정의
+  const renderRowActions = (company) => (
+      <div className="flex space-x-2">
+        <button
+            onClick={() => navigate(`/admin/companies/${company.companyId}`)}
+            className="text-indigo-600 hover:text-indigo-900"
+        >
+          상세
+        </button>
+
+        {company.companyApprovalStatus === 'approving' && (
+            <button
+                onClick={() => confirmApprove(company)}
+                className="text-green-600 hover:text-green-900"
+            >
+              승인
+            </button>
+        )}
+
+        <button
+            onClick={() => confirmDelete(company)}
+            className="text-red-600 hover:text-red-900"
+        >
+          삭제
+        </button>
+      </div>
+  );
 
   return (
-      <div>
-        <div className="flex justify-between items-center mb-6">
+      <div className="space-y-6">
+        <div className="flex justify-between items-center">
           <h2 className="text-2xl font-bold">기업 관리</h2>
           <div className="flex items-center space-x-3">
             {pendingCompaniesCount > 0 && (
@@ -183,8 +267,8 @@ const AdminCompaniesManage = () => {
           </div>
         </div>
 
-        <div className="mb-6 bg-white p-4 shadow rounded-lg">
-          <form onSubmit={handleSearch} className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="bg-white p-4 shadow rounded-lg">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <label htmlFor="companyName" className="block text-sm font-medium text-gray-700 mb-1">법인명</label>
               <input
@@ -192,7 +276,7 @@ const AdminCompaniesManage = () => {
                   id="companyName"
                   name="companyName"
                   value={searchParams.companyName}
-                  onChange={handleInputChange}
+                  onChange={(e) => setSearchParams({...searchParams, companyName: e.target.value})}
                   className="w-full p-2 border rounded"
                   placeholder="법인명 검색"
               />
@@ -205,7 +289,7 @@ const AdminCompaniesManage = () => {
                   id="companyOwnerName"
                   name="companyOwnerName"
                   value={searchParams.companyOwnerName}
-                  onChange={handleInputChange}
+                  onChange={(e) => setSearchParams({...searchParams, companyOwnerName: e.target.value})}
                   className="w-full p-2 border rounded"
                   placeholder="대표자명 검색"
               />
@@ -218,7 +302,7 @@ const AdminCompaniesManage = () => {
                   id="companyPhone"
                   name="companyPhone"
                   value={searchParams.companyPhone}
-                  onChange={handleInputChange}
+                  onChange={(e) => setSearchParams({...searchParams, companyPhone: e.target.value})}
                   className="w-full p-2 border rounded"
                   placeholder="전화번호 검색"
               />
@@ -231,7 +315,7 @@ const AdminCompaniesManage = () => {
                   id="companyRegistrationNumber"
                   name="companyRegistrationNumber"
                   value={searchParams.companyRegistrationNumber}
-                  onChange={handleInputChange}
+                  onChange={(e) => setSearchParams({...searchParams, companyRegistrationNumber: e.target.value})}
                   className="w-full p-2 border rounded"
                   placeholder="사업자등록번호 검색 (예: 123-45-67890)"
               />
@@ -243,7 +327,7 @@ const AdminCompaniesManage = () => {
                   id="companyApprovalStatus"
                   name="companyApprovalStatus"
                   value={searchParams.companyApprovalStatus}
-                  onChange={handleInputChange}
+                  onChange={(e) => setSearchParams({...searchParams, companyApprovalStatus: e.target.value})}
                   className="w-full p-2 border rounded"
               >
                 <option value="">전체</option>
@@ -255,102 +339,34 @@ const AdminCompaniesManage = () => {
 
             <div className="flex items-end">
               <button
-                  type="submit"
-                  className="w-full p-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                  onClick={fetchCompanies}
+                  className="w-full p-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
               >
                 검색
               </button>
             </div>
-          </form>
+          </div>
         </div>
 
-        <div className="bg-white shadow-md rounded-lg overflow-hidden">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer" onClick={() => handleSortChange('법인명')}>
-                <div className="flex items-center">
-                  법인명
-                  {searchParams.sortOrderBy === '법인명' && (
-                      <span className="ml-1">{searchParams.isDESC ? '▼' : '▲'}</span>
-                  )}
-                </div>
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer" onClick={() => handleSortChange('대표자명')}>
-                <div className="flex items-center">
-                  대표자명
-                  {searchParams.sortOrderBy === '대표자명' && (
-                      <span className="ml-1">{searchParams.isDESC ? '▼' : '▲'}</span>
-                  )}
-                </div>
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">사업자등록번호</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">전화번호</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">상태</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">가입일</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">관리</th>
-            </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-            {companies.length > 0 ? (
-                companies.map((company) => (
-                    <tr key={company.companyId}>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                        {company.companyName}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {company.companyOwnerName}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {company.companyRegistrationNumber}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {company.companyPhone}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {getStatusBadge(company.companyApprovalStatus)}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {formatDate(company.companyCreatedAt)}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        <div className="flex space-x-2">
-                          <button
-                              onClick={() => navigate(`/admin/companies/${company.companyId}`)}
-                              className="text-indigo-600 hover:text-indigo-900"
-                          >
-                            상세
-                          </button>
-
-                          {company.companyApprovalStatus === 'approving' && (
-                              <button
-                                  onClick={() => confirmApprove(company)}
-                                  className="text-green-600 hover:text-green-900"
-                              >
-                                승인
-                              </button>
-                          )}
-
-                          <button
-                              onClick={() => confirmDelete(company)}
-                              className="text-red-600 hover:text-red-900"
-                          >
-                            삭제
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                ))
-            ) : (
-                <tr>
-                  <td colSpan="7" className="px-6 py-4 text-center text-gray-500">
-                    검색 결과가 없습니다.
-                  </td>
-                </tr>
-            )}
-            </tbody>
-          </table>
-        </div>
+        <AdminDataTable
+            title="기업 목록"
+            data={companies}
+            columns={columns}
+            isLoading={loading}
+            totalItems={totalItems}
+            onSearch={handleSearch}
+            onSort={handleSort}
+            onFilter={handleFilter}
+            onPageChange={handlePageChange}
+            onView={(company) => navigate(`/admin/companies/${company.companyId}`)}
+            onEdit={(company) => navigate(`/admin/companies/${company.companyId}`)}
+            onDelete={handleDelete}
+            renderRowActions={renderRowActions}
+            selectable={true}
+            searchable={true}
+            exportable={true}
+            pagination={true}
+        />
 
         {confirmModal.isOpen && (
             <ConfirmModal
@@ -359,6 +375,9 @@ const AdminCompaniesManage = () => {
                 onConfirm={confirmModal.modalProps.onConfirm}
                 title={confirmModal.modalProps.title}
                 message={confirmModal.modalProps.message}
+                confirmText={confirmModal.modalProps.confirmText}
+                cancelText={confirmModal.modalProps.cancelText}
+                type={confirmModal.modalProps.type}
             />
         )}
       </div>

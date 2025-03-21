@@ -1,16 +1,6 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
+import { X } from 'lucide-react';
 
-/**
- * 재사용 가능한 모달 컴포넌트
- * @param {boolean} isOpen - 모달 표시 여부
- * @param {function} onClose - 모달 닫기 함수
- * @param {string} title - 모달 제목
- * @param {React.ReactNode} children - 모달 내용
- * @param {string} size - 모달 크기 (sm, md, lg, xl, full)
- * @param {boolean} showClose - 닫기 버튼 표시 여부
- * @param {boolean} closeOnOutsideClick - 외부 클릭 시 닫기 여부
- * @param {string} className - 추가 스타일 클래스
- */
 const Modal = ({
                    isOpen,
                    onClose,
@@ -20,17 +10,22 @@ const Modal = ({
                    showClose = true,
                    closeOnOutsideClick = true,
                    className = '',
+                   footer = null
                }) => {
+    const modalRef = useRef(null);
+
     // 모달 열릴 때 body 스크롤 방지
     useEffect(() => {
+        const originalStyle = window.getComputedStyle(document.body).overflow;
+
         if (isOpen) {
             document.body.style.overflow = 'hidden';
         } else {
-            document.body.style.overflow = 'auto';
+            document.body.style.overflow = originalStyle;
         }
 
         return () => {
-            document.body.style.overflow = 'auto';
+            document.body.style.overflow = originalStyle;
         };
     }, [isOpen]);
 
@@ -48,30 +43,43 @@ const Modal = ({
         };
     }, [isOpen, onClose]);
 
+    // 클릭 외부 감지
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (modalRef.current && !modalRef.current.contains(event.target) && closeOnOutsideClick) {
+                onClose();
+            }
+        };
+
+        if (isOpen) {
+            document.addEventListener('mousedown', handleClickOutside);
+        }
+
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [isOpen, onClose, closeOnOutsideClick]);
+
     if (!isOpen) return null;
 
     // 모달 크기에 따른 클래스
     const sizeClasses = {
+        xs: 'max-w-xs',
         sm: 'max-w-sm',
         md: 'max-w-md',
         lg: 'max-w-lg',
         xl: 'max-w-xl',
-        full: 'max-w-4xl',
-    };
-
-    // 외부 클릭 시 모달 닫기
-    const handleBackdropClick = (e) => {
-        if (e.target === e.currentTarget && closeOnOutsideClick) {
-            onClose();
-        }
+        '2xl': 'max-w-2xl',
+        '3xl': 'max-w-3xl',
+        '4xl': 'max-w-4xl',
+        '5xl': 'max-w-5xl',
+        full: 'max-w-full'
     };
 
     return (
-        <div
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50 backdrop-blur-sm transition-all duration-300 animate-fadeIn overflow-y-auto"
-            onClick={handleBackdropClick}
-        >
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50 backdrop-blur-sm transition-all duration-300 animate-fadeIn overflow-y-auto">
             <div
+                ref={modalRef}
                 className={`bg-white rounded-lg shadow-xl w-full ${sizeClasses[size]} transform transition-all duration-300 animate-slideIn ${className}`}
             >
                 {/* 모달 헤더 */}
@@ -82,11 +90,10 @@ const Modal = ({
                             <button
                                 type="button"
                                 onClick={onClose}
-                                className="text-gray-400 hover:text-gray-600 transition-colors"
+                                className="text-gray-400 hover:text-gray-600 transition-colors rounded-full p-1 hover:bg-gray-100"
+                                aria-label="닫기"
                             >
-                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
-                                </svg>
+                                <X className="w-5 h-5" />
                             </button>
                         )}
                     </div>
@@ -94,6 +101,13 @@ const Modal = ({
 
                 {/* 모달 내용 */}
                 <div className="p-6">{children}</div>
+
+                {/* 모달 푸터 */}
+                {footer && (
+                    <div className="px-6 py-4 border-t border-gray-200">
+                        {footer}
+                    </div>
+                )}
             </div>
         </div>
     );

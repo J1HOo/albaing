@@ -1,16 +1,7 @@
 import React from 'react';
 import Modal from './Modal';
+import { CheckCircle, XCircle, AlertTriangle, Info } from 'lucide-react';
 
-/**
- * 알림 모달 컴포넌트
- * @param {boolean} isOpen - 모달 표시 여부
- * @param {function} onClose - 모달 닫기 함수
- * @param {string} title - 모달 제목
- * @param {string} message - 알림 메시지
- * @param {string} confirmText - 확인 버튼 텍스트
- * @param {string} type - 알림 타입 (info, success, warning, error)
- * @param {function} onConfirm - 확인 버튼 클릭 시 콜백 함수 (있으면 onClose 대신 실행)
- */
 const AlertModal = ({
                         isOpen,
                         onClose,
@@ -18,42 +9,37 @@ const AlertModal = ({
                         message,
                         confirmText = '확인',
                         type = 'info',
-                        onConfirm
+                        onConfirm = null
                     }) => {
     const typeConfig = {
         info: {
-            icon: (
-                <svg className="w-6 h-6 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-            ),
-            buttonClass: 'bg-blue-600 hover:bg-blue-700',
+            icon: <Info className="w-6 h-6 text-blue-500" />,
+            title: title || '안내',
+            buttonClass: 'bg-blue-600 hover:bg-blue-700 focus:ring-blue-500',
+            iconContainerClass: 'bg-blue-100'
         },
         success: {
-            icon: (
-                <svg className="w-6 h-6 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-            ),
-            buttonClass: 'bg-green-600 hover:bg-green-700',
+            icon: <CheckCircle className="w-6 h-6 text-green-500" />,
+            title: title || '성공',
+            buttonClass: 'bg-green-600 hover:bg-green-700 focus:ring-green-500',
+            iconContainerClass: 'bg-green-100'
         },
         warning: {
-            icon: (
-                <svg className="w-6 h-6 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                </svg>
-            ),
-            buttonClass: 'bg-yellow-600 hover:bg-yellow-700',
+            icon: <AlertTriangle className="w-6 h-6 text-yellow-500" />,
+            title: title || '주의',
+            buttonClass: 'bg-yellow-600 hover:bg-yellow-700 focus:ring-yellow-500',
+            iconContainerClass: 'bg-yellow-100'
         },
         error: {
-            icon: (
-                <svg className="w-6 h-6 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-            ),
-            buttonClass: 'bg-red-600 hover:bg-red-700',
-        },
+            icon: <XCircle className="w-6 h-6 text-red-500" />,
+            title: title || '오류',
+            buttonClass: 'bg-red-600 hover:bg-red-700 focus:ring-red-500',
+            iconContainerClass: 'bg-red-100'
+        }
     };
+
+    // 형식이 없는 경우 기본값으로 info 사용
+    const config = typeConfig[type] || typeConfig.info;
 
     // 확인 버튼 클릭 처리
     const handleConfirm = () => {
@@ -64,22 +50,33 @@ const AlertModal = ({
     };
 
     return (
-        <Modal isOpen={isOpen} onClose={onClose} title={title} size="sm">
-            <div className="flex items-start mb-4">
-                <div className="flex-shrink-0 mr-3">{typeConfig[type].icon}</div>
-                <div className="flex-1">{message}</div>
+        <Modal
+            isOpen={isOpen}
+            onClose={onClose}
+            title={config.title}
+            size="sm"
+            showClose={false}
+        >
+            <div className="flex items-start space-x-4">
+                <div className={`p-2 rounded-full ${config.iconContainerClass}`}>
+                    {config.icon}
+                </div>
+                <div className="flex-1 mt-0.5">
+                    <p className="text-gray-700">{message}</p>
+                </div>
             </div>
-            <div className="flex justify-end">
+
+            <div className="mt-6 text-right">
                 <button
                     type="button"
                     onClick={handleConfirm}
-                    className={`px-4 py-2 text-white rounded-md transition-colors ${typeConfig[type].buttonClass}`}
+                    className={`px-4 py-2 text-white rounded-md transition-colors ${config.buttonClass} focus:outline-none focus:ring-2 focus:ring-offset-2`}
                 >
                     {confirmText}
                 </button>
             </div>
         </Modal>
     );
-};
+}
 
 export default AlertModal;
