@@ -638,40 +638,60 @@ const ResumeEdit = () => {
                     </div>
                 )}
 
+                {/* 경력 */}
+
+
                 {activeSection === 'career' && (
                     <div className="p-6">
                         {/* 헤더 영역 */}
-                        <div className="flex justify-between items-center mb-6 pb-2 border-b border-gray-200">
-                            <h2 className="text-xl font-semibold text-gray-900">경력 정보</h2>
-                            <button
-                                type="button"
-                                onClick={() => setShowCareerModal(true)}
-                                className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 shadow-sm transition-all flex items-center"
-                            >
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" fill="none"
-                                     viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                                          d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-                                </svg>
-                                추가
-                            </button>
+                        <div className="career-section mt-4">
+                            <div className="flex justify-between items-center">
+                                <h3 className="text-lg font-semibold">경력 정보</h3>
+                                <button
+                                    type="button"
+                                    className="btn btn-primary btn-sm"
+                                    onClick={handleAddCareer}
+                                >
+                                    새 경력 추가
+                                </button>
+                            </div>
+
                         </div>
 
-                        {/* 경력 목록 렌더링 */}
-                        <div className="career-list">
-                            <h3>경력 목록</h3>
+                        {/* 경력 목록 */}
+                        <div className="career-list mt-2">
                             {Array.isArray(resumeData.careerHistory) && resumeData.careerHistory.length > 0 ? (
                                 resumeData.careerHistory.map((career, index) => (
-                                    <div key={career.careerId || index} className="career-item">
-                                        <p>회사명: {career.careerCompanyName}</p>
-                                        <p>근무기간: {career.careerJoinDate} ~ {career.careerQuitDate || '현재'}</p>
-                                        <p>직무내용: {career.careerJobDescription}</p>
-                                        <button onClick={() => handleEditCareer(index)}>수정</button>
-                                        <button onClick={() => handleDeleteCareer(index)}>삭제</button>
+                                    <div key={career.careerId || index} className="career-item border p-3 rounded mb-2">
+                                        <div className="flex justify-between">
+                                            <div>
+                                                <p className="font-medium">{career.careerCompanyName}</p>
+                                                <p className="text-sm text-gray-600">
+                                                    {career.careerJoinDate} ~ {career.careerQuitDate || '현재'}
+                                                </p>
+                                                <p className="mt-1">{career.careerJobDescription}</p>
+                                            </div>
+                                            <div>
+                                                <button
+                                                    type="button"
+                                                    className="btn btn-sm btn-outline mr-1"
+                                                    onClick={() => handleEditCareer(index)}
+                                                >
+                                                    수정
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    className="btn btn-sm btn-outline btn-error"
+                                                    onClick={() => handleDeleteCareer(index)}
+                                                >
+                                                    삭제
+                                                </button>
+                                            </div>
+                                        </div>
                                     </div>
                                 ))
                             ) : (
-                                <p>등록된 경력이 없습니다.</p>
+                                <p className="text-gray-500 mt-2">등록된 경력이 없습니다.</p>
                             )}
                         </div>
 
@@ -686,7 +706,8 @@ const ResumeEdit = () => {
                             return careerList.length > 0 ? (
                                 /* 경력 목록 */
                                 careerList.map((career, index) => (
-                                    <div key={index} className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-all mb-4">
+                                    <div key={index}
+                                         className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-all mb-4">
                                         {/* 회사명 & 직무 정보 */}
                                         <div className="flex items-center mb-4">
                             <span className="inline-block bg-blue-100 text-blue-800 p-3 rounded-full mr-4">
@@ -716,7 +737,8 @@ const ResumeEdit = () => {
 
                                             <div className="p-4 bg-gray-50 rounded-lg col-span-2">
                                                 <div className="text-sm text-gray-500 mb-1">직무 내용</div>
-                                                <div className="font-medium">{career.careerJobDescription || '미입력'}</div>
+                                                <div
+                                                    className="font-medium">{career.careerJobDescription || '미입력'}</div>
                                             </div>
                                         </div>
                                     </div>
@@ -724,7 +746,8 @@ const ResumeEdit = () => {
                             ) : (
                                 /* 경력 정보가 없을 때 */
                                 <div className="text-center py-12 bg-gray-50 rounded-lg border border-gray-200">
-                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mx-auto text-gray-400 mb-3"
+                                    <svg xmlns="http://www.w3.org/2000/svg"
+                                         className="h-12 w-12 mx-auto text-gray-400 mb-3"
                                          fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
                                               d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
