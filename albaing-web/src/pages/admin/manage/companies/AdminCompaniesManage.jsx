@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ConfirmModal } from '../../../../components';
-import { useErrorHandler } from "../../../../components/ErrorHandler";
+import { ErrorHandler } from "../../../../components/ErrorHandler";
 import { useModal } from "../../../../components";
 import AdminDataTable from "../../AdminDataTable";
 import adminApiService from '../../../../service/apiAdminService';
@@ -24,7 +24,7 @@ const AdminCompaniesManage = () => {
 
   const confirmModal = useModal();
   const navigate = useNavigate();
-  const { handleError, handleSuccess, confirmAction } = useErrorHandler();
+  const { handleError, handleSuccess, confirmAction } = ErrorHandler();
 
   useEffect(() => {
     fetchCompanies();

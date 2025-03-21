@@ -1,7 +1,7 @@
 import React, {useState, useEffect} from 'react';
 import {Search, ChevronDown, ChevronUp, Filter, Download, Trash, X, Edit, Eye} from 'lucide-react';
 import {useModal, LoadingSpinner} from '../../components';
-import {useErrorHandler} from '../../components/ErrorHandler';
+import {ErrorHandler} from '../../components/ErrorHandler';
 
 const AdminDataTable = ({
                             data = [],
@@ -30,7 +30,7 @@ const AdminDataTable = ({
     const [filters, setFilters] = useState({});
     const [filterMenuOpen, setFilterMenuOpen] = useState(null);
 
-    const {handleError} = useErrorHandler();
+    const {handleError} = ErrorHandler();
     const confirmModal = useModal();
 
     // 페이지네이션 설정

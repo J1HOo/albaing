@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { LoadingSpinner } from '../../../../components';
-import {useErrorHandler} from "../../../../components/ErrorHandler";
+import {ErrorHandler} from "../../../../components/ErrorHandler";
 import 'react-quill/dist/quill.snow.css';
 import ReactQuill from 'react-quill';
 import axios from 'axios';
@@ -10,7 +10,7 @@ const AdminNoticeEdit = () => {
     const { noticeId } = useParams();
     const isEditMode = !!noticeId;
     const navigate = useNavigate();
-    const { handleError, handleSuccess } = useErrorHandler();
+    const { handleError, handleSuccess } = ErrorHandler();
 
     const [formData, setFormData] = useState({
         noticeTitle: '',

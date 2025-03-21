@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { LoadingSpinner } from '../../../../components';
-import { useErrorHandler } from "../../../../components/ErrorHandler";
+import { LoadingSpinner, ConfirmModal, useModal } from '../../../../components';
+import { ErrorHandler } from "../../../../components/ErrorHandler";
 
 const AdminUserDetail = () => {
     const { userId } = useParams();
@@ -11,7 +11,8 @@ const AdminUserDetail = () => {
     const [isEditing, setIsEditing] = useState(false);
     const [editForm, setEditForm] = useState(null);
     const navigate = useNavigate();
-    const { handleError, handleSuccess } = useErrorHandler();
+    const modal = useModal();
+    const { handleError, handleSuccess, confirmAction } = ErrorHandler();
 
     useEffect(() => {
         fetchUserDetail();
@@ -33,27 +34,54 @@ const AdminUserDetail = () => {
                 setLoading(false);
             })
             .catch(error => {
-                handleError(error, '사용자 정보를 불러오는데 실패했습니다.');
+                console.error('사용자 정보 로딩 실패:', error);
+                // handleError 대신 직접 에러 표시
+                modal.openModal({
+                    title: '오류 발생',
+                    message: '사용자 정보를 불러오는데 실패했습니다.',
+                    type: 'error'
+                });
                 setLoading(false);
             });
     };
 
     const handleDelete = () => {
-        if (!window.confirm(`${user.userName} 사용자를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.`)) {
-            return;
-        }
+        // confirmAction 대신 modal 직접 사용
+        modal.openModal({
+            title: '사용자 삭제',
+            message: `${user.userName} 사용자를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.`,
+            confirmText: '삭제',
+            cancelText: '취소',
+            type: 'warning',
+            isDestructive: true,
+            onConfirm: () => {
+                setLoading(true);
 
-        setLoading(true);
-
-        axios.delete(`/api/admin/users/${userId}`)
-            .then(() => {
-                handleSuccess('사용자가 성공적으로 삭제되었습니다.');
-                navigate('/admin/users');
-            })
-            .catch(error => {
-                handleError(error, '사용자 삭제에 실패했습니다.');
-                setLoading(false);
-            });
+                // 관련 데이터 삭제 후 사용자 삭제 (Promise 체인)
+                axios.delete(`/api/admin/users/${userId}/related-data`)
+                    .then(() => {
+                        return axios.delete(`/api/admin/users/${userId}`);
+                    })
+                    .then(() => {
+                        // 성공 메시지 표시
+                        modal.openModal({
+                            title: '성공',
+                            message: '사용자가 성공적으로 삭제되었습니다.',
+                            type: 'success'
+                        });
+                        navigate('/admin/users');
+                    })
+                    .catch(error => {
+                        console.error('사용자 삭제 실패:', error);
+                        modal.openModal({
+                            title: '오류 발생',
+                            message: '사용자 삭제에 실패했습니다.',
+                            type: 'error'
+                        });
+                        setLoading(false);
+                    });
+            }
+        });
     };
 
     const handleInputChange = (e) => {
@@ -64,20 +92,56 @@ const AdminUserDetail = () => {
         }));
     };
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        handleUpdateUser(editForm);
+    const handleCheckboxChange = (e) => {
+        const { name, checked } = e.target;
+        setEditForm(prev => ({
+            ...prev,
+            [name]: checked
+        }));
     };
 
-    const handleUpdateUser = () => {
-        axios.put(`/api/user/update/${userId}`, editForm)
-            .then(() => {
-                fetchUserDetail();
+    const handleSubmit = (e) => {
+        e.preventDefault();
+
+        // 유효성 검사
+        if (!editForm.userName || !editForm.userName.trim()) {
+            modal.openModal({
+                title: '오류 발생',
+                message: '이름은 필수 입력 항목입니다.',
+                type: 'error'
+            });
+            return;
+        }
+
+        if (!editForm.userEmail || !editForm.userEmail.trim()) {
+            modal.openModal({
+                title: '오류 발생',
+                message: '이메일은 필수 입력 항목입니다.',
+                type: 'error'
+            });
+            return;
+        }
+
+        setLoading(true);
+
+        axios.put(`/api/admin/users/${userId}`, editForm)
+            .then(response => {
+                setUser(editForm);
                 setIsEditing(false);
-                handleSuccess('사용자 정보가 수정되었습니다.');
+                modal.openModal({
+                    title: '성공',
+                    message: '사용자 정보가 성공적으로 수정되었습니다.',
+                    type: 'success'
+                });
+                setLoading(false);
             })
             .catch(error => {
-                handleError(error, '사용자 정보 수정에 실패했습니다.');
+                console.error('사용자 정보 수정 실패:', error);
+                modal.openModal({
+                    title: '오류 발생',
+                    message: '사용자 정보 수정에 실패했습니다.',
+                    type: 'error'
+                });
                 setLoading(false);
             });
     };
@@ -159,6 +223,7 @@ const AdminUserDetail = () => {
                                         value={editForm.userName}
                                         onChange={handleInputChange}
                                         className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
+                                        required
                                     />
                                 </div>
 
@@ -170,6 +235,7 @@ const AdminUserDetail = () => {
                                         value={editForm.userEmail}
                                         onChange={handleInputChange}
                                         className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
+                                        required
                                     />
                                 </div>
 
@@ -178,7 +244,7 @@ const AdminUserDetail = () => {
                                     <input
                                         type="text"
                                         name="userPhone"
-                                        value={editForm.userPhone}
+                                        value={editForm.userPhone || ''}
                                         onChange={handleInputChange}
                                         className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
                                     />
@@ -217,7 +283,7 @@ const AdminUserDetail = () => {
                                                 type="checkbox"
                                                 name="userIsAdmin"
                                                 checked={editForm.userIsAdmin || false}
-                                                onChange={(e) => setEditForm({...editForm, userIsAdmin: e.target.checked})}
+                                                onChange={handleCheckboxChange}
                                                 className="h-4 w-4 text-blue-600 border-gray-300 rounded"
                                             />
                                             <span className="ml-2 text-sm text-gray-700">관리자 권한 부여</span>
@@ -298,6 +364,20 @@ const AdminUserDetail = () => {
                     </div>
                 </div>
             </div>
+
+            {modal.isOpen && (
+                <ConfirmModal
+                    isOpen={modal.isOpen}
+                    onClose={modal.closeModal}
+                    onConfirm={modal.modalProps.onConfirm}
+                    title={modal.modalProps.title}
+                    message={modal.modalProps.message}
+                    confirmText={modal.modalProps.confirmText}
+                    cancelText={modal.modalProps.cancelText}
+                    type={modal.modalProps.type}
+                    isDestructive={modal.modalProps.isDestructive}
+                />
+            )}
         </div>
     );
 };

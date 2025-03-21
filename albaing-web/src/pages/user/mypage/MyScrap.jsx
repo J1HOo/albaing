@@ -3,7 +3,7 @@ import { Link, useParams } from "react-router-dom";
 import apiScrapService from "../../../service/apiScrapService";
 import { LoadingSpinner, ErrorMessage, useModal, AlertModal } from "../../../components";
 import Pagination from "../../../components/common/Pagination";
-import { getErrorMessage } from "../../../components/ErrorHandler";
+import { ErrorHandler } from "../../../components/ErrorHandler";
 import axios from "axios";
 
 const ScrapPage = () => {
@@ -25,7 +25,7 @@ const ScrapPage = () => {
             setScrapedPosts(data);
             setLoading(false);
         }, (err) => {
-            setError(getErrorMessage(err));
+            setError(ErrorHandler(err));
             setLoading(false);
         });
     };

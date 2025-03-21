@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { getErrorMessage } from '../components/ErrorHandler';
+import { ErrorHandler } from '../components/ErrorHandler';
 
 const api = axios.create({
     baseURL: '/api',
@@ -13,7 +13,7 @@ api.interceptors.response.use(
     response => response,
     error => {
         // 에러 처리 로직
-        console.error('API 오류:', getErrorMessage(error));
+        console.error('API 오류:', ErrorHandler(error));
         return Promise.reject(error);
     }
 );

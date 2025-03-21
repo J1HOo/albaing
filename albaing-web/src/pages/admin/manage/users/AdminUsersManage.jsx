@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { ConfirmModal, useModal } from '../../../../components';
-import { useErrorHandler } from "../../../../components/ErrorHandler";
+import { ErrorHandler } from "../../../../components/ErrorHandler";
 import AdminDataTable from "../../AdminDataTable";
 
 const AdminUsersManage = () => {
@@ -21,7 +21,7 @@ const AdminUsersManage = () => {
 
     const confirmModal = useModal();
     const navigate = useNavigate();
-    const { handleError, handleSuccess } = useErrorHandler();
+    const { handleError, handleSuccess } = ErrorHandler();
 
     useEffect(() => {
         fetchUsers();

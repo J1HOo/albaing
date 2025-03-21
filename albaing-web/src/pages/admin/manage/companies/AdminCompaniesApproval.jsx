@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import {ConfirmModal, LoadingSpinner, useModal} from '../../../../components';
+import { ConfirmModal, LoadingSpinner, useModal } from '../../../../components';
 
 const AdminCompaniesApproval = () => {
     const [pendingCompanies, setPendingCompanies] = useState([]);
@@ -15,6 +15,7 @@ const AdminCompaniesApproval = () => {
 
     const fetchPendingCompanies = () => {
         setLoading(true);
+
         axios.get('/api/admin/companies/pending')
             .then(response => {
                 setPendingCompanies(response.data);
@@ -34,13 +35,19 @@ const AdminCompaniesApproval = () => {
 
     const handleApprove = (companyId) => {
         axios.patch(`/api/admin/companies/${companyId}/status`, { companyApprovalStatus: 'approved' })
-            .then(() => {
+            .then(response => {
+                // 승인된 기업을 목록에서 제거
                 setPendingCompanies(prev => prev.filter(company => company.companyId !== companyId));
+
+                // 성공 모달 표시
                 confirmModal.openModal({
                     title: '성공',
                     message: '기업이 승인되었습니다.',
                     type: 'success'
                 });
+
+                // 채용공고 상태 자동 활성화 (선택적)
+                return axios.patch(`/api/admin/companies/${companyId}/job-posts/activate`);
             })
             .catch(error => {
                 console.error('기업 승인 실패:', error);
@@ -55,7 +62,10 @@ const AdminCompaniesApproval = () => {
     const handleReject = (companyId) => {
         axios.patch(`/api/admin/companies/${companyId}/status`, { companyApprovalStatus: 'hidden' })
             .then(() => {
+                // 거부된 기업을 목록에서 제거
                 setPendingCompanies(prev => prev.filter(company => company.companyId !== companyId));
+
+                // 성공 모달 표시
                 confirmModal.openModal({
                     title: '성공',
                     message: '기업 승인이 거부되었습니다.',
@@ -90,6 +100,7 @@ const AdminCompaniesApproval = () => {
             confirmText: '거부',
             cancelText: '취소',
             type: 'warning',
+            isDestructive: true,
             onConfirm: () => handleReject(company.companyId)
         });
     };
@@ -106,8 +117,8 @@ const AdminCompaniesApproval = () => {
             <div className="flex justify-between items-center mb-6">
                 <h2 className="text-2xl font-bold">기업 승인 관리</h2>
                 <span className="bg-yellow-100 text-yellow-800 py-1 px-3 rounded-full text-sm font-medium">
-          대기 기업: {pendingCompanies.length}개
-        </span>
+                    대기 기업: {pendingCompanies.length}개
+                </span>
             </div>
 
             {pendingCompanies.length === 0 ? (
@@ -121,8 +132,8 @@ const AdminCompaniesApproval = () => {
                             <div className="p-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
                                 <h3 className="text-lg font-medium text-gray-900">{company.companyName}</h3>
                                 <span className="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                  승인대기
-                </span>
+                                    승인대기
+                                </span>
                             </div>
 
                             <div className="p-4">
@@ -171,6 +182,7 @@ const AdminCompaniesApproval = () => {
                     ))}
                 </div>
             )}
+
             {confirmModal.isOpen && (
                 <ConfirmModal
                     isOpen={confirmModal.isOpen}
@@ -178,9 +190,12 @@ const AdminCompaniesApproval = () => {
                     onConfirm={confirmModal.modalProps.onConfirm}
                     title={confirmModal.modalProps.title}
                     message={confirmModal.modalProps.message}
+                    confirmText={confirmModal.modalProps.confirmText}
+                    cancelText={confirmModal.modalProps.cancelText}
+                    type={confirmModal.modalProps.type}
+                    isDestructive={confirmModal.modalProps.isDestructive}
                 />
             )}
-
         </div>
     );
 };

@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useErrorHandler } from "../../../../components/ErrorHandler";
+import axios from 'axios';
+import { ConfirmModal, LoadingSpinner, useModal } from '../../../../components';
+import { ErrorHandler } from "../../../../components/ErrorHandler";
 import AdminDataTable from "../../AdminDataTable";
-import adminApiService from '../../../../service/apiAdminService';
 
 const AdminReviewManage = () => {
     const [reviews, setReviews] = useState([]);
@@ -16,7 +17,8 @@ const AdminReviewManage = () => {
         sortDirection: 'desc'
     });
 
-    const { handleError, handleSuccess, confirmAction } = useErrorHandler();
+    const confirmModal = useModal();
+    const { handleError, handleSuccess } = ErrorHandler();
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -25,9 +27,10 @@ const AdminReviewManage = () => {
 
     const fetchReviews = () => {
         setLoading(true);
-        adminApiService.getAllReviews()
+
+        axios.get('/api/admin/reviews')
             .then(response => {
-                const data = response.reviews || response;
+                const data = response.data;
 
                 // 검색어 필터링
                 let filteredData = data;
@@ -77,28 +80,66 @@ const AdminReviewManage = () => {
     };
 
     const handleDelete = (reviewId) => {
-        confirmAction(
-            "이 리뷰를 삭제하시겠습니까?",
-            () => {
-                adminApiService.deleteReview(reviewId)
+        confirmModal.openModal({
+            title: '리뷰 삭제',
+            message: "이 리뷰를 삭제하시겠습니까?",
+            confirmText: '삭제',
+            cancelText: '취소',
+            type: 'warning',
+            isDestructive: true,
+            onConfirm: () => {
+                setLoading(true);
+
+                // 먼저 리뷰의 모든 댓글 삭제 후 리뷰 삭제 (Promise 체인)
+                axios.delete(`/api/admin/reviews/${reviewId}/comments`)
                     .then(() => {
+                        // 리뷰 삭제
+                        return axios.delete(`/api/admin/reviews/${reviewId}`);
+                    })
+                    .then(() => {
+                        // 성공 시 리뷰 목록에서 제거
                         setReviews(prev => prev.filter(review =>
                             (review.reviewId || review.review_id) !== reviewId
                         ));
                         handleSuccess('리뷰가 삭제되었습니다.');
+                        setLoading(false);
                     })
                     .catch(error => {
                         handleError(error, '리뷰 삭제에 실패했습니다.');
+                        setLoading(false);
                     });
-            },
-            {
-                title: '리뷰 삭제',
-                confirmText: '삭제',
-                cancelText: '취소',
-                type: 'warning',
-                isDestructive: true
             }
-        );
+        });
+    };
+
+    const handleCommentDelete = (reviewId, commentId) => {
+        confirmModal.openModal({
+            title: '댓글 삭제',
+            message: '이 댓글을 삭제하시겠습니까?',
+            confirmText: '삭제',
+            cancelText: '취소',
+            type: 'warning',
+            isDestructive: true,
+            onConfirm: () => {
+                axios.delete(`/api/admin/reviews/${reviewId}/comments/${commentId}`)
+                    .then(() => {
+                        handleSuccess('댓글이 삭제되었습니다.');
+
+                        // 리뷰 상세 정보 다시 불러오기
+                        return axios.get(`/api/admin/reviews/${reviewId}`);
+                    })
+                    .then(response => {
+                        // 리뷰 목록 갱신 (댓글 수가 변경되었을 수 있음)
+                        const updatedReview = response.data;
+                        setReviews(prev => prev.map(review =>
+                            (review.reviewId || review.review_id) === reviewId ? updatedReview : review
+                        ));
+                    })
+                    .catch(error => {
+                        handleError(error, '댓글 삭제에 실패했습니다.');
+                    });
+            }
+        });
     };
 
     const handleSearch = (searchTerm, page = 1, rowsPerPage = searchParams.rowsPerPage) => {
@@ -218,6 +259,12 @@ const AdminReviewManage = () => {
         <div className="space-y-6">
             <div className="flex justify-between items-center">
                 <h2 className="text-2xl font-bold">리뷰 관리</h2>
+                <button
+                    onClick={fetchReviews}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                >
+                    리뷰 목록 새로고침
+                </button>
             </div>
 
             <AdminDataTable
@@ -235,6 +282,20 @@ const AdminReviewManage = () => {
                 exportable={true}
                 pagination={true}
             />
+
+            {confirmModal.isOpen && (
+                <ConfirmModal
+                    isOpen={confirmModal.isOpen}
+                    onClose={confirmModal.closeModal}
+                    onConfirm={confirmModal.modalProps.onConfirm}
+                    title={confirmModal.modalProps.title}
+                    message={confirmModal.modalProps.message}
+                    confirmText={confirmModal.modalProps.confirmText}
+                    cancelText={confirmModal.modalProps.cancelText}
+                    type={confirmModal.modalProps.type}
+                    isDestructive={confirmModal.modalProps.isDestructive}
+                />
+            )}
         </div>
     );
 };

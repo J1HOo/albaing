@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import {LoadingSpinner, useModal} from '../../../../components';
-import {useErrorHandler} from "../../../../components/ErrorHandler";
+import {ErrorHandler} from "../../../../components/ErrorHandler";
 
 const AdminCompanyDetail = () => {
     const { companyId } = useParams();
@@ -11,7 +11,7 @@ const AdminCompanyDetail = () => {
     const [isEditing, setIsEditing] = useState(false);
     const [editForm, setEditForm] = useState(null);
     const navigate = useNavigate();
-    const { handleError, handleSuccess } = useErrorHandler();
+    const { handleError, handleSuccess } = ErrorHandler();
 
     useEffect(() => {
         fetchCompanyDetail();

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Modal from './Modal';
 import { AlertTriangle, AlertCircle, HelpCircle } from 'lucide-react';
 
@@ -11,8 +11,12 @@ const ConfirmModal = ({
                           confirmText = '확인',
                           cancelText = '취소',
                           type = 'warning',
-                          isDestructive = false
+                          isDestructive = false,
+                          hideCancel = false,
+                          processing = false // 처리 중 상태 추가
                       }) => {
+    const [isProcessing, setIsProcessing] = useState(processing);
+
     const typeConfig = {
         info: {
             icon: <HelpCircle className="h-6 w-6 text-blue-600" />,
@@ -40,10 +44,31 @@ const ConfirmModal = ({
         : config.confirmButtonClass;
 
     const handleConfirm = () => {
+        setIsProcessing(true);
+
+        // onConfirm이 Promise를 반환하는 경우 처리
         if (typeof onConfirm === 'function') {
-            onConfirm();
+            const result = onConfirm();
+            if (result && typeof result.then === 'function') {
+                result
+                    .then(() => {
+                        setIsProcessing(false);
+                        onClose();
+                    })
+                    .catch((error) => {
+                        console.error('Confirmation action failed:', error);
+                        setIsProcessing(false);
+                        // 오류 처리 로직 (필요시)
+                    });
+            } else {
+                // Promise가 아닌 경우 바로 종료
+                setIsProcessing(false);
+                onClose();
+            }
+        } else {
+            setIsProcessing(false);
+            onClose();
         }
-        onClose();
     };
 
     return (
@@ -52,7 +77,8 @@ const ConfirmModal = ({
             onClose={onClose}
             title={title}
             size="sm"
-            showClose={false}
+            showClose={!isProcessing}
+            closeOnOutsideClick={!isProcessing}
         >
             <div className="flex items-start space-x-4">
                 <div className={`p-2 rounded-full ${config.iconContainerClass}`}>
@@ -64,19 +90,37 @@ const ConfirmModal = ({
             </div>
 
             <div className="mt-6 flex justify-end space-x-3">
-                <button
-                    type="button"
-                    onClick={onClose}
-                    className="px-4 py-2 bg-white border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
-                >
-                    {cancelText}
-                </button>
+                {!hideCancel && (
+                    <button
+                        type="button"
+                        onClick={onClose}
+                        disabled={isProcessing}
+                        className={`px-4 py-2 bg-white border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 ${
+                            isProcessing ? 'opacity-50 cursor-not-allowed' : ''
+                        }`}
+                    >
+                        {cancelText}
+                    </button>
+                )}
                 <button
                     type="button"
                     onClick={handleConfirm}
-                    className={`px-4 py-2 text-white rounded-md ${confirmButtonClass} focus:outline-none focus:ring-2 focus:ring-offset-2`}
+                    disabled={isProcessing}
+                    className={`px-4 py-2 text-white rounded-md ${confirmButtonClass} focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+                        isProcessing ? 'opacity-70 cursor-wait' : ''
+                    }`}
                 >
-                    {confirmText}
+                    {isProcessing ? (
+                        <div className="flex items-center">
+                            <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            처리 중...
+                        </div>
+                    ) : (
+                        confirmText
+                    )}
                 </button>
             </div>
         </Modal>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useErrorHandler } from "../../../../components/ErrorHandler";
+import { ErrorHandler } from "../../../../components/ErrorHandler";
 import AdminDataTable from "../../AdminDataTable";
 import adminApiService from '../../../../service/apiAdminService';
 
@@ -18,7 +18,7 @@ const AdminJobPostsManage = () => {
     rowsPerPage: 10
   });
 
-  const { handleError, handleSuccess, confirmAction } = useErrorHandler();
+  const { handleError, handleSuccess, confirmAction } = ErrorHandler();
   const navigate = useNavigate();
 
   useEffect(() => {

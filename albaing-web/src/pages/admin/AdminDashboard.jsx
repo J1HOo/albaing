@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { LoadingSpinner } from '../../components';
-import { useErrorHandler } from '../../components/ErrorHandler';
-import adminApiService from '../../service/apiAdminService';
+import axios from 'axios';
+import { LoadingSpinner, ConfirmModal, useModal } from '../../components';
+import { ErrorHandler } from '../../components/ErrorHandler';
 import {
     Users, Briefcase, FileText, CheckCircle,
     AlertCircle, RefreshCw, TrendingUp, BarChart2
@@ -28,7 +28,8 @@ const AdminDashboard = () => {
     const [refreshing, setRefreshing] = useState(false);
 
     const navigate = useNavigate();
-    const { handleError } = useErrorHandler();
+    const confirmModal = useModal();
+    const { handleError } = ErrorHandler();
 
     useEffect(() => {
         fetchDashboardData();
@@ -38,41 +39,120 @@ const AdminDashboard = () => {
         setLoading({stats: true, users: true, companies: true});
         setRefreshing(true);
 
-        // 통계 데이터 가져오기
-        adminApiService.getDashboardStats()
-            .then(response => {
-                setStats(response);
-                setLoading(prev => ({...prev, stats: false}));
-            })
+        // Promise.all을 사용하지 않고 순차적으로 처리
+        fetchStats()
+            .then(() => fetchRecentUsers())
+            .then(() => fetchRecentCompanies())
             .catch(error => {
-                handleError(error, '대시보드 통계 데이터 로딩 실패');
-                setLoading(prev => ({...prev, stats: false}));
-            });
-
-        // 최근 사용자 목록 가져오기
-        adminApiService.getUsers({sortOrderBy: '가입일', isDESC: true, limit: 5})
-            .then(response => {
-                setRecentUsers(response.users || response);
-                setLoading(prev => ({...prev, users: false}));
-            })
-            .catch(error => {
-                handleError(error, '최근 사용자 목록 로딩 실패');
-                setLoading(prev => ({...prev, users: false}));
-            });
-
-        // 최근 기업 목록 가져오기
-        adminApiService.getCompanies({sortOrderBy: '가입일', isDESC: true, limit: 5})
-            .then(response => {
-                setRecentCompanies(response.companies || response);
-                setLoading(prev => ({...prev, companies: false}));
-            })
-            .catch(error => {
-                handleError(error, '최근 기업 목록 로딩 실패');
-                setLoading(prev => ({...prev, companies: false}));
+                handleError(error, '대시보드 데이터 로딩 실패');
             })
             .finally(() => {
                 setRefreshing(false);
             });
+    };
+
+    const fetchStats = () => {
+        return axios.get('/api/admin/stats')
+            .then(response => {
+                setStats(response.data);
+                setLoading(prev => ({...prev, stats: false}));
+                return response.data;
+            })
+            .catch(error => {
+                handleError(error, '대시보드 통계 데이터 로딩 실패');
+                setLoading(prev => ({...prev, stats: false}));
+                throw error;
+            });
+    };
+
+    const fetchRecentUsers = () => {
+        return axios.get('/api/admin/users', {
+            params: {
+                sortOrderBy: '가입일',
+                isDESC: true,
+                limit: 5
+            }
+        })
+            .then(response => {
+                setRecentUsers(response.data.users || response.data);
+                setLoading(prev => ({...prev, users: false}));
+                return response.data;
+            })
+            .catch(error => {
+                handleError(error, '최근 사용자 목록 로딩 실패');
+                setLoading(prev => ({...prev, users: false}));
+                throw error;
+            });
+    };
+
+    const fetchRecentCompanies = () => {
+        return axios.get('/api/admin/companies', {
+            params: {
+                sortOrderBy: '가입일',
+                isDESC: true,
+                limit: 5
+            }
+        })
+            .then(response => {
+                setRecentCompanies(response.data.companies || response.data);
+                setLoading(prev => ({...prev, companies: false}));
+                return response.data;
+            })
+            .catch(error => {
+                handleError(error, '최근 기업 목록 로딩 실패');
+                setLoading(prev => ({...prev, companies: false}));
+                throw error;
+            });
+    };
+
+    const handleApproveAllPending = () => {
+        confirmModal.openModal({
+            title: '대기 기업 일괄 승인',
+            message: `${stats.pendingCompanyCount}개의 대기 기업을 모두 승인하시겠습니까?`,
+            confirmText: '일괄 승인',
+            cancelText: '취소',
+            type: 'info',
+            onConfirm: () => {
+                setRefreshing(true);
+
+                axios.get('/api/admin/companies/pending')
+                    .then(response => {
+                        const pendingCompanies = response.data;
+
+                        // 순차적으로 처리
+                        const batchApprove = (companies, index = 0) => {
+                            if (index >= companies.length) {
+                                // 모두 완료
+                                return fetchStats(); // 통계 업데이트
+                            }
+
+                            const company = companies[index];
+                            return axios.patch(`/api/admin/companies/${company.companyId}/status`,
+                                { companyApprovalStatus: 'approved' }
+                            )
+                                .then(() => {
+                                    // 다음 회사 처리
+                                    return batchApprove(companies, index + 1);
+                                });
+                        };
+
+                        return batchApprove(pendingCompanies);
+                    })
+                    .then(() => {
+                        confirmModal.openModal({
+                            title: '승인 완료',
+                            message: '모든 대기 기업이 성공적으로 승인되었습니다.',
+                            type: 'success'
+                        });
+                    })
+                    .catch(error => {
+                        handleError(error, '기업 일괄 승인 실패');
+                    })
+                    .finally(() => {
+                        setRefreshing(false);
+                    });
+            }
+        });
     };
 
     const formatDate = (dateString) => {
@@ -328,7 +408,7 @@ const AdminDashboard = () => {
 
             {/* 승인 대기 알림 */}
             {stats.pendingCompanyCount > 0 && (
-                <div className="mt-6">
+                <div className="mt-6 flex justify-between">
                     <button
                         onClick={() => navigate('/admin/companies/approval')}
                         className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-md hover:from-orange-600 hover:to-red-600 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 transform transition-all duration-300 hover:scale-105 active:scale-95 animate-pulse"
@@ -336,7 +416,30 @@ const AdminDashboard = () => {
                         <AlertCircle className="mr-2" size={18} />
                         승인 대기 기업 처리하기 ({stats.pendingCompanyCount})
                     </button>
+
+                    {stats.pendingCompanyCount > 1 && (
+                        <button
+                            onClick={handleApproveAllPending}
+                            className="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+                        >
+                            <CheckCircle className="mr-2" size={18} />
+                            전체 일괄 승인
+                        </button>
+                    )}
                 </div>
+            )}
+
+            {confirmModal.isOpen && (
+                <ConfirmModal
+                    isOpen={confirmModal.isOpen}
+                    onClose={confirmModal.closeModal}
+                    onConfirm={confirmModal.modalProps.onConfirm}
+                    title={confirmModal.modalProps.title}
+                    message={confirmModal.modalProps.message}
+                    confirmText={confirmModal.modalProps.confirmText}
+                    cancelText={confirmModal.modalProps.cancelText}
+                    type={confirmModal.modalProps.type}
+                />
             )}
         </div>
     );

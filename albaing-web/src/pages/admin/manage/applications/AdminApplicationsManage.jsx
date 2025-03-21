@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useErrorHandler } from "../../../../components/ErrorHandler";
+import { ErrorHandler } from "../../../../components/ErrorHandler";
 import AdminDataTable from "../../AdminDataTable";
 import adminApiService from '../../../../service/apiAdminService';
 
@@ -21,7 +21,7 @@ const AdminApplicationsManage = () => {
 
     const navigate = useNavigate();
     const location = useLocation();
-    const { handleError, handleSuccess, confirmAction } = useErrorHandler();
+    const { handleError, handleSuccess, confirmAction } = ErrorHandler();
 
     useEffect(() => {
         const queryParams = new URLSearchParams(location.search);

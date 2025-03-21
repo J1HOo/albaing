@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { getErrorMessage } from '../components/ErrorHandler';
+import { ErrorHandler } from '../components/ErrorHandler';
 
 // API 기본 URL 설정
 const API_URL = process.env.REACT_APP_API_URL || '';
@@ -10,7 +10,7 @@ const apiResumeService = {
         return axios.get(`${API_URL}/api/resume/${resumeId}`, { withCredentials: true })
             .then(response => response.data)
             .catch(error => {
-                console.error('이력서 조회 오류:', getErrorMessage(error));
+                console.error('이력서 조회 오류:', ErrorHandler(error));
                 throw error;
             });
     },
@@ -21,7 +21,7 @@ const apiResumeService = {
         return axios.get(`${API_URL}/api/resume/user/${userId}`, { withCredentials: true })
             .then(response => response.data)
             .catch(error => {
-                console.error('이력서 조회 오류:', getErrorMessage(error));
+                console.error('이력서 조회 오류:', ErrorHandler(error));
                 throw error;
             });
     },
@@ -33,7 +33,7 @@ const apiResumeService = {
             .put(`${API_URL}/api/resume/update/${resumeId}`, resumeData, { withCredentials: true })
             .then(response => response.data)
             .catch(error => {
-                console.error('이력서 업데이트 오류:', getErrorMessage(error));
+                console.error('이력서 업데이트 오류:', ErrorHandler(error));
                 throw error;  // 예외를 던져 호출한 곳에서 처리하도록 함
             });
     },
