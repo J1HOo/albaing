@@ -38,9 +38,8 @@ const ResumeEdit = () => {
     const [activeSection, setActiveSection] = useState('basic');
 
     //경력
+    const [currentCareer, setCurrentCareer] = useState(null);
     const [showCareerModal, setShowCareerModal] = useState(false);
-    const [careerData, setCareerData] = useState([]);
-    const [newCareer, setNewCareer] = useState({ company: "", role: "", period: "" });
 
     const location = useLocation();
     const {userData} = useAuth();
@@ -168,13 +167,91 @@ const ResumeEdit = () => {
         setShowEducationModal(false);
     };
 
-
+// 경력 추가/수정 함수
     const handleCareerUpdate = (careerData) => {
-        setResumeData(prev => ({
-            ...prev,
-            careerHistory: [...(prev.careerHistory || []), { ...careerData, resumeId: prev.resumeId }]
-        }));
+        setResumeData(prev => {
+            // careerHistory가 배열인지 확인하고, 아니면 빈 배열로 초기화
+            const currentCareerHistory = Array.isArray(prev.careerHistory) ? [...prev.careerHistory] : [];
+
+            // 현재 편집 중인 경력이 있는지 확인
+            if (currentCareer && currentCareer.careerId) {
+                // 기존 항목 업데이트
+                const existingIndex = currentCareerHistory.findIndex(career =>
+                    career.careerId === currentCareer.careerId
+                );
+
+                if (existingIndex >= 0) {
+                    currentCareerHistory[existingIndex] = {
+                        ...careerData,
+                        careerId: currentCareer.careerId,
+                        resumeId: prev.resumeId
+                    };
+                }
+            } else {
+                // 새 항목 추가
+                currentCareerHistory.push({
+                    ...careerData,
+                    careerId: `temp-${Date.now()}`, // 임시 ID
+                    resumeId: prev.resumeId
+                });
+            }
+
+            console.log("Updated career history:", currentCareerHistory); // 디버깅용
+
+            return {
+                ...prev,
+                careerHistory: currentCareerHistory
+            };
+        });
+
+        // 편집 완료 후 상태 초기화
+        setCurrentCareer(null);
         setShowCareerModal(false);
+    };
+
+    // 경력 수정 함수
+    const handleEditCareer = (index) => {
+        // 배열이 존재하는지 확인
+        if (Array.isArray(resumeData.careerHistory) && resumeData.careerHistory[index]) {
+            // 수정할 경력 데이터 설정
+            const careerToEdit = resumeData.careerHistory[index];
+
+            // 현재 편집 중인 경력 데이터 설정
+            setCurrentCareer(careerToEdit);
+
+            // 모달 열기
+            setShowCareerModal(true);
+        }
+    };
+
+    // 새 경력 추가 함수
+    const handleAddCareer = () => {
+        // 현재 편집 중인 경력을 초기화
+        setCurrentCareer(null);
+
+        // 모달 열기
+        setShowCareerModal(true);
+    };
+
+// 경력 삭제 함수
+    const handleDeleteCareer = (index) => {
+        // 삭제 확인
+        if (window.confirm('이 경력 항목을 삭제하시겠습니까?')) {
+            setResumeData(prev => {
+                // 배열이 존재하는지 확인
+                const currentCareerHistory = Array.isArray(prev.careerHistory) ? [...prev.careerHistory] : [];
+
+                // 해당 인덱스의 항목 삭제
+                if (currentCareerHistory.length > index) {
+                    currentCareerHistory.splice(index, 1);
+                }
+
+                return {
+                    ...prev,
+                    careerHistory: currentCareerHistory
+                };
+            });
+        }
     };
 
     const handleSaveResume = () => {
@@ -186,6 +263,10 @@ const ResumeEdit = () => {
         setSaving(true);
         setError(null);
         setSuccess(false);
+
+        // careerHistory가 배열인지 확인
+        const careerHistoryData = Array.isArray(resumeData.careerHistory) ? resumeData.careerHistory : [];
+
 
         const requestData = {
             resume: {
@@ -202,7 +283,10 @@ const ResumeEdit = () => {
                 resumeIntroduction: resumeData.resumeIntroduction || ''
             },
             educationHistory: resumeData.educationHistory || null,
-            careerHistory: resumeData.careerHistory || null
+            // 배열이 아닌 단일 객체로 전송해야 할 경우
+            careerHistory: careerHistoryData.length > 0 ? careerHistoryData[careerHistoryData.length - 1] : null
+            // 또는 백엔드가 객체 배열을 처리할 수 있도록 수정한 경우:
+            // careerHistory: careerHistoryData
         };
 
         apiResumeService.updateResume(resumeData.resumeId, requestData)
@@ -573,6 +657,24 @@ const ResumeEdit = () => {
                             </button>
                         </div>
 
+                        {/* 경력 목록 렌더링 */}
+                        <div className="career-list">
+                            <h3>경력 목록</h3>
+                            {Array.isArray(resumeData.careerHistory) && resumeData.careerHistory.length > 0 ? (
+                                resumeData.careerHistory.map((career, index) => (
+                                    <div key={career.careerId || index} className="career-item">
+                                        <p>회사명: {career.careerCompanyName}</p>
+                                        <p>근무기간: {career.careerJoinDate} ~ {career.careerQuitDate || '현재'}</p>
+                                        <p>직무내용: {career.careerJobDescription}</p>
+                                        <button onClick={() => handleEditCareer(index)}>수정</button>
+                                        <button onClick={() => handleDeleteCareer(index)}>삭제</button>
+                                    </div>
+                                ))
+                            ) : (
+                                <p>등록된 경력이 없습니다.</p>
+                            )}
+                        </div>
+
                         {/* 경력 데이터 배열 변환 처리 */}
                         {(() => {
                             const careerList = Array.isArray(resumeData.careerHistory)
@@ -749,9 +851,12 @@ const ResumeEdit = () => {
                 {/* 경력 정보 모달 */}
                 {showCareerModal && (
                     <CareerModal
-                        careerData={resumeData.careerHistory}
+                        careerData={currentCareer} // 수정: careerData -> currentCareer
                         onSave={handleCareerUpdate}
-                        onCancel={() => setShowCareerModal(false)}
+                        onCancel={() => {
+                            setShowCareerModal(false);
+                            setCurrentCareer(null); // 모달을 닫을 때 현재 편집 중인 경력 초기화
+                        }}
                     />
                 )}
             </div>
