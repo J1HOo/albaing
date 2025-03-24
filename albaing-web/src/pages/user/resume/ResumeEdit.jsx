@@ -195,17 +195,15 @@ const ResumeEdit = () => {
         }
     };
 
-    // 새 경력 추가 함수
+    // 새 경력 추가
     const handleAddCareer = () => {
         // 현재 편집 중인 경력을 초기화
         setCurrentCareer(null);
-        // 모달 열기
         setShowCareerModal(true);
     };
 
     // 경력 삭제 함수
     const handleDeleteCareer = (index) => {
-        // 삭제 확인
         if (!window.confirm('이 경력 항목을 삭제하시겠습니까?')) {
             return;
         }
@@ -269,7 +267,6 @@ const ResumeEdit = () => {
                 resumeIntroduction: resumeData.resumeIntroduction
             },
             educationHistory: resumeData.educationHistory || null,
-            // 여러 경력 정보를 배열로 전송
             careerHistory: careerHistoryData
         };
 
@@ -641,7 +638,6 @@ const ResumeEdit = () => {
                                 추가
                             </button>
                         </div>
-
 
                         {/* 경력 데이터 배열 변환 처리 */}
                         {(() => {
