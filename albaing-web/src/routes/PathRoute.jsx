@@ -39,6 +39,7 @@ import FAQ from "../pages/home/FAQ";
 import Contact from "../pages/home/Contact";
 import Terms from "../pages/home/Terms";
 import Privacy from "../pages/home/Privacy";
+import JobPostSearchResults from "../pages/jobpost/JobPostSearchResults";
 import AdminMain from "../pages/admin/AdminMain";
 import AdminUsers from "../pages/admin/manage/users/AdminUsers";
 import AdminCompanies from "../pages/admin/manage/companies/AdminCompanies";
@@ -88,6 +89,7 @@ function PathRoute() {
                 <Route path="/find/id" element={<MainLayout><FindId /></MainLayout>} /> {/* 아이디 찾기 페이지 */}
                 <Route path="/find/password" element={<MainLayout><FindPassword /></MainLayout>} /> {/* 비밀번호 변경 페이지 */}
                 <Route path="/change/password" element={<MainLayout><ChangePassword /></MainLayout>} /> {/* 비밀번호 변경 페이지 */}
+                <Route path="/search/:regionSelect?/:jobCategorySelect?/:searchKeyword?" element={<MainLayout><JobPostSearchResults /></MainLayout>} /> {/* 검색 결과 페이지 */}
 
                 {/* 로그인한 모든 사용자 접근 가능 */}
                 <Route element={<ProtectedRoute/>}>

@@ -160,4 +160,9 @@ public class ReviewServiceImpl implements ReviewService {
     public void deleteCommentByUser(long commentId, long userId) {
         reviewMapper.deleteCommentByUser(commentId, userId);
     }
+
+    @Override
+    public Long getCommentsByReview(long reviewId) {
+        return reviewMapper.getCommentsByReview(reviewId);
+    }
 }

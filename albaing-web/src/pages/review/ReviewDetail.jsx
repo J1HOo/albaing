@@ -122,11 +122,14 @@ const ReviewDetail = () => {
             reviewContent: editReviewContent
         })
             .then(() => {
-                setReview(preReview => ({
-                    ...preReview,
-                    reviewContent: editReviewContent,
-                    reviewUpdatedAt: new Date().toISOString()
-                }));
+                return axios.get(`/api/companies/${companyId}/reviews/${reviewId}`);
+            })
+            .then((res) => {
+                const updatedReview = res.data;
+                setReview({
+                    ...updatedReview,
+                    reviewUpdatedAt: updatedReview.reviewUpdatedAt || new Date().toISOString() // 수정된 시간 반영
+                });
                 setEditReviewId(null);
                 setEditReviewContent('');
                 alertModal.openModal({
@@ -193,12 +196,13 @@ const ReviewDetail = () => {
         setLoading(true);
         axios.put(`/api/reviews/${reviewId}/comments/${commentId}`, {
             commentContent: editCommentContent
-        }, {withCredentials: true})
+        })
             .then(() => {
                 return axios.get(`/api/companies/${companyId}/reviews/${reviewId}`);
             })
             .then((res) => {
-                setComments(res.data.comments || []);
+                const updatedComments = res.data.comments;
+                setComments(updatedComments);
                 setEditCommentId(null);
                 setEditCommentContent('');
                 alertModal.openModal({
@@ -265,7 +269,8 @@ const ReviewDetail = () => {
                         <div>
                             <h1 className="text-2xl font-bold text-gray-800">{review.reviewTitle}</h1>
                             <p className="text-gray-500 text-sm mt-1">
-                                작성일: {new Date(review.reviewCreatedAt).toLocaleString()}
+                                작성일: {new Date(review.reviewCreatedAt).toLocaleString()} <br/>
+                                수정일: {review.reviewUpdatedAt ? new Date(review.reviewUpdatedAt).toLocaleString() : "수정되지 않음"}
                             </p>
                         </div>
 
@@ -362,6 +367,11 @@ const ReviewDetail = () => {
                                             <span className="text-sm text-gray-500">
                                                 {new Date(comment.commentCreatedAt).toLocaleString()}
                                             </span>
+                                            {comment.commentUpdatedAt && (
+                                                <span className="text-sm text-gray-500">
+                                                      (수정됨: {new Date(comment.commentUpdatedAt).toLocaleString()})
+                                                </span>
+                                            )}
                                         </div>
 
                                         {/* 내 댓글인 경우만 수정/삭제 버튼 표시 */}

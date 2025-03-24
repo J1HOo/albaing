@@ -82,7 +82,6 @@ public class UserController {
     @GetMapping("/{userId}/reviews")
     public List<Review> getUserReviews(@PathVariable long userId) {
         List<Review> reviews = reviewService.getReviewsByUser(userId);
-        System.out.println("Fetched reviews for user " + userId + ": " + reviews);
         return reviews;
     }
 
@@ -90,7 +89,6 @@ public class UserController {
     @GetMapping("/{userId}/comments")
     public List<Comment> getUserComments(@PathVariable long userId) {
         List<Comment> comments = reviewService.getCommentsByUser(userId);
-        System.out.println("Fetched comments for user " + userId + ": " + comments);
         return comments;
     }
 

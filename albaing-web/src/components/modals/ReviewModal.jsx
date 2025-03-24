@@ -1,7 +1,7 @@
 import { useState } from "react";
 import axios from "axios";
 
-const ReviewModal = ({ companyId, onClose, onSubmit }) => {
+const ReviewModal = ({ companyId, onClose, onSubmit, onCommentAdded }) => {
     const [reviewTitle, setReviewTitle] = useState("");
     const [reviewContent, setReviewContent] = useState("");
     const [loading, setLoading] = useState(false);
@@ -35,6 +35,9 @@ const ReviewModal = ({ companyId, onClose, onSubmit }) => {
             .then((response) => {
                 if (typeof onSubmit === "function") {
                     onSubmit(response.data);
+                }
+                if (typeof onCommentAdded === "function") {
+                    onCommentAdded(); // 댓글 수 증가 처리
                 }
                 onClose();
             })
