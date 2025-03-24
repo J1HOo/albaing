@@ -84,22 +84,6 @@ const ResumeEdit = () => {
                         setPreferredLocation(data.resumeLocation || "");
                         setLoading(false);
                     })
-                    .catch(error => {
-                        if (userData?.userId) {
-                            apiResumeService.getResumeByUserId(userData.userId)
-                                .then(data => {
-                                    setResumeData(data || resumeData);
-                                    setLoading(false);
-                                })
-                                .catch(error => {
-                                    setError(`이력서 정보를 불러오는 중 오류가 발생했습니다: ${error.message}`);
-                                    setLoading(false);
-                                });
-                        } else {
-                            setError('사용자 정보를 찾을 수 없습니다.');
-                            setLoading(false);
-                        }
-                    });
             } else if (userData?.userId) {
                 apiResumeService.getResumeByUserId(userData.userId)
                     .then(data => {
@@ -110,9 +94,6 @@ const ResumeEdit = () => {
                         setError(`이력서 정보를 불러오는 중 오류가 발생했습니다: ${error.message}`);
                         setLoading(false);
                     });
-            } else {
-                setError('사용자 정보를 찾을 수 없습니다.');
-                setLoading(false);
             }
         };
 
