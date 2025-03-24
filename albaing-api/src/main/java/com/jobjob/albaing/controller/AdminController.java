@@ -75,6 +75,12 @@ public class AdminController {
         return adminService.adminSearchJobPosts(companyName, jobPostTitle, jobPostStatus, sortOrderBy, isDESC);
     }
 
+    // 공지 검색
+    @GetMapping("/notices")
+    public List<Notice> adminSearchNotices(){
+        return adminService.adminSearchNotices();
+    }
+
     // 개인 상세 조회
     @GetMapping("/users/{userId}")
     public User adminUserDetail(@PathVariable String userId) {

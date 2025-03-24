@@ -90,14 +90,14 @@ export default function JobpostList() {
     }, [jobListings]);
 
 // 스크랩된 공고 목록 로드
-    useEffect(() => {
-        if (isLoggedIn && userType === "personal" && userData && userData.userId) {
-            apiScrapService.getScrapsByUser(userData.userId, setScrapedPosts);
-        } else {
-            // 로그인 상태가 아니면 빈 배열로 초기화
-            setScrapedPosts([]);
-        }
-    }, [isLoggedIn, userType, userData]);
+//     useEffect(() => {
+//         if (isLoggedIn && userType === "personal" && userData && userData.userId) {
+//             apiScrapService.getScrapsByUser(userData.userId, setScrapedPosts);
+//         } else {
+//             // 로그인 상태가 아니면 빈 배열로 초기화
+//             setScrapedPosts([]);
+//         }
+//     }, [isLoggedIn, userType, userData]);
 
     // 회사 정보 데이터 조회
     const fetchCompanyInfo = () => {

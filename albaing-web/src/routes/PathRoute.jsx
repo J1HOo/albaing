@@ -3,43 +3,41 @@ import {BrowserRouter, Route, Routes} from 'react-router-dom';
 
 import Header from '../components/layout/Header';
 import Footer from '../components/layout/Footer';
-
-
-import Home from '../pages/home/Home';
-import CompanyManage from '../pages/company/manage/CompanyManage';
-import ReviewDetail from '../pages/review/ReviewDetail';
-import JobpostAdd from '../pages/company/manage/jobposts/JobpostAdd';
-import JobpostDetail from '../pages/jobpost/JobpostDetail';
-import JobpostEdit from '../pages/company/manage/jobposts/JobpostEdit';
-import JobpostList from '../pages/jobpost/JobpostList';
-import Login from '../pages/auth/login/Login';
-import RegisterCompany from '../pages/auth/register/RegisterCompany';
-import RegisterPerson from '../pages/auth/register/RegisterPerson';
-import FindId from '../pages/auth/find/FindId';
-import FindPassword from '../pages/auth/find/FindPassword';
-import BusinessValidation from "../pages/auth/register/BusinessValidation";
-import Resume from '../pages/user/resume/Resume';
-import ResumeEdit from '../pages/user/resume/ResumeEdit';
-import UserEdit from "../pages/user/mypage/UserEdit";
-import NotFound from "../components/layout/NotFound";
-import RegisterPage from "../pages/auth/register/RegisterPage";
-import ProtectedRoute from "./ProtectedRoute";
-import CompanyDetail from "../pages/company/public/CompanyDetail";
-import MyApplication from "../pages/user/mypage/MyApplication";
-import MyPage from "../pages/user/mypage/MyPage";
-import ResumeView from "../pages/company/manage/applications/resume/ResumeView";
-import Companies from "../pages/company/public/Companies";
-import ChangePassword from "../pages/auth/find/ChangePassword";
-import Find from "../pages/auth/find/Find";
-import MyScrap from "../pages/user/mypage/MyScrap";
-import CompanyProfileEdit from "../pages/company/manage/profile/CompanyProfileEdit";
-import MyReviews from "../pages/user/mypage/MyReviews";
 import About from "../pages/home/About";
+import Home from "../pages/home/Home";
 import FAQ from "../pages/home/FAQ";
 import Contact from "../pages/home/Contact";
 import Terms from "../pages/home/Terms";
 import Privacy from "../pages/home/Privacy";
+import Login from "../pages/auth/login/Login";
+import RegisterPage from "../pages/auth/register/RegisterPage";
+import RegisterPerson from "../pages/auth/register/RegisterPerson";
+import BusinessValidation from "../pages/auth/register/BusinessValidation";
+import RegisterCompany from "../pages/auth/register/RegisterCompany";
+import Find from "../pages/auth/find/Find";
+import FindId from "../pages/auth/find/FindId";
+import FindPassword from "../pages/auth/find/FindPassword";
+import ChangePassword from "../pages/auth/find/ChangePassword";
 import JobPostSearchResults from "../pages/jobpost/JobPostSearchResults";
+import ProtectedRoute from "./ProtectedRoute";
+import Resume from "../pages/user/resume/Resume";
+import Companies from "../pages/company/public/Companies";
+import CompanyDetail from "../pages/company/public/CompanyDetail";
+import JobpostList from "../pages/jobpost/JobpostList";
+import MyPage from "../pages/user/mypage/MyPage";
+import MyApplication from "../pages/user/mypage/MyApplication";
+import ReviewDetail from "../pages/review/ReviewDetail";
+import MyScrap from "../pages/user/mypage/MyScrap";
+import MyReviews from "../pages/user/mypage/MyReviews";
+import UserEdit from "../pages/user/mypage/UserEdit";
+import ResumeEdit from "../pages/user/resume/ResumeEdit";
+import CompanyManage from "../pages/company/manage/CompanyManage";
+import CompanyProfileEdit from "../pages/company/manage/profile/CompanyProfileEdit";
+import JobpostAdd from "../pages/company/manage/jobposts/JobpostAdd";
+import JobpostEdit from "../pages/company/manage/jobposts/JobpostEdit";
+import ResumeView from "../pages/company/manage/applications/resume/ResumeView";
+import NotFound from "../components/layout/NotFound";
+import AdminMain from "../pages/admin/AdminMain";
 
 // 메인 레이아웃 컴포넌트
 const MainLayout = ({children}) => (
@@ -53,6 +51,10 @@ const MainLayout = ({children}) => (
         <Footer/>
     </div>
 );
+
+function JobpostDetail() {
+    return null;
+}
 
 function PathRoute() {
     return (
@@ -110,7 +112,7 @@ function PathRoute() {
 
                 {/* 관리자만 접근 가능 */}
                 <Route element={<ProtectedRoute userTypeRequired="admin"/>}>
-                    {/*<Route path="/admin" element={<MainLayout><AdminMain /></MainLayout>} /> /!* 관리자 대시보드 페이지 *!/*/}
+                    <Route path="/admin" element={<MainLayout><AdminMain/></MainLayout>} /> {/* 관리자 대시보드 페이지 */}
                 </Route>
 
                 {/* 모든 정의되지 않은 경로 */}

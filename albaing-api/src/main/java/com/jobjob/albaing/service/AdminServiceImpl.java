@@ -39,6 +39,11 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
+    public List<Notice> adminSearchNotices() {
+        return adminMapper.adminSearchNotices();
+    }
+
+    @Override
     public User adminUserDetail(String userId) {
         return adminMapper.adminUserDetail(userId);
     }

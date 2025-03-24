@@ -16,6 +16,8 @@ public interface AdminService {
 
     List<ViewJobPost> adminSearchJobPosts(String companyName, String jobPostTitle, String jobPostStatus, String sortOrderBy, Boolean isDESC);
 
+    List<Notice> adminSearchNotices();
+
     User adminUserDetail(String userId);
 
     void adminUserDelete(String userId);
