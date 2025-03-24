@@ -148,7 +148,7 @@ const ResumeEdit = () => {
         setShowEducationModal(false);
     };
 
-// 경력 추가/수정 함수
+    // 경력 추가/수정 함수
     const handleCareerUpdate = (careerData) => {
         setResumeData(prev => {
             // careerHistory가 배열인지 확인하고, 아니면 빈 배열로 초기화
@@ -184,7 +184,6 @@ const ResumeEdit = () => {
                 careerHistory: currentCareerHistory
             };
         });
-
         // 편집 완료 후 상태 초기화
         setCurrentCareer(null);
         setShowCareerModal(false);
@@ -194,13 +193,8 @@ const ResumeEdit = () => {
     const handleEditCareer = (index) => {
         // 배열이 존재하는지 확인
         if (Array.isArray(resumeData.careerHistory) && resumeData.careerHistory[index]) {
-            // 수정할 경력 데이터 설정
             const careerToEdit = resumeData.careerHistory[index];
-
-            // 현재 편집 중인 경력 데이터 설정
             setCurrentCareer(careerToEdit);
-
-            // 모달 열기
             setShowCareerModal(true);
         }
     };
@@ -648,16 +642,17 @@ const ResumeEdit = () => {
 
                         {/* 경력 데이터 배열 변환 처리 */}
                         {(() => {
-                            const careerList = Array.isArray(resumeData.careerHistory)
+                            const careerList = Array.isArray(resumeData?.careerHistory)
                                 ? resumeData.careerHistory
                                 : resumeData.careerHistory
                                     ? [resumeData.careerHistory]  // 객체라면 배열로 변환
-                                    : [];  // 값이 없으면 빈 배열
+                                    : [];
 
                             return careerList.length > 0 ? (
                                 /* 경력 목록 */
                                 careerList.map((career, index) => (
-                                    <div key={index} className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-all mb-4">
+                                    <div key={index}
+                                         className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-all mb-4">
                                         {/* 회사명 & 직무 정보 */}
                                         <div className="flex items-center mb-4">
                             <span className="inline-block bg-blue-100 text-blue-800 p-3 rounded-full mr-4">
@@ -671,9 +666,6 @@ const ResumeEdit = () => {
                                                 <h3 className="text-xl font-bold text-gray-900">{career.careerCompanyName || '회사명 미입력'}</h3>
                                                 <p className="text-gray-600">{career.careerJobDescription || '직무 미입력'}</p>
                                             </div>
-                                            <button onClick={() => handleEditCareer(index)}>수정</button>
-                                            <button onClick={() => handleDeleteCareer(index)}>삭제</button>
-
                                         </div>
 
                                         {/* 입사/퇴사일 & 직무 내용 */}
@@ -690,15 +682,33 @@ const ResumeEdit = () => {
 
                                             <div className="p-4 bg-gray-50 rounded-lg col-span-2">
                                                 <div className="text-sm text-gray-500 mb-1">직무 내용</div>
-                                                <div className="font-medium">{career.careerJobDescription || '미입력'}</div>
+                                                <div
+                                                    className="font-medium">{career.careerJobDescription || '미입력'}</div>
                                             </div>
+                                        </div>
+                                        <div className="flex space-x-2 ml-auto">
+                                            <button
+                                                type="button"
+                                                onClick={() => handleEditCareer(index)}
+                                                className="px-3 py-1 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-all"
+                                            >
+                                                수정
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={() => handleDeleteCareer(index)}
+                                                className="px-3 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200 transition-all"
+                                            >
+                                                삭제
+                                            </button>
                                         </div>
                                     </div>
                                 ))
                             ) : (
                                 /* 경력 정보가 없을 때 */
                                 <div className="text-center py-12 bg-gray-50 rounded-lg border border-gray-200">
-                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mx-auto text-gray-400 mb-3"
+                                    <svg xmlns="http://www.w3.org/2000/svg"
+                                         className="h-12 w-12 mx-auto text-gray-400 mb-3"
                                          fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
                                               d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>

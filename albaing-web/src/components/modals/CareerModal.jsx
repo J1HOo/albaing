@@ -11,17 +11,6 @@ const CareerModal = ({ careerData, onSave, onCancel }) => {
 
     const careerTypes = ['신입', '경력'];
 
-    const months = Array.from({ length: 12 }, (_, i) => {
-        const month = i + 1;
-        return { value: month < 10 ? `0${month}` : `${month}`, label: `${month}월` };
-    });
-
-    const currentYear = new Date().getFullYear();
-    const years = Array.from({ length: 100 }, (_, i) => {
-        const year = currentYear - i;
-        return { value: `${year}`, label: `${year}년` };
-    });
-
     useEffect(() => {
         if (careerData) {
             setFormData({
