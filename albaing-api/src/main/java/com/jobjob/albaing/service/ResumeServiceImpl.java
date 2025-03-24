@@ -91,10 +91,7 @@ public class ResumeServiceImpl implements ResumeService {
         try {
             // 이력서 기본 정보 업데이트
             if (resumeUpdateRequest.getResume() != null) {
-                Resume resume = resumeUpdateRequest.getResume();
-                if (resume != null){
-                resumeMapper.updateResume(resume);
-                }
+                resumeMapper.updateResume(resumeUpdateRequest.getResume());
             }
 
             // 학력 정보 업데이트
@@ -102,7 +99,9 @@ public class ResumeServiceImpl implements ResumeService {
                 EducationHistory existingEdu = resumeMapper.getEducationHistoryByResumeId(resumeUpdateRequest.getResume().getResumeId());
 
                 if (existingEdu != null) {
-                    resumeMapper.updateEducation(resumeUpdateRequest);
+                    // EducationHistory 객체 직접 전달
+                    resumeUpdateRequest.getEducationHistory().setResumeId(resumeUpdateRequest.getResume().getResumeId());
+                    resumeMapper.updateEducation(resumeUpdateRequest.getEducationHistory());
                 } else {
                     resumeUpdateRequest.getEducationHistory().setResumeId(resumeUpdateRequest.getResume().getResumeId());
                     resumeMapper.createDefaultEducation(resumeUpdateRequest.getEducationHistory());

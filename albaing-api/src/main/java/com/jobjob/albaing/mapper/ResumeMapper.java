@@ -24,10 +24,10 @@ public interface ResumeMapper {
         Resume resumeDetails(int resumeId);
 
         // 이력서 수정
-        void updateResume(ResumeUpdateRequest resumeUpdateRequest);
+        void updateResume(Resume resume);
 
         // 학력 정보 수정
-        void updateEducation(ResumeUpdateRequest resumeUpdateRequest);
+        void updateEducation(EducationHistory educationHistory);
 
         // 학력 정보 조회
         EducationHistory getEducationHistoryByResumeId(int resumeId);

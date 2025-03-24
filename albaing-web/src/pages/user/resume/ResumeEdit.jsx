@@ -281,11 +281,18 @@ const ResumeEdit = () => {
                 resumeId: resumeData.resumeId,
                 userId: resumeData.userId,
                 resumeTitle: resumeData.resumeTitle,
-                // 기타 필드들...
+                resumeLocation: resumeData.resumeLocation,
+                resumeJobCategory: resumeData.resumeJobCategory,
+                resumeJobType: resumeData.resumeJobType,
+                resumeJobDuration: resumeData.resumeJobDuration,
+                resumeWorkSchedule: resumeData.resumeWorkSchedule,
+                resumeWorkTime: resumeData.resumeWorkTime,
+                resumeJobSkill: resumeData.resumeJobSkill,
+                resumeIntroduction: resumeData.resumeIntroduction
             },
             educationHistory: resumeData.educationHistory || null,
             // 여러 경력 정보를 배열로 전송
-            careerHistories: careerHistoryData
+            careerHistory: careerHistoryData
         };
 
         apiResumeService.updateResume(resumeData.resumeId, requestData)

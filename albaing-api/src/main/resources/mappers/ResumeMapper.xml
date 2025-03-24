@@ -179,29 +179,29 @@
     <update id="updateResume">
         UPDATE RESUMES
         SET
-            resume_title = #{resume.resumeTitle},
-            resume_location = #{resume.resumeLocation},
-            resume_job_category = #{resume.resumeJobCategory},
-            resume_job_type = #{resume.resumeJobType},
-            resume_job_duration = #{resume.resumeJobDuration},
-            resume_work_schedule = #{resume.resumeWorkSchedule},
-            resume_work_time = #{resume.resumeWorkTime},
-            resume_job_skill = #{resume.resumeJobSkill},
-            resume_introduction = #{resume.resumeIntroduction}
-        WHERE resume_id = #{resume.resumeId}
+            resume_title = #{resumeTitle},
+            resume_location = #{resumeLocation},
+            resume_job_category = #{resumeJobCategory},
+            resume_job_type = #{resumeJobType},
+            resume_job_duration = #{resumeJobDuration},
+            resume_work_schedule = #{resumeWorkSchedule},
+            resume_work_time = #{resumeWorkTime},
+            resume_job_skill = #{resumeJobSkill},
+            resume_introduction = #{resumeIntroduction}
+        WHERE resume_id = #{resumeId}
     </update>
 
     <!-- 학력 정보 수정 -->
     <update id="updateEducation">
         UPDATE EDUCATION_HISTORIES
         SET
-            edu_degree = #{educationHistory.eduDegree},
-            edu_status = #{educationHistory.eduStatus},
-            edu_school = #{educationHistory.eduSchool},
-            edu_major = #{educationHistory.eduMajor},
-            edu_admission_year = #{educationHistory.eduAdmissionYear},
-            edu_graduation_year = #{educationHistory.eduGraduationYear}
-        WHERE resume_id = #{resume.resumeId}
+            edu_degree = #{eduDegree},
+            edu_status = #{eduStatus},
+            edu_school = #{eduSchool},
+            edu_major = #{eduMajor},
+            edu_admission_year = #{eduAdmissionYear},
+            edu_graduation_year = #{eduGraduationYear}
+        WHERE resume_id = #{resumeId}
     </update>
 
     <select id="getEducationHistoryByResumeId">
@@ -214,12 +214,12 @@
     <update id="updateCareer">
         UPDATE CAREER_HISTORIES
         SET
-            career_company_name = #{careerHistory.careerCompanyName},
-            career_join_date = #{careerHistory.careerJoinDate},
-            career_quit_date = #{careerHistory.careerQuitDate},
-            career_job_description = #{careerHistory.careerJobDescription},
-            career_is_career = #{careerHistory.careerIsCareer}
-        WHERE career_id = #{careerHistory.careerId}
+            career_company_name = #{careerCompanyName},
+            career_join_date = #{careerJoinDate},
+            career_quit_date = #{careerQuitDate},
+            career_job_description = #{careerJobDescription},
+            career_is_career = #{careerIsCareer}
+        WHERE career_id = #{careerId}
     </update>
 
     <select id="getCareerHistoryByResumeId">
