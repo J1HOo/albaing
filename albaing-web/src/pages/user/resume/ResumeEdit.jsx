@@ -24,9 +24,6 @@ const ResumeEdit = () => {
         careerHistory: []
     });
 
-
-
-
     const [showEducationModal, setShowEducationModal] = useState(false);
     const [showAddressModal, setShowAddressModal] = useState(false);
     const [preferredLocation, setPreferredLocation] = useState("");
@@ -41,6 +38,7 @@ const ResumeEdit = () => {
     const [currentCareer, setCurrentCareer] = useState(null);
     const [showCareerModal, setShowCareerModal] = useState(false);
 
+    //근무지
     const location = useLocation();
     const {userData} = useAuth();
     const navigate = useNavigate();
@@ -144,7 +142,6 @@ const ResumeEdit = () => {
             };
             return updated;
         });
-
         setShowEducationModal(false);
     };
 
@@ -176,8 +173,7 @@ const ResumeEdit = () => {
                     resumeId: prev.resumeId
                 });
             }
-
-            console.log("Updated career history:", currentCareerHistory); // 디버깅용
+            console.log("추가된 경력 : ", currentCareerHistory);
 
             return {
                 ...prev,
@@ -203,30 +199,37 @@ const ResumeEdit = () => {
     const handleAddCareer = () => {
         // 현재 편집 중인 경력을 초기화
         setCurrentCareer(null);
-
         // 모달 열기
         setShowCareerModal(true);
     };
 
-// 경력 삭제 함수
+    // 경력 삭제 함수
     const handleDeleteCareer = (index) => {
         // 삭제 확인
-        if (window.confirm('이 경력 항목을 삭제하시겠습니까?')) {
-            setResumeData(prev => {
-                // 배열이 존재하는지 확인
-                const currentCareerHistory = Array.isArray(prev.careerHistory) ? [...prev.careerHistory] : [];
-
-                // 해당 인덱스의 항목 삭제
-                if (currentCareerHistory.length > index) {
-                    currentCareerHistory.splice(index, 1);
-                }
-
-                return {
-                    ...prev,
-                    careerHistory: currentCareerHistory
-                };
-            });
+        if (!window.confirm('이 경력 항목을 삭제하시겠습니까?')) {
+            return;
         }
+        setResumeData(prev => {
+            const currentCareerHistory = Array.isArray(prev.careerHistory) ? [...prev.careerHistory] : [];
+            const careerToDelete = currentCareerHistory[index];
+            if (!careerToDelete || !careerToDelete.careerId) {
+                console.error("삭제할 경력의 ID가 없습니다.");
+                return prev;
+            }
+            apiResumeService.deleteCareer(careerToDelete.careerId)
+                .then(() => {
+                    setResumeData(prev => ({
+                        ...prev,
+                        careerHistory: prev.careerHistory.filter((_, i) => i !== index)
+                    }));
+                })
+                .catch(error => {
+                    console.error("경력 삭제 중 오류 발생:", error);
+                    alert("경력 삭제 중 오류가 발생했습니다. 다시 시도해주세요.");
+                });
+
+            return prev;
+        });
     };
 
     const handleSaveResume = () => {
@@ -287,7 +290,7 @@ const ResumeEdit = () => {
     };
 
     if (loading) {
-        return <LoadingSpinner message="이력서 정보를 불러오는 중..." />;
+        return <LoadingSpinner message="이력서 정보를 불러오는 중..."/>;
     }
 
     return (
@@ -297,8 +300,8 @@ const ResumeEdit = () => {
                 <p className="text-gray-600">이력서를 수정하여 다양한 일자리에 지원해보세요.</p>
             </div>
 
-            {error && <ErrorMessage message={error} />}
-            {success && <SuccessMessage message="이력서가 성공적으로 저장되었습니다. 잠시 후 이력서 페이지로 이동합니다." />}
+            {error && <ErrorMessage message={error}/>}
+            {success && <SuccessMessage message="이력서가 성공적으로 저장되었습니다. 잠시 후 이력서 페이지로 이동합니다."/>}
 
             {/* 섹션 네비게이션 */}
             <div className="mb-8 bg-white rounded-lg shadow-sm p-2 flex flex-wrap justify-between">
@@ -647,9 +650,7 @@ const ResumeEdit = () => {
                                 : resumeData.careerHistory
                                     ? [resumeData.careerHistory]  // 객체라면 배열로 변환
                                     : [];
-
                             return careerList.length > 0 ? (
-                                /* 경력 목록 */
                                 careerList.map((career, index) => (
                                     <div key={index}
                                          className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-all mb-4">
