@@ -40,6 +40,7 @@ export default function Footer() {
                                 <li><Link to="/companies" className="hover:text-blue-600">기업정보</Link></li>
                                 <li><Link to="/resumes" className="hover:text-blue-600">이력서</Link></li>
                                 <li><Link to="/notice" className="hover:text-blue-600">공지사항</Link></li>
+                                <li><Link to="/calculator" className="hover:text-blue-600">계산기</Link></li>
                             </ul>
                         </div>
 

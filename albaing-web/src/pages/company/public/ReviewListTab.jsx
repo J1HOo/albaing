@@ -72,15 +72,6 @@ const ReviewListTab = ({ reviews, companyId, onReviewAdded }) => {
         handleReviewAdded(reviewData);
     };
 
-    // 리뷰 목록이 비어있지 않으면 렌더링
-    if (!reviews || reviews.length === 0) {
-        return (
-            <div className="text-center py-12 bg-gray-50 rounded-lg">
-                <p className="text-gray-500">아직 등록된 리뷰가 없습니다. 첫 리뷰를 작성해보세요!</p>
-            </div>
-        );
-    }
-
     return (
         <div className="p-6 bg-white rounded-lg shadow-md">
             <div className="flex justify-between items-center mb-6">
@@ -93,6 +84,11 @@ const ReviewListTab = ({ reviews, companyId, onReviewAdded }) => {
                 </button>
             </div>
 
+            {reviews.length === 0 ? (
+                <div className="text-center py-12 bg-gray-50 rounded-lg">
+                    <p className="text-gray-500">아직 등록된 리뷰가 없습니다. 첫 리뷰를 작성해보세요!</p>
+                </div>
+            ) : (
             <div className="space-y-6">
                 {currentReviews.map((review) => (
                     <div
@@ -124,6 +120,7 @@ const ReviewListTab = ({ reviews, companyId, onReviewAdded }) => {
                     setCurrentPage={setCurrentPage}
                 />
             </div>
+            )}
 
             {/* 리뷰 작성 모달 */}
             {showReviewModal && (
