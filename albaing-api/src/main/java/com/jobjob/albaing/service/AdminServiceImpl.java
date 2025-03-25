@@ -44,6 +44,11 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
+    public List<ViewReview> adminSearchReviews(String reviewTitle, String userName, String companyName, String sortOrderBy, Boolean isDESC) {
+        return adminMapper.adminSearchReviews(reviewTitle, userName, companyName, sortOrderBy, isDESC);
+    }
+
+    @Override
     public User adminUserDetail(String userId) {
         return adminMapper.adminUserDetail(userId);
     }

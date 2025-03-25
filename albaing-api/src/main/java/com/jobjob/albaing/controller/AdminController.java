@@ -77,8 +77,18 @@ public class AdminController {
 
     // 공지 검색
     @GetMapping("/notices")
-    public List<Notice> adminSearchNotices(){
+    public List<Notice> adminSearchNotices() {
         return adminService.adminSearchNotices();
+    }
+
+    // 작성글 검색
+    @GetMapping("/review")
+    public List<ViewReview> adminSearchReviews(@RequestParam(required = false) String reviewTitle,
+                                               @RequestParam(required = false) String userName,
+                                               @RequestParam(required = false) String companyName,
+                                               @RequestParam(defaultValue = "작성일") String sortOrderBy,
+                                               @RequestParam(required = false) Boolean isDESC) {
+        return adminService.adminSearchReviews(reviewTitle, userName, companyName, sortOrderBy, isDESC);
     }
 
     // 개인 상세 조회

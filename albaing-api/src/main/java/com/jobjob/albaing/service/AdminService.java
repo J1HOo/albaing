@@ -18,6 +18,8 @@ public interface AdminService {
 
     List<Notice> adminSearchNotices();
 
+    List<ViewReview> adminSearchReviews(String reviewTitle, String userName, String companyName, String sortOrderBy, Boolean isDESC);
+
     User adminUserDetail(String userId);
 
     void adminUserDelete(String userId);
