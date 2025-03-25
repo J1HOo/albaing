@@ -5,6 +5,7 @@ import com.jobjob.albaing.service.CompanyServiceImpl;
 import com.jobjob.albaing.service.FileService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -37,7 +38,7 @@ public class CompanyController {
     }
 
     // 회사 상세 정보 수정
-    @PutMapping(value = "/{companyId}", consumes = {"multipart/form-data", "application/json"})
+    @PutMapping(value = "/{companyId}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<?> updateCompany(
         @PathVariable Long companyId,
         @RequestPart(value = "company", required = false) Company company,

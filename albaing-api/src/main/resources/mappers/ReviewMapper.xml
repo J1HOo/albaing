@@ -44,6 +44,20 @@
         WHERE review_id = #{reviewId}
     </select>
 
+    <select id="getCompanyNameByReviewId" resultType="String">
+        SELECT c.company_name
+        FROM REVIEWS r
+                 JOIN COMPANIES c ON r.company_id = c.company_id
+        WHERE r.review_id = #{reviewId}
+    </select>
+
+    <select id="getUserNameByReviewId" resultType="String">
+        SELECT u.user_name
+        FROM REVIEWS r
+                 JOIN USERS u ON r.user_id = u.user_id
+        WHERE r.review_id = #{reviewId}
+    </select>
+
     <!-- 어드민 리뷰 댓글 조회 -->
     <select id="selectReviewCommentsAdmin">
         SELECT comment_id, review_id, comment_content, comment_created_at
@@ -96,7 +110,7 @@
     </select>
 
     <!-- 유저 리뷰 작성 -->
-    <insert id="addReview">
+    <insert id="addReview" useGeneratedKeys="true" keyProperty="reviewId">
         INSERT INTO reviews (company_id, user_id, review_title, review_content, review_created_at, review_updated_at)
         VALUES (#{companyId}, #{userId}, #{reviewTitle}, #{reviewContent}, NOW(), NOW())
     </insert>
@@ -132,7 +146,8 @@
     <!-- 리뷰 수정 -->
     <update id="updateReview">
         UPDATE Reviews
-        SET review_content = #{reviewContent}
+        SET review_content = #{reviewContent},
+            review_updated_at = CURRENT_TIMESTAMP
         WHERE review_id = #{reviewId}
     </update>
 
@@ -149,7 +164,8 @@
     <!-- 댓글 수정 -->
     <update id="updateComment">
         UPDATE Comments
-        SET comment_content = #{commentContent}
+        SET comment_content = #{commentContent},
+            comment_updated_at = CURRENT_TIMESTAMP
         WHERE comment_id = #{commentId}
     </update>
 
@@ -209,4 +225,9 @@
     <delete id="deleteCommentByUser">
         DELETE FROM comments WHERE comment_id = #{commentId} AND user_id = #{userId}
     </delete>
+
+    <!-- 특정 리뷰글의 댓글 수 -->
+    <select id="getCommentsByReview">
+        SELECT COUNT(*) FROM comments WHERE review_id = #{reviewId}
+    </select>
 </mapper>

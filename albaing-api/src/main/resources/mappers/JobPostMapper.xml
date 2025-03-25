@@ -5,7 +5,7 @@
 
     <!-- 채용공고 등록 -->
     <insert id="insertJobPost" useGeneratedKeys="true" keyProperty="jobPostId">
-        INSERT INTO job_posts (
+        INSERT INTO JOB_POSTS (
             company_id,
             job_post_title,
             job_post_optional_image,
@@ -50,7 +50,7 @@
             c.company_name AS companyName,
             c.company_logo AS companyLogo
         FROM
-            job_posts j
+            JOB_POSTS j
                 LEFT JOIN companies c ON j.company_id = c.company_id
         WHERE
             j.job_post_id = #{jobPostId}
@@ -63,7 +63,7 @@
             c.company_name AS companyName,
             c.company_logo AS companyLogo
         FROM
-            job_posts j
+            JOB_POSTS j
                 LEFT JOIN companies c ON j.company_id = c.company_id
         WHERE
             j.company_id = #{companyId}
@@ -78,7 +78,7 @@
         c.company_name AS companyName,
         c.company_logo AS companyLogo
         FROM
-        job_posts j
+        JOB_POSTS j
         LEFT JOIN companies c ON j.company_id = c.company_id
         <include refid="searchCriteria" />
         ORDER BY
@@ -111,7 +111,7 @@
 
     <!-- 채용공고 수정 -->
     <update id="updateJobPost">
-        UPDATE job_posts
+        UPDATE JOB_POSTS
         SET
             job_post_title = #{jobPostTitle},
             job_post_optional_image = #{jobPostOptionalImage},
@@ -131,7 +131,7 @@
 
     <!-- 채용공고 상태 변경 -->
     <update id="updateJobPostStatus">
-        UPDATE job_posts
+        UPDATE JOB_POSTS
         SET
             job_post_status = #{status},
             job_post_updated_at = NOW()
@@ -141,7 +141,7 @@
     <!-- 채용공고 총 개수 조회 -->
     <select id="countJobPost" resultType="int">
         SELECT COUNT(*)
-        FROM job_posts j
+        FROM JOB_POSTS j
         LEFT JOIN companies c ON j.company_id = c.company_id
         <include refid="searchCriteria" />
     </select>

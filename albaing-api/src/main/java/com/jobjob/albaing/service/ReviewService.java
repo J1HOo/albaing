@@ -39,6 +39,10 @@ public interface ReviewService {
     // 어드민 회사 전체 리스트
     List<Map<String, Object>> getAllReviewsForAdmin();
 
+    String getCompanyNameByReviewId(long reviewId);
+
+    String getUserNameByReviewId(long reviewId);
+
     // 어드민 리뷰 수정
     boolean updateReviewByAdmin(Review review);
 
@@ -50,14 +54,22 @@ public interface ReviewService {
 
     // 회사 기능
     boolean deleteReviewByCompany(long reviewId, long companyId);
+
     boolean deleteCommentByCompany(long commentId, long reviewId, long companyId);
 
+    // 내가 작성한 리뷰 목록 조회
     List<Review> getReviewsByUser(long userId);
 
+    // 내가 작성한 댓글 목록 조회
     List<Comment> getCommentsByUser(long userId);
 
+    // 내가 작성한 리뷰 삭제
     void deleteReviewByUser(long reviewId, long userId);
 
+    // 내가 작성한 댓글 삭제
     void deleteCommentByUser(long commentId, long userId);
+
+    // 특정 리뷰글의 댓글 수
+    Long getCommentsByReview(long reviewId);
 
 }

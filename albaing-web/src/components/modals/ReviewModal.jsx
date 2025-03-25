@@ -1,14 +1,13 @@
 import { useState } from "react";
 import axios from "axios";
-import {useModal} from "../index";
 
-const ReviewModal = ({ companyId, onClose, onSubmit }) => {
+const ReviewModal = ({ companyId, onClose, onSubmit, onCommentAdded }) => {
     const [reviewTitle, setReviewTitle] = useState("");
     const [reviewContent, setReviewContent] = useState("");
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = (e) => {
         e.preventDefault();
 
         if (!reviewTitle.trim()) {
@@ -23,42 +22,37 @@ const ReviewModal = ({ companyId, onClose, onSubmit }) => {
         setLoading(true);
         setError("");
 
-        try {
-            console.log("리뷰 작성 요청 데이터:", {
-                companyId: parseInt(companyId),
-                reviewTitle,
-                reviewContent
-            });
-
-            // 직접 API 호출
-            const response = await axios.post(`/api/companies/${companyId}/reviews`, {
-                companyId: parseInt(companyId),
-                reviewTitle,
-                reviewContent
-            }, {
-                withCredentials: true
-            });
-
-            if (typeof onSubmit === 'function') {
-                await onSubmit({
-                    companyId: parseInt(companyId),
+        axios
+            .post(
+                `/api/companies/${companyId}/reviews`,
+                {
+                    companyId: parseInt(companyId, 10),
                     reviewTitle,
                     reviewContent
-                });
-            }
-
-            onClose();
-        } catch (err) {
-            console.error("리뷰 작성 오류:", err);
-            console.error("오류 응답:", err.response);
-
-            if (err.response?.status === 401) {
-                setError("리뷰를 작성하려면 로그인이 필요합니다.");
-            } else {
-                setError(err.response?.data?.message || "리뷰 작성 중 오류가 발생했습니다.");
-            }
-            setLoading(false);
-        }
+                },
+                { withCredentials: true }
+            )
+            .then((response) => {
+                if (typeof onSubmit === "function") {
+                    onSubmit(response.data);
+                }
+                if (typeof onCommentAdded === "function") {
+                    onCommentAdded(); // 댓글 수 증가 처리
+                }
+                onClose();
+            })
+            .catch((err) => {
+                console.error("리뷰 작성 오류:", err);
+                console.error("오류 응답:", err.response);
+                if (err.response?.status === 401) {
+                    setError("리뷰를 작성하려면 로그인이 필요합니다.");
+                } else {
+                    setError(err.response?.data?.message || "리뷰 작성 중 오류가 발생했습니다.");
+                }
+            })
+            .finally(() => {
+                setLoading(false);
+            });
     };
 
     return (
@@ -66,7 +60,9 @@ const ReviewModal = ({ companyId, onClose, onSubmit }) => {
             <div className="bg-white rounded-lg shadow-xl w-full max-w-lg mx-4 overflow-hidden">
                 <div className="px-6 py-4 border-b flex justify-between items-center">
                     <h3 className="text-lg font-medium text-gray-900">기업 리뷰 작성</h3>
-                    <button onClick={onClose} className="text-gray-400 hover:text-gray-500">✖</button>
+                    <button onClick={onClose} className="text-gray-400 hover:text-gray-500">
+                        ✖
+                    </button>
                 </div>
 
                 <form onSubmit={handleSubmit} className="p-6">
@@ -95,8 +91,18 @@ const ReviewModal = ({ companyId, onClose, onSubmit }) => {
                     />
 
                     <div className="flex justify-end mt-4 space-x-3">
-                        <button type="button" onClick={onClose} className="px-4 py-2 border rounded-md">취소</button>
-                        <button type="submit" disabled={loading} className="px-4 py-2 bg-blue-600 text-white rounded-md">
+                        <button
+                            type="button"
+                            onClick={onClose}
+                            className="px-4 py-2 border rounded-md"
+                        >
+                            취소
+                        </button>
+                        <button
+                            type="submit"
+                            disabled={loading}
+                            className="px-4 py-2 bg-blue-600 text-white rounded-md"
+                        >
                             {loading ? "제출 중..." : "리뷰 등록"}
                         </button>
                     </div>

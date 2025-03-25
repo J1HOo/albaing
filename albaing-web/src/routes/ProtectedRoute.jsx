@@ -3,7 +3,7 @@ import { Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 
 const ProtectedRoute = ({ userTypeRequired }) => {
-    const { isLoggedIn, userType, loading } = useAuth();
+    const { isLoggedIn, userType, userData, loading } = useAuth();
 
     if (loading) {
         return (
@@ -16,6 +16,17 @@ const ProtectedRoute = ({ userTypeRequired }) => {
     if (!isLoggedIn) {
         console.error('로그인이 필요한 페이지 접근 시도');
         return <Navigate to="/login" replace />;
+    }
+
+    if (userTypeRequired === 'admin') {
+        const isAdmin = userType === 'personal' && userData?.userIsAdmin === true;
+
+        if (!isAdmin) {
+            console.error('관리자 권한이 필요한 페이지 접근 시도');
+            return <Navigate to="/" replace />;
+        }
+
+        return <Outlet />;
     }
 
     if (userTypeRequired && userType !== userTypeRequired) {

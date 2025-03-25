@@ -39,11 +39,29 @@ import FAQ from "../pages/home/FAQ";
 import Contact from "../pages/home/Contact";
 import Terms from "../pages/home/Terms";
 import Privacy from "../pages/home/Privacy";
+import JobPostSearchResults from "../pages/jobpost/JobPostSearchResults";
+import AdminMain from "../pages/admin/AdminMain";
+import AdminUsers from "../pages/admin/manage/users/AdminUsers";
+import AdminCompanies from "../pages/admin/manage/companies/AdminCompanies";
+import AdminJobPosts from "../pages/admin/manage/jobPosts/AdminJobPosts";
+import AdminReviews from "../pages/admin/manage/reviews/AdminReviews";
+import AdminNotices from "../pages/admin/manage/notices/AdminNotices";
+import Notice from "../pages/notice/Notice";
+import AdminCompanyEdit from "../pages/admin/manage/companies/AdminCompanyEdit";
+import PendingCompanies from "../pages/admin/manage/companies/PendingCompanies";
+import AdminCompanyDetail from "../pages/admin/manage/companies/AdminCompanyDetail";
+import AdminJobPostEdit from "../pages/admin/manage/jobPosts/AdminJobPostEdit";
+import AdminJobPostDetail from "../pages/admin/manage/jobPosts/AdminJobPostDetail";
+import AdminReviewDetail from "../pages/admin/manage/reviews/AdminReviewDetail";
+import AdminReviewEdit from "../pages/admin/manage/reviews/AdminReviewEdit";
+import CalculatorPage from "../pages/home/CalculatorPage";
+import FloatingRemote from "../components/layout/FloatingRemote";
 
 // 메인 레이아웃 컴포넌트
 const MainLayout = ({children}) => (
     <div className="flex flex-col min-h-screen">
         <Header/>
+        <FloatingRemote/>
         <main className="flex-grow">
             <div className="content-container">
                 {children}
@@ -52,6 +70,7 @@ const MainLayout = ({children}) => (
         <Footer/>
     </div>
 );
+
 function PathRoute() {
     return (
         <BrowserRouter>
@@ -60,8 +79,9 @@ function PathRoute() {
                 <Route path="/" element={<MainLayout><Home /></MainLayout>} /> {/* 메인 홈페이지 */}
                 <Route path="/about" element={<MainLayout><About /></MainLayout>} /> {/* 회사 소개 페이지 */}
                 <Route path="/customer/faq" element={<MainLayout><FAQ /></MainLayout>} /> {/* 자주 하는 문의 페이지 */}
+                <Route path="/calculator" element={<CalculatorPage />} /> {/* 연봉 계산기 페이지 */}
                 <Route path="/customer/contact" element={<MainLayout><Contact /></MainLayout>} /> {/* 문의 페이지 */}
-                {/*<Route path="/customer/notice" element={<MainLayout><Notice /></MainLayout>} /> /!* 공지사항 페이지 *!/*/}
+                <Route path="/notices" element={<MainLayout><Notice /></MainLayout>} /> {/* 공지사항 페이지 */}
                 <Route path="/terms" element={<MainLayout><Terms /></MainLayout>} /> {/* 이용약관 페이지 */}
                 <Route path="/privacy" element={<MainLayout><Privacy /></MainLayout>} /> {/* 개인정보처리방침 페이지 */}
                 <Route path="/login" element={<MainLayout><Login /></MainLayout>} /> {/* 로그인 페이지 */}
@@ -73,6 +93,7 @@ function PathRoute() {
                 <Route path="/find/id" element={<MainLayout><FindId /></MainLayout>} /> {/* 아이디 찾기 페이지 */}
                 <Route path="/find/password" element={<MainLayout><FindPassword /></MainLayout>} /> {/* 비밀번호 변경 페이지 */}
                 <Route path="/change/password" element={<MainLayout><ChangePassword /></MainLayout>} /> {/* 비밀번호 변경 페이지 */}
+                <Route path="/search/:regionSelect?/:jobCategorySelect?/:searchKeyword?" element={<MainLayout><JobPostSearchResults /></MainLayout>} /> {/* 검색 결과 페이지 */}
 
                 {/* 로그인한 모든 사용자 접근 가능 */}
                 <Route element={<ProtectedRoute/>}>
@@ -107,7 +128,19 @@ function PathRoute() {
 
                 {/* 관리자만 접근 가능 */}
                 <Route element={<ProtectedRoute userTypeRequired="admin"/>}>
-                    {/*<Route path="/admin" element={<MainLayout><AdminMain /></MainLayout>} /> /!* 관리자 대시보드 페이지 *!/*/}
+                    <Route path="/admin" element={<AdminMain />} /> {/* 관리자 대시보드 */}
+                    <Route path="/admin/users" element={<AdminUsers />} /> {/* 회원 관리 */}
+                    <Route path="/admin/companies" element={<AdminCompanies />} /> {/* 기업 관리 */}
+                    <Route path="/admin/companies/:companyId" element={<AdminCompanyDetail />} /> {/* 기업 상세 */}
+                    <Route path="/admin/companies/:companyId/edit" element={<AdminCompanyEdit />} /> {/* 기업 정보 수정 */}
+                    <Route path="/admin/pending-companies" element={<PendingCompanies />} /> {/* 승인 대기중인 기업 목록 */}
+                    <Route path="/admin/jobposts" element={<AdminJobPosts />} /> {/* 공고 관리 */}
+                    <Route path="/admin/jobposts/:jobPostId" element={<AdminJobPostDetail />} /> {/* 공고 상세 */}
+                    <Route path="/admin/jobposts/:jobPostId/edit" element={<AdminJobPostEdit />} /> {/* 공고 수정 */}
+                    <Route path="/admin/reviews" element={<AdminReviews />} /> {/* 리뷰 관리 */}
+                    <Route path="/admin/reviews/:reviewId" element={<AdminReviewDetail />} /> {/* 리뷰 상세 */}
+                    <Route path="/admin/reviews/:reviewId/edit" element={<AdminReviewEdit />} /> {/* 리뷰 수정 */}
+                    <Route path="/admin/notices" element={<AdminNotices />} /> {/* 공지사항 관리 */}
                 </Route>
 
                 {/* 모든 정의되지 않은 경로 */}

@@ -79,29 +79,27 @@ public class UserController {
     }
 
     // 내가 작성한 리뷰 목록 조회
-    @GetMapping("/user/{userId}/reviews")
+    @GetMapping("/{userId}/reviews")
     public List<Review> getUserReviews(@PathVariable long userId) {
         List<Review> reviews = reviewService.getReviewsByUser(userId);
-        System.out.println("Fetched reviews for user " + userId + ": " + reviews);
         return reviews;
     }
 
     // 내가 작성한 댓글 목록 조회
-    @GetMapping("/user/{userId}/comments")
+    @GetMapping("/{userId}/comments")
     public List<Comment> getUserComments(@PathVariable long userId) {
         List<Comment> comments = reviewService.getCommentsByUser(userId);
-        System.out.println("Fetched comments for user " + userId + ": " + comments);
         return comments;
     }
 
     // 내가 작성한 리뷰 삭제
-    @DeleteMapping("/user/{userId}/reviews/{reviewId}")
+    @DeleteMapping("/{userId}/reviews/{reviewId}")
     public void deleteUserReview(@PathVariable long userId, @PathVariable long reviewId) {
         reviewService.deleteReviewByUser(reviewId, userId);
     }
 
     // 내가 작성한 댓글 삭제
-    @DeleteMapping("/user/{userId}/comments/{commentId}")
+    @DeleteMapping("/{userId}/comments/{commentId}")
     public void deleteUserComment(@PathVariable long userId, @PathVariable long commentId) {
         reviewService.deleteCommentByUser(commentId, userId);
     }

@@ -25,7 +25,9 @@ export default function Login() {
         login(credentials, userType)
             .then(result => {
                 if (result.success) {
-                    if (userType === 'company') {
+                    if (userType === 'personal' && result.data.user.userIsAdmin) {
+                        navigate('/admin', { replace: true });
+                    } else if (userType === 'company') {
                         navigate(`/company/manage/${result.data.company.companyId}`, { replace: true });
                     } else {
                         navigate('/', { replace: true });

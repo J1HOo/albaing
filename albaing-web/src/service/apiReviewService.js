@@ -47,6 +47,19 @@ const apiReviewService = {
                 data: { userId: userId }
             })
             .catch(error => console.error("댓글 삭제를 실패했습니다 : ", error));
+    },
+
+    // 특정 리뷰의 댓글 수를 불러오기
+    getCommentCountByReviewId: function (reviewId) {
+        return axios
+            .get(`${API_REVIEW_URL}/reviews/${reviewId}/comments/count`)
+            .then(response => {
+                return response.data;
+            })
+            .catch(error => {
+                console.error("댓글 수를 가져오는 것을 실패했습니다.", error);
+                return 0;  // 실패시 0을 반환
+            });
     }
 };
 

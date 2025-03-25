@@ -81,6 +81,16 @@ public class ReviewServiceImpl implements ReviewService {
         return reviewMapper.getAllReviewsForAdmin();
     }
 
+    @Override
+    public String getCompanyNameByReviewId(long reviewId) {
+        return reviewMapper.getCompanyNameByReviewId(reviewId);
+    }
+
+    @Override
+    public String getUserNameByReviewId(long reviewId) {
+        return reviewMapper.getUserNameByReviewId(reviewId);
+    }
+
     // 어드민 리뷰 수정
     @Override
     public boolean updateReviewByAdmin(Review review) {
@@ -149,5 +159,10 @@ public class ReviewServiceImpl implements ReviewService {
     @Override
     public void deleteCommentByUser(long commentId, long userId) {
         reviewMapper.deleteCommentByUser(commentId, userId);
+    }
+
+    @Override
+    public Long getCommentsByReview(long reviewId) {
+        return reviewMapper.getCommentsByReview(reviewId);
     }
 }

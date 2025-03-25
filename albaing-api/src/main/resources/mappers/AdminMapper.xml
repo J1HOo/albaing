@@ -37,6 +37,10 @@
             <if test="sortOrderBy == '가입일'">
                 user_created_at
             </if>
+            <!-- 추가 -->
+            <if test="sortOrderBy == 'userId'">
+                user_id
+            </if>
             <if test="isDESC == true">
                 DESC
             </if>
@@ -154,8 +158,14 @@
             <if test="sortOrderBy == '대표자명'">
                 company_owner_name
             </if>
-            <if test="sortOrderBy == '사업자등록번호'">
+            <if test="sortOrderBy == '사업자번호'">
                 company_registration_number
+            </if>
+            <if test="sortOrderBy == '가입일'">
+                company_created_at
+            </if>
+            <if test="sortOrderBy == 'companyId'">
+                company_id
             </if>
             <if test="isDESC == true">
                 DESC
@@ -186,20 +196,37 @@
             </trim>
         </where>
         <trim prefix="ORDER BY">
-            <if test="sortOrderBy == '법인명'">
-                COMPANIES.company_name
-            </if>
-            <if test="sortOrderBy == '공고 제목'">
-                JOB_POSTS.job_post_title
-            </if>
-            <if test="sortOrderBy == '공고 마감일'">
-                JOB_POSTS.job_post_due_date
-            </if>
+            <choose>
+                <when test="sortOrderBy == 'jobPostId'">
+                    job_post_id
+                </when>
+                <when test="sortOrderBy == 'companyName'">
+                    company_name
+                </when>
+                <when test="sortOrderBy == 'jobPostTitle'">
+                    job_post_title
+                </when>
+                <when test="sortOrderBy == 'jobPostDueDate'">
+                    job_post_due_date
+                </when>
+                <when test="sortOrderBy == 'jobPostCreatedAt'">
+                    job_post_created_at
+                </when>
+                <otherwise>
+                    job_post_title
+                </otherwise>
+            </choose>
             <if test="isDESC == true">
                 DESC
             </if>
         </trim>
     </select>
+
+    <update id="updateJobPostStatus" parameterType="map">
+        UPDATE JOB_POSTS
+        SET job_post_status = #{status}
+        WHERE job_post_id = #{jobPostId}
+    </update>
 
     <!-- 개인 회원 상세 정보 조회 -->
     <!-- int userId 를 받아 일치하는 유저의 상세정보 조회 -->
@@ -260,7 +287,7 @@
     <!-- 공고 정보 전체를 단일 Resume 로 반환 -->
     <select id="adminJobPostDetail">
         select *
-        from JobPosts
+        from JOB_POSTS
         where job_post_id = #{jobPostId}
     </select>
 
@@ -269,7 +296,7 @@
     <!-- 반환값 없음 -->
     <delete id="adminJobPostDelete">
         delete
-        from JobPosts
+        from JOB_POSTS
         where job_post_id = #{jobPostId}
     </delete>
 
@@ -277,11 +304,164 @@
     <!-- int companyId 를 받아 일치하는 공고들 모두 삭제 -->
     <!-- 반환값 없음 -->
     <update id="adminJobPostStatusChange">
-        update JobPosts
+        update JOB_POSTS
         set job_post_status = false
         where company_id = #{companyId}
     </update>
 
+    <!-- 모든 공지사항 조회 -->
+    <select id="getAllNotices" resultType="Notice">
+        SELECT
+            notice_id AS noticeId,
+            notice_title AS noticeTitle,
+            notice_content AS noticeContent,
+            notice_created_at AS noticeCreatedAt,
+            notice_updated_at AS noticeUpdatedAt
+        FROM NOTICES
+        ORDER BY notice_created_at DESC
+    </select>
 
+    <!-- 공지사항 상세 조회 -->
+    <select id="getNoticeById" resultType="Notice">
+        SELECT
+            notice_id AS noticeId,
+            notice_title AS noticeTitle,
+            notice_content AS noticeContent,
+            notice_created_at AS noticeCreatedAt,
+            notice_updated_at AS noticeUpdatedAt
+        FROM NOTICES
+        WHERE notice_id = #{noticeId}
+    </select>
+
+    <!-- 공지사항 추가 -->
+    <insert id="addNotice" parameterType="Notice">
+        INSERT INTO NOTICES (
+            notice_title,
+            notice_content,
+            notice_created_at,
+            notice_updated_at
+        ) VALUES (
+                     #{noticeTitle},
+                     #{noticeContent},
+                     CURRENT_TIMESTAMP,
+                     CURRENT_TIMESTAMP
+                 )
+    </insert>
+
+    <!-- 공지사항 수정 -->
+    <update id="updateNotice" parameterType="Notice">
+        UPDATE NOTICES
+        SET
+            notice_title = #{noticeTitle},
+            notice_content = #{noticeContent},
+            notice_updated_at = CURRENT_TIMESTAMP
+        WHERE notice_id = #{noticeId}
+    </update>
+
+    <!-- 공지사항 삭제 -->
+    <delete id="deleteNotice">
+        DELETE FROM NOTICES
+        WHERE notice_id = #{noticeId}
+    </delete>
+
+    <select id="countTotalUsers" resultType="int">
+        SELECT COUNT(*) FROM USERS
+    </select>
+
+    <select id="countTotalCompanies" resultType="int">
+        SELECT COUNT(*) FROM COMPANIES
+    </select>
+
+    <select id="countPendingCompanies" resultType="int">
+        SELECT COUNT(*) FROM COMPANIES WHERE company_approval_status = 'approving'
+    </select>
+
+    <select id="countActiveJobPosts" resultType="int">
+        SELECT COUNT(*) FROM JOB_POSTS WHERE job_post_status = true AND job_post_due_date >= CURRENT_DATE
+    </select>
+
+    <select id="countTotalReviews" resultType="int">
+        SELECT COUNT(*) FROM REVIEWS
+    </select>
+
+    <select id="getRecentUsers" resultType="map">
+        SELECT
+            user_id AS userId,
+            user_name AS userName,
+            user_email AS userEmail,
+            user_created_at AS userCreatedAt
+        FROM USERS
+        ORDER BY user_created_at DESC
+            LIMIT 5
+    </select>
+
+    <select id="getRecentJobPosts" resultType="map">
+        SELECT
+            jp.job_post_id AS jobPostId,
+            jp.job_post_title AS jobPostTitle,
+            c.company_name AS companyName,
+            jp.job_post_due_date AS jobPostDueDate
+        FROM JOB_POSTS jp
+                 JOIN COMPANIES c ON jp.company_id = c.company_id
+        ORDER BY jp.job_post_created_at DESC
+            LIMIT 5
+    </select>
+
+    <!-- 직종별 채용공고 통계 -->
+    <select id="getJobCategoryStats" resultType="map">
+        SELECT
+            job_post_job_category AS name,
+            COUNT(*) AS value
+        FROM
+            JOB_POSTS
+        WHERE
+            job_post_status = true
+          AND job_post_due_date >= CURRENT_DATE
+        GROUP BY
+            job_post_job_category
+        ORDER BY
+            value DESC
+            LIMIT 10
+    </select>
+
+    <!-- 고용형태별 채용공고 통계 -->
+    <select id="getJobTypeStats" resultType="map">
+        SELECT
+            job_post_job_type AS name,
+            COUNT(*) AS value
+        FROM
+            JOB_POSTS
+        WHERE
+            job_post_status = true
+          AND job_post_due_date >= CURRENT_DATE
+        GROUP BY
+            job_post_job_type
+        ORDER BY
+            value DESC
+    </select>
+
+    <!-- 지역별 회원 통계 -->
+    <select id="getUserRegionStats" resultType="map">
+        SELECT
+            SUBSTRING_INDEX(user_address, ' ', 2) AS name,
+            COUNT(*) AS value
+        FROM
+            USERS
+        WHERE
+            user_address IS NOT NULL
+          AND user_address != ''
+        GROUP BY
+            name
+        ORDER BY
+            value DESC
+            LIMIT 10
+    </select>
+
+    <update id="updateCompanyApprovalStatus">
+        UPDATE COMPANIES
+        SET company_approval_status = #{status},
+            company_updated_at = CURRENT_TIMESTAMP
+        WHERE company_id = #{companyId}
+    </update>
 
 </mapper>

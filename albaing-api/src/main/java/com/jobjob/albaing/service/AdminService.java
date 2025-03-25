@@ -3,6 +3,7 @@ package com.jobjob.albaing.service;
 import com.jobjob.albaing.dto.*;
 
 import java.util.List;
+import java.util.Map;
 
 public interface AdminService {
 
@@ -22,6 +23,8 @@ public interface AdminService {
 
     Resume adminResumeDetail(String resumeId);
 
+    void updateCompanyApprovalStatus(Long companyId, String status);
+
     void adminResumeDelete(String userId);
 
     Company adminCompanyDetail(String companyId);
@@ -33,4 +36,36 @@ public interface AdminService {
     void adminJobPostDelete(String jobPostId);
 
     void adminJobPostStatusChange(String CompanyId);
+
+    void updateJobPostStatus(String jobPostId, Boolean status);
+
+    // 모든 공지사항 조회
+    List<Notice> getAllNotices();
+
+    // 공지사항 상세 조회
+    Notice getNoticeById(Long noticeId);
+
+    // 공지사항 추가
+    void addNotice(Notice notice);
+
+    // 공지사항 수정
+    void updateNotice(Notice notice);
+
+    // 공지사항 삭제
+    void deleteNotice(Long noticeId);
+
+    List<Map<String, Object>> getRecentUsers();
+
+    List<Map<String, Object>> getRecentJobPosts();
+
+    Map<String, Object> getDashboardStats();
+
+    // 직종별 채용공고 통계
+    List<Map<String, Object>> getJobCategoryStats();
+
+    // 고용형태별 채용공고 통계
+    List<Map<String, Object>> getJobTypeStats();
+
+    // 지역별 회원 통계
+    List<Map<String, Object>> getUserRegionStats();
 }

@@ -16,31 +16,45 @@ const CompanyDetail = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    useEffect(() => {
+    const fetchCompanyData = () => {
         setLoading(true);
         setError(null);
 
-        // Promise 체이닝을 사용한 데이터 로딩
         apiCompanyService.getCompanyInfo(companyId)
-            .then(companyData => {
+            .then((companyData) => {
                 setCompany(companyData);
+
                 return apiCompanyService.getJobPostsByCompanyId(companyId);
             })
-            .then(jobPostsData => {
+            .then((jobPostsData) => {
                 setJobPosts(jobPostsData);
+
                 return apiCompanyService.getReviewsByCompanyId(companyId);
             })
-            .then(reviewsData => {
+            .then((reviewsData) => {
                 setReviews(reviewsData);
                 setLoading(false);
             })
-            .catch(err => {
+            .catch((err) => {
                 setError(err.message || '데이터를 불러오는 중 오류가 발생했습니다');
                 setLoading(false);
             });
+    };
+
+    // 컴포넌트 마운트 시 데이터 로딩
+    useEffect(() => {
+        fetchCompanyData();
     }, [companyId]);
 
-
+    // 리뷰 추가 후 전체 리뷰 목록을 다시 불러옴
+    const handleReviewAdded = () => {
+        fetchCompanyData()
+            .then(() => {
+            })
+            .catch((error) => {
+                console.error("리뷰 목록 재불러오기 오류:", error);
+            });
+    };
 
     if (loading) {
         return (
@@ -72,7 +86,7 @@ const CompanyDetail = () => {
                 <ReviewListTab
                     reviews={reviews}
                     companyId={companyId}
-                    
+                    onReviewAdded={handleReviewAdded} // 리뷰 추가 시 목록 새로고침
                 />
             )}
         </div>
