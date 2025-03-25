@@ -17,9 +17,7 @@ const apiResumeService = {
 
     deleteCareer : function (careerId, resumeId){
         return axios
-            .delete(`${API_URL}/resume/${resumeId}/careers/${careerId}`, {
-                params: { resumeId: resumeId }
-            })
+            .delete(`${API_URL}/resume/${resumeId}/careers/${careerId}`)
             .then(response => response.data)
             .catch(error => {
                 console.error("경력 삭제 오류", error);
