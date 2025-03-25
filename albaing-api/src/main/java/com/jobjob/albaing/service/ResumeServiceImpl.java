@@ -139,7 +139,7 @@ public class ResumeServiceImpl implements ResumeService {
                 }
                 // 3. 클라이언트에서 삭제한 경력 정보 처리 (맵에 남아있는 항목들)
                 for (Integer careerId : existingCareerMap.keySet()) {
-                    resumeMapper.deleteCareer(careerId);
+                    resumeMapper.deleteCareer(careerId,resumeId);
                 }
             }
 
@@ -155,10 +155,10 @@ public class ResumeServiceImpl implements ResumeService {
     }
 
     @Override
-    public void deleteCareer(Integer careerId) {
+    public void deleteCareer(Integer careerId, int resumeId) {
         // 삭제 전 검증 로직 추가
         // 예: 해당 careerId가 존재하는지, 사용자가 이 경력 정보에 접근 권한이 있는지 등
-        int existCareer = resumeMapper.deleteCareer(careerId);
+        int existCareer = resumeMapper.deleteCareer(careerId,resumeId);
         if (existCareer == 0) {
             throw new EntityNotFoundException("해당 경력 정보를 찾을 수 없습니다: " + careerId);
         }

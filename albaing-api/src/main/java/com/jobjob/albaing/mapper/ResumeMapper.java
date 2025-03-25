@@ -39,7 +39,7 @@ public interface ResumeMapper {
         List<CareerHistory> getCareerHistoryByResumeId(int resumeId);
 
         //경력 삭제
-        int deleteCareer(Integer careerId);
+        int deleteCareer(Integer careerId, int resumeId);
 
 
 

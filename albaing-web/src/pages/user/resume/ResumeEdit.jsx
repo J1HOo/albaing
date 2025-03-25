@@ -207,27 +207,32 @@ const ResumeEdit = () => {
         if (!window.confirm('이 경력 항목을 삭제하시겠습니까?')) {
             return;
         }
-        setResumeData(prev => {
-            const currentCareerHistory = Array.isArray(prev.careerHistory) ? [...prev.careerHistory] : [];
-            const careerToDelete = currentCareerHistory[index];
-            if (!careerToDelete || !careerToDelete.careerId) {
-                console.error("삭제할 경력의 ID가 없습니다.");
-                return prev;
-            }
-            apiResumeService.deleteCareer(careerToDelete.careerId)
-                .then(() => {
-                    setResumeData(prev => ({
-                        ...prev,
-                        careerHistory: prev.careerHistory.filter((_, i) => i !== index)
-                    }));
-                })
-                .catch(error => {
-                    console.error("경력 삭제 중 오류 발생:", error);
-                    alert("경력 삭제 중 오류가 발생했습니다. 다시 시도해주세요.");
-                });
 
-            return prev;
-        });
+        // resumeData.careerHistory에서 직접 삭제할 항목 참조
+        const careerToDelete = resumeData.careerHistory[index];
+
+        if (!careerToDelete || !careerToDelete.careerId) {
+            alert("삭제할 경력의 ID가 없습니다.");
+            return;
+        }
+
+        if (!resumeId) {
+            alert("이력서 ID를 찾을 수 없습니다.");
+            return;
+        }
+
+        apiResumeService.deleteCareer(careerToDelete.careerId, Number(resumeId))
+            .then(() => {
+                // 성공 시 상태 업데이트
+                setResumeData(prev => ({
+                    ...prev,
+                    careerHistory: prev.careerHistory.filter((_, i) => i !== index)
+                }));
+            })
+            .catch(error => {
+                console.error("경력 삭제 중 오류 발생:", error);
+                alert("경력 삭제 중 오류가 발생했습니다. 다시 시도해주세요.");
+            });
     };
 
     const handleSaveResume = () => {

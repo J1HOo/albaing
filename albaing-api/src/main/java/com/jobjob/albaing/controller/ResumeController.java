@@ -46,9 +46,9 @@ public class ResumeController {
     }
 
     //경력 삭제 delete
-    @DeleteMapping("/careers/{careerId}")
-    public ResponseEntity<Map<String, String>> deleteCareer(@PathVariable Integer careerId) {
-        resumeService.deleteCareer(careerId);
+    @DeleteMapping("{resumeId}/careers/{careerId}")
+    public ResponseEntity<Map<String, String>> deleteCareer(@PathVariable Integer careerId, @PathVariable int resumeId) {
+        resumeService.deleteCareer(careerId, resumeId);
 
         Map<String, String> response = new HashMap<>();
         response.put("message", "경력 정보가 성공적으로 삭제되었습니다.");

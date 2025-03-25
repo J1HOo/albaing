@@ -43,7 +43,7 @@
             <result property="eduAdmissionYear" column="edu_admission_year"/>
             <result property="eduGraduationYear" column="edu_graduation_year"/>
         </association>
-        <association property="careerHistory" javaType="CareerHistory">
+        <collection property="careerHistory" javaType="CareerHistory">
             <id property="careerId" column="career_id"/>
             <result property="resumeId" column="resume_id"/>
             <result property="careerCompanyName" column="career_company_name"/>
@@ -51,7 +51,7 @@
             <result property="careerQuitDate" column="career_quit_date"/>
             <result property="careerJobDescription" column="career_job_description"/>
             <result property="careerIsCareer" column="career_is_career"/>
-        </association>
+        </collection>
     </resultMap>
 
 
@@ -95,7 +95,7 @@
             <result property="eduAdmissionYear" column="edu_admission_year"/>
             <result property="eduGraduationYear" column="edu_graduation_year"/>
         </association>
-        <association property="careerHistory" javaType="CareerHistory">
+        <collection property="careerHistory" javaType="CareerHistory">
             <id property="careerId" column="career_id"/>
             <result property="resumeId" column="resume_id"/>
             <result property="careerCompanyName" column="career_company_name"/>
@@ -103,7 +103,7 @@
             <result property="careerQuitDate" column="career_quit_date"/>
             <result property="careerJobDescription" column="career_job_description"/>
             <result property="careerIsCareer" column="career_is_career"/>
-        </association>
+        </collection>
     </resultMap>
     <!-- 이력서 저장 (회원가입 시 자동 생성용) -->
     <insert id="createResumeForUser">
@@ -231,5 +231,6 @@
     <delete id="deleteCareer">
         DELETE FROM CAREER_HISTORIES
         WHERE career_id = #{careerId}
+        AND resume_id = #{resumeId}
     </delete>
 </mapper>

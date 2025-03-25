@@ -15,12 +15,14 @@ const apiResumeService = {
             });
     },
 
-    deleteCareer : function (careerId){
+    deleteCareer : function (careerId, resumeId){
         return axios
-            .delete(`${API_URL}/resume/careers/${careerId}`)
+            .delete(`${API_URL}/resume/${resumeId}/careers/${careerId}`, {
+                params: { resumeId: resumeId }
+            })
             .then(response => response.data)
             .catch(error => {
-                console.error("경력 삭제 오류",error);
+                console.error("경력 삭제 오류", error);
                 throw error;
             })
     },
