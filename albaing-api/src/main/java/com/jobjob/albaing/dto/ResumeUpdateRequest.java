@@ -2,6 +2,8 @@ package com.jobjob.albaing.dto;
 
 import lombok.*;
 
+import java.util.List;
+
 @Getter
 @Setter
 @ToString
@@ -10,5 +12,5 @@ import lombok.*;
 public class ResumeUpdateRequest {
     private Resume resume;
     private EducationHistory educationHistory;
-    private CareerHistory careerHistory;
+    private List<CareerHistory> careerHistory;
 }

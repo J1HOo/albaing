@@ -5,6 +5,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import lombok.*;
 
+import java.util.List;
+
 @Getter
 @Setter
 @ToString
@@ -24,7 +26,8 @@ public class Resume {
     private String resumeWorkTime;
     private String resumeJobSkill;
     private String resumeIntroduction;
+    private List<CareerHistory> careerHistory;
 
     private EducationHistory educationHistory;
-    private CareerHistory careerHistory;
+  //  private CareerHistory careerHistory;
 }

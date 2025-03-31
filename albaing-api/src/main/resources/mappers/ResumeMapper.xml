@@ -2,19 +2,50 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.jobjob.albaing.mapper.ResumeMapper">
+    <select id="getResumeBasicByUserId" resultType="Resume">
+        SELECT *
+        FROM RESUMES
+        WHERE user_id = #{userId}
+    </select>
 
+    <select id="getEducationHistoryByResumeId" resultType="EducationHistory">
+        SELECT *
+        FROM EDUCATION_HISTORIES
+        WHERE resume_id = #{resumeId}
+    </select>
+
+    <select id="getCareerHistoryByResumeId" resultType="CareerHistory">
+        SELECT *
+        FROM CAREER_HISTORIES
+        WHERE resume_id = #{resumeId}
+    </select>
 
     <!-- 사용자 아이디로 이력서 정보 조회 -->
     <select id="getResumeByUserId" resultMap="getResumeByUserIdMap">
-        SELECT
-            r.resume_id, r.user_id, r.resume_title, r.resume_location,
-            r.resume_job_category, r.resume_job_type, r.resume_job_duration,
-            r.resume_work_schedule, r.resume_work_time, r.resume_job_skill,
-            r.resume_introduction,
-            e.education_id, e.edu_degree, e.edu_status, e.edu_school,
-            e.edu_major, e.edu_admission_year, e.edu_graduation_year,
-            c.career_id, c.career_company_name, c.career_join_date,
-            c.career_quit_date, c.career_job_description, c.career_is_career
+        SELECT r.resume_id,
+               r.user_id,
+               r.resume_title,
+               r.resume_location,
+               r.resume_job_category,
+               r.resume_job_type,
+               r.resume_job_duration,
+               r.resume_work_schedule,
+               r.resume_work_time,
+               r.resume_job_skill,
+               r.resume_introduction,
+               e.education_id,
+               e.edu_degree,
+               e.edu_status,
+               e.edu_school,
+               e.edu_major,
+               e.edu_admission_year,
+               e.edu_graduation_year,
+               c.career_id,
+               c.career_company_name,
+               c.career_join_date,
+               c.career_quit_date,
+               c.career_job_description,
+               c.career_is_career
         FROM RESUMES r
                  LEFT JOIN EDUCATION_HISTORIES e ON r.resume_id = e.resume_id
                  LEFT JOIN CAREER_HISTORIES c ON r.resume_id = c.resume_id
@@ -43,7 +74,7 @@
             <result property="eduAdmissionYear" column="edu_admission_year"/>
             <result property="eduGraduationYear" column="edu_graduation_year"/>
         </association>
-        <association property="careerHistory" javaType="CareerHistory">
+        <collection property="careerHistory" ofType="CareerHistory">
             <id property="careerId" column="career_id"/>
             <result property="resumeId" column="resume_id"/>
             <result property="careerCompanyName" column="career_company_name"/>
@@ -51,22 +82,37 @@
             <result property="careerQuitDate" column="career_quit_date"/>
             <result property="careerJobDescription" column="career_job_description"/>
             <result property="careerIsCareer" column="career_is_career"/>
-        </association>
-    </resultMap>
+        </collection>
 
+    </resultMap>
 
 
     <!-- 이력서 상세 조회 -->
     <select id="resumeDetails" resultMap="resumeDetailMap">
-        SELECT
-            r.resume_id, r.user_id, r.resume_title, r.resume_location,
-            r.resume_job_category, r.resume_job_type, r.resume_job_duration,
-            r.resume_work_schedule, r.resume_work_time, r.resume_job_skill,
-            r.resume_introduction,
-            e.education_id, e.edu_degree, e.edu_status, e.edu_school,
-            e.edu_major, e.edu_admission_year, e.edu_graduation_year,
-            c.career_id, c.career_company_name, c.career_join_date,
-            c.career_quit_date, c.career_job_description, c.career_is_career
+        SELECT r.resume_id,
+               r.user_id,
+               r.resume_title,
+               r.resume_location,
+               r.resume_job_category,
+               r.resume_job_type,
+               r.resume_job_duration,
+               r.resume_work_schedule,
+               r.resume_work_time,
+               r.resume_job_skill,
+               r.resume_introduction,
+               e.education_id,
+               e.edu_degree,
+               e.edu_status,
+               e.edu_school,
+               e.edu_major,
+               e.edu_admission_year,
+               e.edu_graduation_year,
+               c.career_id,
+               c.career_company_name,
+               c.career_join_date,
+               c.career_quit_date,
+               c.career_job_description,
+               c.career_is_career
         FROM RESUMES r
                  LEFT JOIN EDUCATION_HISTORIES e ON r.resume_id = e.resume_id
                  LEFT JOIN CAREER_HISTORIES c ON r.resume_id = c.resume_id
@@ -95,7 +141,7 @@
             <result property="eduAdmissionYear" column="edu_admission_year"/>
             <result property="eduGraduationYear" column="edu_graduation_year"/>
         </association>
-        <association property="careerHistory" javaType="CareerHistory">
+        <collection property="careerHistory" ofType="CareerHistory">
             <id property="careerId" column="career_id"/>
             <result property="resumeId" column="resume_id"/>
             <result property="careerCompanyName" column="career_company_name"/>
@@ -103,130 +149,114 @@
             <result property="careerQuitDate" column="career_quit_date"/>
             <result property="careerJobDescription" column="career_job_description"/>
             <result property="careerIsCareer" column="career_is_career"/>
-        </association>
+        </collection>
+
     </resultMap>
     <!-- 이력서 저장 (회원가입 시 자동 생성용) -->
     <insert id="createResumeForUser">
-        INSERT INTO RESUMES (
-            user_id,
-            resume_title,
-            resume_location,
-            resume_job_category,
-            resume_job_type,
-            resume_job_duration,
-            resume_work_schedule,
-            resume_work_time,
-            resume_job_skill,
-            resume_introduction
-        ) VALUES (
-                     #{userId},
-                     #{resumeTitle},
-                     #{resumeLocation},
-                     #{resumeJobCategory},
-                     #{resumeJobType},
-                     #{resumeJobDuration},
-                     #{resumeWorkSchedule},
-                     #{resumeWorkTime},
-                     #{resumeJobSkill},
-                     #{resumeIntroduction}
-                 )
+        INSERT INTO RESUMES (user_id,
+                             resume_title,
+                             resume_location,
+                             resume_job_category,
+                             resume_job_type,
+                             resume_job_duration,
+                             resume_work_schedule,
+                             resume_work_time,
+                             resume_job_skill,
+                             resume_introduction)
+        VALUES (#{userId},
+                #{resumeTitle},
+                #{resumeLocation},
+                #{resumeJobCategory},
+                #{resumeJobType},
+                #{resumeJobDuration},
+                #{resumeWorkSchedule},
+                #{resumeWorkTime},
+                #{resumeJobSkill},
+                #{resumeIntroduction})
     </insert>
 
     <!-- 기본 학력 정보 생성 -->
     <insert id="createDefaultEducation">
-        INSERT INTO EDUCATION_HISTORIES (
-            resume_id,
-            edu_degree,
-            edu_status,
-            edu_school,
-            edu_major,
-            edu_admission_year,
-            edu_graduation_year
-        ) VALUES (
-                     #{resumeId},
-                     #{eduDegree},
-                     #{eduStatus},
-                     #{eduSchool},
-                     #{eduMajor},
-                     #{eduAdmissionYear},
-                     #{eduGraduationYear}
-                 )
+        INSERT INTO EDUCATION_HISTORIES (resume_id,
+                                         edu_degree,
+                                         edu_status,
+                                         edu_school,
+                                         edu_major,
+                                         edu_admission_year,
+                                         edu_graduation_year)
+        VALUES (#{resumeId},
+                #{eduDegree},
+                #{eduStatus},
+                #{eduSchool},
+                #{eduMajor},
+                #{eduAdmissionYear},
+                #{eduGraduationYear})
     </insert>
 
     <!-- 기본 경력 정보 생성 -->
     <insert id="createDefaultCareer">
-        INSERT INTO CAREER_HISTORIES (
-            resume_id,
-            career_company_name,
-            career_join_date,
-            career_quit_date,
-            career_job_description,
-            career_is_career
-        ) VALUES (
-                     #{resumeId},
-                     #{careerCompanyName},
-                     #{careerJoinDate},
-                     #{careerQuitDate},
-                     #{careerJobDescription},
-                     #{careerIsCareer}
-                 )
+        INSERT INTO CAREER_HISTORIES (resume_id,
+                                      career_company_name,
+                                      career_join_date,
+                                      career_quit_date,
+                                      career_job_description,
+                                      career_is_career)
+        VALUES (#{resumeId},
+                #{careerCompanyName},
+                #{careerJoinDate},
+                #{careerQuitDate},
+                #{careerJobDescription},
+                #{careerIsCareer})
     </insert>
-
-
 
 
     <!-- 이력서 수정 -->
     <update id="updateResume">
         UPDATE RESUMES
-        SET
-            resume_title = #{resume.resumeTitle},
-            resume_location = #{resume.resumeLocation},
-            resume_job_category = #{resume.resumeJobCategory},
-            resume_job_type = #{resume.resumeJobType},
-            resume_job_duration = #{resume.resumeJobDuration},
-            resume_work_schedule = #{resume.resumeWorkSchedule},
-            resume_work_time = #{resume.resumeWorkTime},
-            resume_job_skill = #{resume.resumeJobSkill},
-            resume_introduction = #{resume.resumeIntroduction}
-        WHERE resume_id = #{resume.resumeId}
+        SET resume_title         = #{resumeTitle},
+            resume_location      = #{resumeLocation},
+            resume_job_category  = #{resumeJobCategory},
+            resume_job_type      = #{resumeJobType},
+            resume_job_duration  = #{resumeJobDuration},
+            resume_work_schedule = #{resumeWorkSchedule},
+            resume_work_time     = #{resumeWorkTime},
+            resume_job_skill     = #{resumeJobSkill},
+            resume_introduction  = #{resumeIntroduction}
+        WHERE resume_id = #{resumeId}
     </update>
 
     <!-- 학력 정보 수정 -->
     <update id="updateEducation">
         UPDATE EDUCATION_HISTORIES
-        SET
-            edu_degree = #{educationHistory.eduDegree},
-            edu_status = #{educationHistory.eduStatus},
-            edu_school = #{educationHistory.eduSchool},
-            edu_major = #{educationHistory.eduMajor},
-            edu_admission_year = #{educationHistory.eduAdmissionYear},
-            edu_graduation_year = #{educationHistory.eduGraduationYear}
-        WHERE resume_id = #{resume.resumeId}
+        SET edu_degree          = #{eduDegree},
+            edu_status          = #{eduStatus},
+            edu_school          = #{eduSchool},
+            edu_major           = #{eduMajor},
+            edu_admission_year  = #{eduAdmissionYear},
+            edu_graduation_year = #{eduGraduationYear}
+        WHERE resume_id = #{resumeId}
     </update>
 
-    <select id="getEducationHistoryByResumeId">
-        SELECT *
-        FROM EDUCATION_HISTORIES
-        WHERE resume_id = #{resumeId}
-    </select>
 
     <!-- 경력 정보 수정 -->
     <update id="updateCareer">
         UPDATE CAREER_HISTORIES
-        SET
-            career_company_name = #{careerHistory.careerCompanyName},
-            career_join_date = #{careerHistory.careerJoinDate},
-            career_quit_date = #{careerHistory.careerQuitDate},
-            career_job_description = #{careerHistory.careerJobDescription},
-            career_is_career = #{careerHistory.careerIsCareer}
-        WHERE resume_id = #{resume.resumeId}
+        SET career_company_name    = #{careerCompanyName},
+            career_join_date       = #{careerJoinDate},
+            career_quit_date       = #{careerQuitDate},
+            career_job_description = #{careerJobDescription},
+            career_is_career       = #{careerIsCareer}
+        WHERE career_id = #{careerId}
     </update>
 
-    <select id="getCareerHistoryByResumeId">
-        SELECT *
+
+    <delete id="deleteCareer">
+        DELETE
         FROM CAREER_HISTORIES
-        WHERE resume_id = #{resumeId}
-    </select>
+        WHERE career_id = #{careerId}
+          AND resume_id = #{resumeId}
+    </delete>
 
     <select id="getAllResumeSummaries" resultType="com.jobjob.albaing.dto.ResumeSummary">
         SELECT
