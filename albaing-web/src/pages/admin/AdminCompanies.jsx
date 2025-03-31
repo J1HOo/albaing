@@ -60,7 +60,7 @@ const AdminCompanies = () => {
                         <th className="px-6 py-3 text-left text-gray-700 font-semibold">기업명</th>
                         <th className="px-6 py-3 text-left text-gray-700 font-semibold">이메일</th>
                         <th className="px-6 py-3 text-left text-gray-700 font-semibold">연락처</th>
-                        <th className="px-6 py-3 text-center text-gray-700 font-semibold">액션</th>
+                        <th className="px-6 py-3 text-center text-gray-700 font-semibold"></th>
                     </tr>
                     </thead>
                     <tbody>

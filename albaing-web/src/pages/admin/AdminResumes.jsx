@@ -52,7 +52,8 @@ const AdminResumes = () => {
                             <div className="text-lg font-semibold text-gray-700">
                                 {item.resumeTitle}
                             </div>
-                            <div className="text-gray-500">{item.userId}</div>
+                            <div className="text-gray-500">{item.userGender}</div>
+                            <div className="text-gray-500">{item.userAddress}</div>
                             <div className="flex gap-4">
                                 <button
                                     className="px-4 py-2 bg-white text-gray-700 rounded-md border border-gray-300 hover:bg-gray-100 transition"
