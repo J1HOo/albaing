@@ -28,7 +28,6 @@ const apiMyPageService = {
                 console.error("사용자 이력서 조회 실패", err);
             });
     },
-
     // 사용자 정보 수정
     updateUser: function (userId,setUsers) {
         return axios

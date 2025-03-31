@@ -7,8 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.List;
 
 @RestController
@@ -45,11 +43,6 @@ public class ResumeController {
     public void createResumeForUser(@RequestBody User user) {
         resumeService.createResumeForUser(user);
     }
-
-    //경력 삭제 delete
-    @DeleteMapping("{userId}/careers/{careerId}")
-    public void deleteCareer(@PathVariable Integer careerId, @PathVariable int userId) {
-        resumeService.deleteCareer(careerId, userId);
 
     @GetMapping("/list")
     public ResponseEntity<List<ResumeSummary>> listResumes() {

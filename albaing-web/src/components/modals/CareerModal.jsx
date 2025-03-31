@@ -11,10 +11,20 @@ const CareerModal = ({ careerData, onSave, onCancel }) => {
 
     const careerTypes = ['신입', '경력'];
 
+    const months = Array.from({ length: 12 }, (_, i) => {
+        const month = i + 1;
+        return { value: month < 10 ? `0${month}` : `${month}`, label: `${month}월` };
+    });
+
+    const currentYear = new Date().getFullYear();
+    const years = Array.from({ length: 100 }, (_, i) => {
+        const year = currentYear - i;
+        return { value: `${year}`, label: `${year}년` };
+    });
+
     useEffect(() => {
         if (careerData) {
             setFormData({
-                careerId: careerData.careerId || null,
                 careerIsCareer: careerData.careerIsCareer || '신입',
                 careerCompanyName: careerData.careerCompanyName || '',
                 careerJoinDate: careerData.careerJoinDate || '',
@@ -53,6 +63,7 @@ const CareerModal = ({ careerData, onSave, onCancel }) => {
     const handleSubmit = (e) => {
         e.preventDefault();
 
+        // 경력직인 경우 회사명과 입사일 필수
         if (formData.careerIsCareer === '경력') {
             if (!formData.careerCompanyName.trim()) {
                 alert('회사명을 입력해주세요.');
@@ -67,7 +78,6 @@ const CareerModal = ({ careerData, onSave, onCancel }) => {
 
         onSave({ ...formData });
     };
-
 
     const formatDateForInput = (dateString) => {
         if (!dateString) return '';

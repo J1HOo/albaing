@@ -15,7 +15,6 @@ export const AddressModal = ({onComplete,onClose}) => {
             searchAddress(query);
         }, [query]);
 
-
         // 입력한 지역명(예를 들어 강남구)에 해당하는 모든 주소 검색
         const searchAddress = (keyword) => {
             if (!window.kakao || !window.kakao.maps) {
@@ -32,7 +31,6 @@ export const AddressModal = ({onComplete,onClose}) => {
                 }
             });
         };
-
 
     // 리스트에서 주소 선택하면 시/구 추출
     const handleSelectAddress = (address) => {

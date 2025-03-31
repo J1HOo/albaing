@@ -7,7 +7,6 @@ import java.util.List;
 
 @Mapper
 public interface ResumeMapper {
-        Resume getResumeBasicByUserId(int userId);
 
         // 회원가입 시 이력서 자동 생성
         void createResumeForUser(Resume resume);
@@ -25,22 +24,19 @@ public interface ResumeMapper {
         Resume resumeDetails(int resumeId);
 
         // 이력서 수정
-        void updateResume(Resume resume);
+        void updateResume(ResumeUpdateRequest resumeUpdateRequest);
 
         // 학력 정보 수정
-        void updateEducation(EducationHistory educationHistory);
+        void updateEducation(ResumeUpdateRequest resumeUpdateRequest);
 
         // 학력 정보 조회
         EducationHistory getEducationHistoryByResumeId(int resumeId);
 
         // 경력 정보 수정
-        void updateCareer(CareerHistory careerHistory);
+        void updateCareer(ResumeUpdateRequest resumeUpdateRequest);
 
         // 경력 정보 조회
-        List<CareerHistory> getCareerHistoryByResumeId(int resumeId);
-
-        //경력 삭제
-        int deleteCareer(Integer careerId, int resumeId);
+        CareerHistory getCareerHistoryByResumeId(int resumeId);
 
 
         List<ResumeSummary> getAllResumeSummaries();

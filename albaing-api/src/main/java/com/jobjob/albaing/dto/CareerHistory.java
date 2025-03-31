@@ -15,7 +15,7 @@ public class CareerHistory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
 
-    private Integer careerId;
+    private int careerId;
     private int resumeId;
     private String careerCompanyName;
     private String careerJoinDate;
