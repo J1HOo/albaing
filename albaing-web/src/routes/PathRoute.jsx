@@ -38,6 +38,13 @@ import JobpostEdit from "../pages/company/manage/jobposts/JobpostEdit";
 import ResumeView from "../pages/company/manage/applications/resume/ResumeView";
 import NotFound from "../components/layout/NotFound";
 import AdminMain from "../pages/admin/AdminMain";
+import AdminResumes from "../pages/admin/AdminResumes";
+import AdminUsers from "../pages/admin/AdminUsers";
+import AdminJobApplications from "../pages/admin/AdminJobApplications";
+import AdminCompanies from "../pages/admin/AdminCompanies";
+import AdminJobPosts from "../pages/admin/AdminJobPosts";
+import AdminReviews from "../pages/admin/AdminReviews";
+import AdminNotices from "../pages/admin/AdminNotices";
 
 // 메인 레이아웃 컴포넌트
 const MainLayout = ({children}) => (
@@ -109,11 +116,17 @@ function PathRoute() {
                     <Route path="/resumes/:resumeId/user/:userId" element={<MainLayout><ResumeView /></MainLayout>}/> {/* 지원자 이력서 상세 보기 */}
                 </Route>
 
-
                 {/* 관리자만 접근 가능 */}
-                <Route element={<ProtectedRoute userTypeRequired="admin"/>}>
+                {/*<Route element={<ProtectedRoute userTypeRequired="admin"/>}>*/}
                     <Route path="/admin" element={<MainLayout><AdminMain/></MainLayout>} /> {/* 관리자 대시보드 페이지 */}
-                </Route>
+                    <Route path="/admin/users" element={<MainLayout><AdminUsers/></MainLayout>} />
+                    <Route path="/admin/resumes" element={<MainLayout><AdminResumes/></MainLayout>} />
+                    <Route path="/admin/applications" element={<MainLayout><AdminJobApplications/></MainLayout>} />
+                    <Route path="/admin/companies" element={<MainLayout><AdminCompanies/></MainLayout>} />
+                    <Route path="/admin/job-posts" element={<MainLayout><AdminJobPosts/></MainLayout>} />
+                    <Route path="/admin/reviews" element={<MainLayout><AdminReviews/></MainLayout>} />
+                    <Route path="/admin/notices" element={<MainLayout><AdminNotices/></MainLayout>} />
+                {/*</Route>*/}
 
                 {/* 모든 정의되지 않은 경로 */}
                 <Route path="*" element={<NotFound/>}/> {/* 404 Not Found 페이지 */}
