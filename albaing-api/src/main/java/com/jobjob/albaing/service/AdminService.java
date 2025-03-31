@@ -20,6 +20,8 @@ public interface AdminService {
 
     List<ViewReview> adminSearchReviews(String reviewTitle, String userName, String companyName, String sortOrderBy, Boolean isDESC);
 
+    List<ViewComment> adminSearchComments(String reviewTitle, String commentContent, String userName, String sortOrderBy, Boolean isDESC);
+
     User adminUserDetail(String userId);
 
     void adminUserDelete(String userId);
@@ -37,4 +39,16 @@ public interface AdminService {
     void adminJobPostDelete(String jobPostId);
 
     void adminJobPostStatusChange(String CompanyId);
+
+    Notice adminNoticeDetail(String noticeId);
+
+    void adminNoticeDelete(String noticeId);
+
+    ViewReview adminReviewDetail(String reviewId);
+
+    void adminReviewDelete(String reviewId);
+
+    void adminCommentDelete(String commentId);
+
+
 }

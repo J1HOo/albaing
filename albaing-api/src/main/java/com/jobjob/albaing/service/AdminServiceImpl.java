@@ -49,6 +49,11 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
+    public List<ViewComment> adminSearchComments(String reviewTitle, String commentContent, String userName, String sortOrderBy, Boolean isDESC) {
+        return adminMapper.adminSearchComments(reviewTitle, commentContent, userName, sortOrderBy, isDESC);
+    }
+
+    @Override
     public User adminUserDetail(String userId) {
         return adminMapper.adminUserDetail(userId);
     }
@@ -91,5 +96,30 @@ public class AdminServiceImpl implements AdminService {
     @Override
     public void adminJobPostStatusChange(String CompanyId) {
         adminMapper.adminJobPostStatusChange(CompanyId);
+    }
+
+    @Override
+    public Notice adminNoticeDetail(String noticeId) {
+        return adminMapper.adminNoticeDetail(noticeId);
+    }
+
+    @Override
+    public void adminNoticeDelete(String noticeId) {
+        adminMapper.adminNoticeDelete(noticeId);
+    }
+
+    @Override
+    public ViewReview adminReviewDetail(String reviewId) {
+        return adminMapper.adminReviewDetail(reviewId);
+    }
+
+    @Override
+    public void adminReviewDelete(String reviewId) {
+        adminMapper.adminReviewDelete(reviewId);
+    }
+
+    @Override
+    public void adminCommentDelete(String commentId) {
+        adminMapper.adminCommentDelete(commentId);
     }
 }

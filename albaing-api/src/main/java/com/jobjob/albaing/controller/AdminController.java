@@ -91,6 +91,16 @@ public class AdminController {
         return adminService.adminSearchReviews(reviewTitle, userName, companyName, sortOrderBy, isDESC);
     }
 
+    // 댓글 검색
+    @GetMapping("/comments")
+    public List<ViewComment> adminSearchComments(@RequestParam(required = false) String reviewTitle,
+                                                 @RequestParam(required = false) String commentContent,
+                                                 @RequestParam(required = false) String userName,
+                                                 @RequestParam(defaultValue = "작성일") String sortOrderBy,
+                                                 @RequestParam(required = false) Boolean isDESC) {
+        return adminService.adminSearchComments(reviewTitle, commentContent, userName, sortOrderBy, isDESC);
+    }
+
     // 개인 상세 조회
     @GetMapping("/users/{userId}")
     public User adminUserDetail(@PathVariable String userId) {
@@ -135,5 +145,33 @@ public class AdminController {
     public void adminJobPostDelete(@PathVariable String jobPostId) {
         adminService.adminJobPostDelete(jobPostId);
     }
+
+    // 공지 상세 조회
+    @GetMapping("/notices/{noticeId}")
+    public Notice adminNoticeDetail(@PathVariable String noticeId) {
+        return adminService.adminNoticeDetail(noticeId);
+    }
+
+    // 공지 삭제
+    @DeleteMapping("/notices/{noticeId}")
+    public void adminNoticeDelete(@PathVariable String noticeId) {
+        adminService.adminNoticeDelete(noticeId);
+    }
+
+    @GetMapping("/review/{reviewId}")
+    public ViewReview adminReviewDetail(@PathVariable String reviewId) {
+        return adminService.adminReviewDetail(reviewId);
+    }
+
+    @DeleteMapping("/review/{reviewId}")
+    public void adminReviewDelete(@PathVariable String reviewId) {
+        adminService.adminReviewDelete(reviewId);
+    }
+
+    @DeleteMapping("/comment/{commentId}")
+    public void adminCommentDelete(@PathVariable String commentId) {
+        adminService.adminCommentDelete(commentId);
+    }
+
 
 }

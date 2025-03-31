@@ -4,6 +4,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import lombok.*;
 import org.springframework.data.annotation.Id;
+
 import java.time.LocalDateTime;
 
 @Getter
@@ -11,20 +12,17 @@ import java.time.LocalDateTime;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-public class ViewReview {
+public class ViewComment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int commentId;
     private int reviewId;
     private int userId;
-    private int companyId;
+    private LocalDateTime commentCreatedAt;
+    private LocalDateTime commentUpdatedAt;
+    private String commentContent;
     private String reviewTitle;
-    private String reviewContent;
-    private LocalDateTime reviewCreatedAt;
-    private LocalDateTime reviewUpdatedAt;
     private String userName;
-    private String userProfileImage;
-    private String companyName;
-    private String companyProfileImage;
 
     private String sortOrderBy;
     private Boolean isDESC;
