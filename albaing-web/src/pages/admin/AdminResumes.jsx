@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import AdminMain from "./AdminMain";
+import AdminSideBar from "./AdminSideBar";
 
 const AdminResumes = () => {
     const [resumes, setResumes] = useState([]);
@@ -32,14 +32,14 @@ const AdminResumes = () => {
 
     return (
         <div className="flex">
-            {/* AdminMain 왼쪽 고정 */}
-            <div className="w-1/4">
-                <AdminMain />
+            {/* AdminSideBar 왼쪽 고정 */}
+            <div className="w-1/4 pr-4"> {/* border 제거 */}
+                <AdminSideBar />
             </div>
 
-            {/* 나머지 화면 중앙 및 오른쪽 차지 */}
-            <div className="w-3/4 max-w-4xl mx-auto p-6 bg-blue-50 rounded-lg shadow-md">
-                <h2 className="text-3xl font-semibold text-center text-blue-600 mb-6">
+            {/* Main Content Area */}
+            <div className="flex-1 max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-md border border-gray-300">
+                <h2 className="text-3xl font-semibold text-center text-gray-800 mb-6">
                     이력서 관리
                 </h2>
 
@@ -47,15 +47,15 @@ const AdminResumes = () => {
                     {resumes.map((item, index) => (
                         <li
                             key={index}
-                            className="bg-white p-4 rounded-lg shadow-md flex justify-between items-center border border-blue-200"
+                            className="bg-white p-4 rounded-lg shadow-md flex justify-between items-center border border-gray-200"
                         >
-                            <div className="text-lg font-semibold text-blue-700">
+                            <div className="text-lg font-semibold text-gray-700">
                                 {item.resumeTitle}
                             </div>
                             <div className="text-gray-500">{item.userId}</div>
                             <div className="flex gap-4">
                                 <button
-                                    className="px-4 py-2 bg-blue-400 text-white rounded-md hover:bg-blue-500 transition"
+                                    className="px-4 py-2 bg-white text-gray-700 rounded-md border border-gray-300 hover:bg-gray-100 transition"
                                     onClick={() => navigate(`/admin/resumes/edit/${item.resumeId}`)}
                                 >
                                     수정

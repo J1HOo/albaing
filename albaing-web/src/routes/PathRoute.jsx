@@ -37,7 +37,7 @@ import JobpostAdd from "../pages/company/manage/jobposts/JobpostAdd";
 import JobpostEdit from "../pages/company/manage/jobposts/JobpostEdit";
 import ResumeView from "../pages/company/manage/applications/resume/ResumeView";
 import NotFound from "../components/layout/NotFound";
-import AdminMain from "../pages/admin/AdminMain";
+import AdminSideBar from "../pages/admin/AdminSideBar";
 import AdminResumes from "../pages/admin/AdminResumes";
 import AdminUsers from "../pages/admin/AdminUsers";
 import AdminJobApplications from "../pages/admin/AdminJobApplications";
@@ -45,6 +45,7 @@ import AdminCompanies from "../pages/admin/AdminCompanies";
 import AdminJobPosts from "../pages/admin/AdminJobPosts";
 import AdminReviews from "../pages/admin/AdminReviews";
 import AdminNotices from "../pages/admin/AdminNotices";
+import AdminMain from "../pages/admin/AdminMain";
 
 // 메인 레이아웃 컴포넌트
 const MainLayout = ({children}) => (
