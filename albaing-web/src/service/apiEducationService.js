@@ -9,8 +9,8 @@ const API_URLS = {
 
 // 전공 API URL 목록
 const MAJOR_API_URLS = {
-    high: "http://www.career.go.kr/cnet/openapi/getOpenApi.json?apiKey=cdd817e14883a15964aff585352a4b8f&svcType=api&svcCode=MAJOR&contentType=json&gubun=high_list&thisPage=1&perPage=1000",
-    university: "http://www.career.go.kr/cnet/openapi/getOpenApi.json?apiKey=cdd817e14883a15964aff585352a4b8f&svcType=api&svcCode=MAJOR&contentType=json&gubun=univ_list&thisPage=1&perPage=1000",
+    high: "https://www.career.go.kr/cnet/openapi/getOpenApi.json?apiKey=cdd817e14883a15964aff585352a4b8f&svcType=api&svcCode=MAJOR&contentType=json&gubun=high_list&thisPage=1&perPage=1000",
+    university: "https://www.career.go.kr/cnet/openapi/getOpenApi.json?apiKey=cdd817e14883a15964aff585352a4b8f&svcType=api&svcCode=MAJOR&contentType=json&gubun=univ_list&thisPage=1&perPage=1000",
 };
 
 // API 호출 함수
