@@ -36,10 +36,16 @@ const AdminNotices = () => {
             .catch((err) => console.error("삭제 실패:", err));
     };
 
+    // 날짜 변환 함수 (YYYY-MM-DD HH:mm 형식)
+    const formatDate = (isoString) => {
+        const date = new Date(isoString);
+        return date.toISOString().slice(0, 16).replace("T", " ");
+    };
+
     return (
         <div className="flex">
             {/* AdminSideBar 왼쪽 고정 */}
-            <div className="w-1/4 pr-4"> {/* border 제거 */}
+            <div className="w-1/4 pr-4">
                 <AdminSideBar />
             </div>
 
@@ -49,15 +55,21 @@ const AdminNotices = () => {
                     공지 관리
                 </h2>
 
-                <ul className="space-y-4">
+                {/* Table to display notices */}
+                <table className="min-w-full table-auto">
+                    <thead>
+                    <tr className="border-b border-gray-300">
+                        <th className="px-6 py-3 text-left text-gray-700 font-semibold">공지 제목</th>
+                        <th className="px-6 py-3 text-left text-gray-700 font-semibold">작성일</th>
+                        <th className="px-6 py-3 text-center text-gray-700 font-semibold">관리</th>
+                    </tr>
+                    </thead>
+                    <tbody>
                     {notices.map((item, index) => (
-                        <li
-                            key={index}
-                            className="bg-white p-4 rounded-lg shadow-md flex justify-between items-center border border-gray-200"
-                        >
-                            <div className="text-lg font-semibold text-gray-700">{item.noticeTitle}</div>
-                            <div className="text-gray-500">{item.noticeCreatedAt}</div>
-                            <div className="flex gap-4">
+                        <tr key={index} className="border-b border-gray-200">
+                            <td className="px-6 py-4 text-gray-700">{item.noticeTitle}</td>
+                            <td className="px-6 py-4 text-gray-500">{formatDate(item.noticeCreatedAt)}</td>
+                            <td className="px-6 py-4 text-center">
                                 <button
                                     className="px-4 py-2 bg-white text-gray-700 rounded-md border border-gray-300 hover:bg-gray-100 transition"
                                     onClick={() => navigate(`/admin/notices/edit/${item.noticeId}`)}
@@ -65,15 +77,16 @@ const AdminNotices = () => {
                                     수정
                                 </button>
                                 <button
-                                    className="px-4 py-2 bg-white text-gray-700 rounded-md border border-gray-300 hover:bg-gray-100 transition"
+                                    className="ml-2 px-4 py-2 bg-white text-gray-700 rounded-md border border-gray-300 hover:bg-gray-100 transition"
                                     onClick={() => onClickDelete(item.noticeId)}
                                 >
                                     삭제
                                 </button>
-                            </div>
-                        </li>
+                            </td>
+                        </tr>
                     ))}
-                </ul>
+                    </tbody>
+                </table>
             </div>
         </div>
     );

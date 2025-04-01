@@ -36,6 +36,7 @@ const AdminCompanies = () => {
         axios.delete(`/api/admin/companies/${companyId}`)
             .then(() => {
                 setCompanies(prevCompanies => prevCompanies.filter(company => company.companyId !== companyId));
+                alert("삭제되었습니다.");
             })
             .catch(err => console.error("삭제 실패:", err));
     };

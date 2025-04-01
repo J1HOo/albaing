@@ -40,10 +40,15 @@ const AdminJobPosts = () => {
             .catch(err => console.error("삭제 실패:", err));
     };
 
+    // 날짜 변환 함수 (YYYY-MM-DD 형식)
+    const formatDate = (isoString) => {
+        return new Date(isoString).toISOString().split("T")[0];
+    };
+
     return (
         <div className="flex">
             {/* Left Sidebar */}
-            <div className="w-1/4 pr-4"> {/* border 제거 */}
+            <div className="w-1/4 pr-4">
                 <AdminSideBar />
             </div>
 
@@ -51,29 +56,34 @@ const AdminJobPosts = () => {
             <div className="flex-1 max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-md border border-gray-300">
                 <h2 className="text-3xl font-semibold text-center text-gray-800 mb-6">채용 공고 관리</h2>
 
-                {/* List to display job post data */}
-                <ul className="space-y-4">
+                {/* Table to display job post data */}
+                <table className="min-w-full table-auto">
+                    <thead>
+                    <tr className="border-b border-gray-300">
+                        <th className="px-6 py-3 text-left text-gray-700 font-semibold">법인명</th>
+                        <th className="px-6 py-3 text-left text-gray-700 font-semibold">공고 제목</th>
+                        <th className="px-6 py-3 text-left text-gray-700 font-semibold">공고일</th>
+                        <th className="px-6 py-3 text-center text-gray-700 font-semibold">관리</th>
+                    </tr>
+                    </thead>
+                    <tbody>
                     {jobPosts.map((item, index) => (
-                        <li
-                            key={index}
-                            className="bg-white p-4 rounded-lg shadow-md flex justify-between items-center border border-gray-200"
-                        >
-                            <div className="text-lg font-semibold text-gray-700">
-                                공고 ID: {item.jobPostId}
-                            </div>
-                            <div className="text-gray-500">회사 ID: {item.companyId}</div>
-                            <div className="text-gray-500">공고 제목: {item.jobPostTitle}</div>
-                            <div className="flex gap-4">
+                        <tr key={index} className="border-b border-gray-200">
+                            <td className="px-6 py-4 text-gray-700">{item.companyName}</td>
+                            <td className="px-6 py-4 text-gray-500">{item.jobPostTitle}</td>
+                            <td className="px-6 py-4 text-gray-500">{formatDate(item.jobPostCreatedAt)}</td>
+                            <td className="px-6 py-4 text-center">
                                 <button
                                     className="px-4 py-2 bg-white text-gray-700 rounded-md border border-gray-300 hover:bg-gray-100 transition"
                                     onClick={() => onClickDelete(item.jobPostId)}
                                 >
                                     삭제
                                 </button>
-                            </div>
-                        </li>
+                            </td>
+                        </tr>
                     ))}
-                </ul>
+                    </tbody>
+                </table>
             </div>
         </div>
     );

@@ -46,7 +46,7 @@ const AdminUsers = () => {
     return (
         <div className="flex">
             {/* AdminSideBar 왼쪽 고정 */}
-            <div className="w-1/4 pr-4"> {/* border 제거 */}
+            <div className="w-1/4 pr-4">
                 <AdminSideBar />
             </div>
 
@@ -56,19 +56,23 @@ const AdminUsers = () => {
                     유저 관리
                 </h2>
 
-                <ul className="space-y-4">
+                {/* Table to display user data */}
+                <table className="min-w-full table-auto">
+                    <thead>
+                    <tr className="border-b border-gray-300">
+                        <th className="px-6 py-3 text-left text-gray-700 font-semibold">이름</th>
+                        <th className="px-6 py-3 text-left text-gray-700 font-semibold">이메일</th>
+                        <th className="px-6 py-3 text-center text-gray-700 font-semibold">관리</th>
+                    </tr>
+                    </thead>
+                    <tbody>
                     {users.map((item, index) => (
-                        <li
-                            key={index}
-                            className="bg-white p-4 rounded-lg shadow-md flex justify-between items-center border border-gray-200"
-                        >
-                            <div className="text-lg font-semibold text-gray-700">
-                                {item.userName}
-                            </div>
-                            <div className="text-gray-500">{item.userEmail}</div>
-                            <div className="flex gap-4">
+                        <tr key={index} className="border-b border-gray-200">
+                            <td className="px-6 py-4 text-gray-700">{item.userName}</td>
+                            <td className="px-6 py-4 text-gray-500">{item.userEmail}</td>
+                            <td className="px-6 py-4 text-center">
                                 <button
-                                    className="px-4 py-2 bg-white text-gray-700 rounded-md border border-gray-300 hover:bg-gray-100 transition"
+                                    className="px-4 py-2 bg-white text-gray-700 rounded-md border border-gray-300 hover:bg-gray-100 transition mr-4"
                                     onClick={() => navigate(`/admin/users/edit/${item.userId}`)}
                                 >
                                     수정
@@ -79,10 +83,11 @@ const AdminUsers = () => {
                                 >
                                     삭제
                                 </button>
-                            </div>
-                        </li>
+                            </td>
+                        </tr>
                     ))}
-                </ul>
+                    </tbody>
+                </table>
             </div>
         </div>
     );

@@ -29,6 +29,17 @@ const AdminJobApplications = () => {
             });
     }, [userName, companyName, jobPostTitle, sortOrderBy, isDESC]);
 
+    const onClickDelete = (applicationId) => {
+        const confirmDelete = window.confirm("정말로 삭제하시겠습니까?");
+        if (!confirmDelete) return;
+
+        axios.delete(`/api/admin/job-applications/${applicationId}`)
+            .then(() => {
+                setJobApplications(prev => prev.filter(app => app.applicationId !== applicationId));
+            })
+            .catch(err => console.error("삭제 실패:", err));
+    };
+
     return (
         <div className="flex">
 
@@ -38,39 +49,45 @@ const AdminJobApplications = () => {
             </div>
 
             {/* Main Content Area */}
-            <div className="w-3/4 max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-md border border-gray-200">
+            <div className="flex-1 max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-md border border-gray-300">
                 <h2 className="text-3xl font-semibold text-center text-gray-800 mb-6">지원서 관리</h2>
 
-                {/* List to display job application data */}
-                <ul className="space-y-4">
+                {/* Table to display job application data */}
+                <table className="min-w-full table-auto">
+                    <thead>
+                    <tr className="border-b border-gray-300">
+                        <th className="px-6 py-3 text-left text-gray-700 font-semibold">지원 일자</th>
+                        <th className="px-6 py-3 text-left text-gray-700 font-semibold">공고 제목</th>
+                        <th className="px-6 py-3 text-left text-gray-700 font-semibold">지원자</th>
+                        <th className="px-6 py-3 text-center text-gray-700 font-semibold"></th>
+                    </tr>
+                    </thead>
+                    <tbody>
                     {jobApplications.map((item, index) => (
-                        <li
-                            key={index}
-                            className="bg-white p-4 rounded-lg shadow-md flex justify-between items-center border border-gray-200"
-                        >
-                            <div className="text-lg font-semibold text-gray-700">
-                                지원 일자: {item.applicationAt}
-                            </div>
-                            <div className="text-gray-500">{item.jobPostTitle}</div>
-                            <div className="text-gray-500">{item.userName}</div>
-                            <div className="text-gray-500">이력서 보기</div>
-                            <div className="flex gap-4">
+                        <tr key={index} className="border-b border-gray-200">
+                            <td className="px-6 py-4 text-gray-700">
+                                {item.applicationAt ? item.applicationAt.split("T")[0] : ""}
+                            </td>
+                            <td className="px-6 py-4 text-gray-500">{item.jobPostTitle}</td>
+                            <td className="px-6 py-4 text-gray-500">{item.userName}</td>
+                            <td className="px-6 py-4 text-center">
                                 <button
-                                    className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition"
+                                    className="px-4 py-2 bg-white text-gray-700 rounded-md border border-gray-300 hover:bg-gray-100 transition"
                                     onClick={() => navigate(`/admin/job-applications/edit/${item.applicationId}`)}
                                 >
                                     수정
                                 </button>
                                 <button
-                                    className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition"
+                                    className="ml-2 px-4 py-2 bg-white text-gray-700 rounded-md border border-gray-300 hover:bg-gray-100 transition"
                                     onClick={() => onClickDelete(item.applicationId)}
                                 >
                                     삭제
                                 </button>
-                            </div>
-                        </li>
+                            </td>
+                        </tr>
                     ))}
-                </ul>
+                    </tbody>
+                </table>
             </div>
         </div>
     );
