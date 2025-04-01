@@ -329,49 +329,32 @@ const Resume = () => {
                 {/* 경력 정보 */}
                 <div className="p-6 border-b border-gray-200">
                     <h2 className="text-xl font-semibold text-gray-900 mb-4">경력 정보</h2>
-                    {resume.careerHistory ? (
-                        <div className="bg-gray-50 p-4 rounded-md">
-                            {resume.careerHistory.careerIsCareer === '신입' ? (
-                                <div className="flex flex-col items-center justify-center p-6 bg-blue-50 rounded-lg border border-blue-100">
-                                    <div className="text-5xl mb-3">🌱</div>
-                                    <p className="text-xl font-medium text-blue-800">신입</p>
-                                    <p className="text-blue-600 text-sm mt-1">경력 없음</p>
-                                </div>
-                            ) : (
-                                <>
-                                    <div className="flex items-center mb-3">
-                                        <span className="inline-block bg-blue-100 text-blue-800 p-2 rounded-full mr-3">
-                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                                            </svg>
-                                        </span>
-                                        <div>
-                                            <div className="text-lg font-semibold">{resume.careerHistory.careerCompanyName || '미입력'}</div>
-                                            <div className="text-sm text-gray-600">
-                                                {resume.careerHistory.careerJoinDate ? (
-                                                    <>
-                                                        {resume.careerHistory.careerJoinDate} ~ {resume.careerHistory.careerQuitDate || '재직중'}
-                                                    </>
-                                                ) : '기간 미입력'}
-                                            </div>
+
+                    {resume?.careerHistory?.length > 0 ? (
+                        resume.careerHistory.map((career, index) => (
+                            <div key={index} className="bg-gray-50 p-4 rounded-md mb-4">
+                                <p className="text-lg font-semibold">{career.careerCompanyName || "미입력"}</p>
+                                <p className="text-sm text-gray-600">
+                                    {career.careerJoinDate} ~ {career.careerQuitDate || "재직중"}
+                                </p>
+
+                                {/* 직무 내용이 있을 경우만 렌더링 */}
+                                {career.careerJobDescription && (
+                                    <div className="mt-4 p-3 bg-white rounded-md border border-gray-100">
+                                        <div className="text-sm text-gray-500 mb-1">직무 내용</div>
+                                        <div className="whitespace-pre-line">
+                                            {career.careerJobDescription}
                                         </div>
                                     </div>
-
-                                    {resume.careerHistory.careerJobDescription && (
-                                        <div className="mt-4 p-3 bg-white rounded-md border border-gray-100">
-                                            <div className="text-sm text-gray-500 mb-1">직무 내용</div>
-                                            <div className="whitespace-pre-line">
-                                                {resume.careerHistory.careerJobDescription}
-                                            </div>
-                                        </div>
-                                    )}
-                                </>
-                            )}
-                        </div>
+                                )}
+                            </div>
+                        ))
                     ) : (
                         <p className="text-gray-500">등록된 경력 정보가 없습니다.</p>
                     )}
                 </div>
+
+
 
                 {/* 보유 스킬 */}
                 <div className="p-6 border-b border-gray-200">

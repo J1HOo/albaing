@@ -21,5 +21,8 @@ public interface ResumeService {
         void deleteCareer(Integer careerId, int resumeId);
 
         List<ResumeSummary> getAllResumeSummaries();
-    }
+
+
+
+}
 

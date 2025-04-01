@@ -7,8 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.List;
 
 @RestController
@@ -21,8 +19,8 @@ public class ResumeController {
     // 2. 이력서 수정
     @PutMapping("/update/{resumeId}")
     public void updateResume(
-        @PathVariable int resumeId,
-        @RequestBody ResumeUpdateRequest resumeUpdateRequest) {
+            @PathVariable int resumeId,
+            @RequestBody ResumeUpdateRequest resumeUpdateRequest) {
         if (resumeUpdateRequest.getResume() != null) {
             resumeUpdateRequest.getResume().setResumeId(resumeId);
         }
@@ -50,6 +48,8 @@ public class ResumeController {
     @DeleteMapping("{userId}/careers/{careerId}")
     public void deleteCareer(@PathVariable Integer careerId, @PathVariable int userId) {
         resumeService.deleteCareer(careerId, userId);
+    }
+
 
     @GetMapping("/list")
     public ResponseEntity<List<ResumeSummary>> listResumes() {

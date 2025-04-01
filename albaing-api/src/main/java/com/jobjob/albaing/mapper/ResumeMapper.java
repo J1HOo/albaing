@@ -42,6 +42,6 @@ public interface ResumeMapper {
         //경력 삭제
         int deleteCareer(Integer careerId, int resumeId);
 
-
         List<ResumeSummary> getAllResumeSummaries();
+
 }

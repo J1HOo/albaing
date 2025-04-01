@@ -79,13 +79,13 @@ public class ResumeServiceImpl implements ResumeService {
     }
 
 
-
     // 이력서 상세 조회
     @Override
     public Resume resumeDetails(int resumeId) {
         return resumeMapper.resumeDetails(resumeId);
     }
 
+    //아력서 수정
     @Override
     public void updateResume(ResumeUpdateRequest resumeUpdateRequest) {
         try {
@@ -180,6 +180,7 @@ public class ResumeServiceImpl implements ResumeService {
             throw new EntityNotFoundException("해당 경력 정보를 찾을 수 없습니다: " + careerId);
         }
     }
+
 
     @Override
     public List<ResumeSummary> getAllResumeSummaries() {

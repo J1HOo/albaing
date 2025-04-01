@@ -39,7 +39,6 @@ export default function Footer() {
                                 <li><Link to="/jobs" className="hover:text-blue-600">채용정보</Link></li>
                                 <li><Link to="/companies" className="hover:text-blue-600">기업정보</Link></li>
                                 <li><Link to="/resumes" className="hover:text-blue-600">이력서</Link></li>
-                                <li><Link to="/notice" className="hover:text-blue-600">공지사항</Link></li>
                                 <li><Link to="/calculator" className="hover:text-blue-600">계산기</Link></li>
                             </ul>
                         </div>
@@ -50,6 +49,8 @@ export default function Footer() {
                             <ul className="space-y-2 text-gray-600">
                                 <li><Link to="/customer/faq" className="hover:text-blue-600">자주 묻는 질문</Link></li>
                                 <li><Link to="/customer/contact" className="hover:text-blue-600">문의하기</Link></li>
+                                <li><Link to="/notices" className="hover:text-blue-600">공지사항</Link></li>
+                                <li><Link to="/chatbot" className="hover:text-blue-600">챗봇</Link></li>
                             </ul>
                         </div>
 

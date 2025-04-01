@@ -270,4 +270,5 @@
                  JOIN users u ON r.user_id = u.user_id
         ORDER BY r.resume_id DESC
     </select>
+
 </mapper>

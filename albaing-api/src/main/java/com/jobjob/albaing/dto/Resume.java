@@ -29,5 +29,4 @@ public class Resume {
     private List<CareerHistory> careerHistory;
 
     private EducationHistory educationHistory;
-  //  private CareerHistory careerHistory;
 }

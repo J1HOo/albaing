@@ -30,6 +30,10 @@ const DashboardLayout = ({ companyData, activeTab, setActiveTab, children }) => 
         navigate('/login');
     };
 
+    const handleMainPage = () => {
+        navigate('/');
+    };
+
     return (
         <div className="flex h-screen bg-gray-100">
             {/* 데스크탑 사이드바 */}
@@ -64,7 +68,13 @@ const DashboardLayout = ({ companyData, activeTab, setActiveTab, children }) => 
                         </ul>
                     </nav>
                 </div>
-                <div className="mt-auto p-6">
+                <div className="mt-auto p-6 space-y-4">
+                    <button
+                        onClick={handleMainPage}
+                        className="w-full bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600 transition-colors"
+                    >
+                        메인페이지로 이동
+                    </button>
                     <button
                         onClick={handleLogout}
                         className="w-full bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600 transition-colors"
