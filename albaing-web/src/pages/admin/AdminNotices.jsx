@@ -61,7 +61,7 @@ const AdminNotices = () => {
                     <tr className="border-b border-gray-300">
                         <th className="px-6 py-3 text-left text-gray-700 font-semibold">공지 제목</th>
                         <th className="px-6 py-3 text-left text-gray-700 font-semibold">작성일</th>
-                        <th className="px-6 py-3 text-center text-gray-700 font-semibold">관리</th>
+                        <th className="px-6 py-3 text-center text-gray-700 font-semibold"></th>
                     </tr>
                     </thead>
                     <tbody>

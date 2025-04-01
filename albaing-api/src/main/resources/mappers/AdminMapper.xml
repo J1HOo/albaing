@@ -187,7 +187,7 @@
         </where>
         <trim prefix="ORDER BY">
             <if test="sortOrderBy == '법인명'">
-                COMPANIES.company_name
+                COMPANIES.company_name``
             </if>
             <if test="sortOrderBy == '공고 제목'">
                 JOB_POSTS.job_post_title
@@ -348,7 +348,7 @@
     <!-- 공고 정보 전체를 단일 Resume 로 반환 -->
     <select id="adminJobPostDetail">
         select *
-        from JobPosts
+        from JOB_POSTS
         where job_post_id = #{jobPostId}
     </select>
 
@@ -359,7 +359,7 @@
     <!-- 반환값 없음 -->
     <delete id="adminJobPostDelete">
         delete
-        from JobPosts
+        from JOB_POSTS
         where job_post_id = #{jobPostId}
     </delete>
 
@@ -367,7 +367,7 @@
     <!-- int companyId 를 받아 일치하는 공고들 모두 수정 -->
     <!-- 반환값 없음 -->
     <update id="adminJobPostStatusChange">
-        update JobPosts
+        update JOB_POSTS
         set job_post_status = false
         where company_id = #{companyId}
     </update>
