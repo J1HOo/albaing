@@ -121,7 +121,7 @@ const AdminReviews = () => {
                             <td className="px-6 py-4 text-center">
                                 <button
                                     className="px-4 py-2 bg-white text-gray-700 rounded-md border border-gray-300 hover:bg-gray-100 transition mr-2"
-                                    onClick={() => navigate(`/admin/reviews/edit/${item.reviewId}`)}
+                                    onClick={() => navigate(`/companies/${item.companyId}/reviews/${item.reviewId}`)}
                                 >
                                     수정
                                 </button>

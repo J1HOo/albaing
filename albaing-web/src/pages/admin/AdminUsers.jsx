@@ -111,7 +111,7 @@ const AdminUsers = () => {
                             <td className="px-6 py-4 text-center">
                                 <button
                                     className="px-4 py-2 bg-white text-gray-700 rounded-md border border-gray-300 hover:bg-gray-100 transition mr-4"
-                                    onClick={() => navigate(`/admin/users/edit/${item.userId}`)}
+                                    onClick={() => navigate(`/mypage/user/${item.userId}/edit`)}
                                 >
                                     수정
                                 </button>

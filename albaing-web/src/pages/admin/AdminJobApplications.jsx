@@ -119,12 +119,6 @@ const AdminJobApplications = () => {
                             <td className="px-6 py-4 text-gray-500">{item.userName}</td>
                             <td className="px-6 py-4 text-center">
                                 <button
-                                    className="px-4 py-2 bg-white text-gray-700 rounded-md border border-gray-300 hover:bg-gray-100 transition"
-                                    onClick={() => navigate(`/admin/job-applications/edit/${item.applicationId}`)}
-                                >
-                                    수정
-                                </button>
-                                <button
                                     className="ml-2 px-4 py-2 bg-white text-gray-700 rounded-md border border-gray-300 hover:bg-gray-100 transition"
                                     onClick={() => onClickDelete(item.applicationId)}
                                 >

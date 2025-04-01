@@ -124,6 +124,12 @@ const AdminJobPosts = () => {
                             <td className="px-6 py-4 text-center">
                                 <button
                                     className="px-4 py-2 bg-white text-gray-700 rounded-md border border-gray-300 hover:bg-gray-100 transition"
+                                    onClick={() => navigate(`/jobs/edit/${item.jobPostId}`)} // 수정 버튼 클릭 시 /jobs/edit/:jobPostId로 이동
+                                >
+                                    수정
+                                </button>
+                                <button
+                                    className="ml-2 px-4 py-2 bg-white text-gray-700 rounded-md border border-gray-300 hover:bg-gray-100 transition"
                                     onClick={() => onClickDelete(item.jobPostId)}
                                 >
                                     삭제

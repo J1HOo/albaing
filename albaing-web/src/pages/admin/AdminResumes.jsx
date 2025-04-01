@@ -98,7 +98,7 @@ const AdminResumes = () => {
                             <td className="px-6 py-4 text-center">
                                 <button
                                     className="px-4 py-2 bg-white text-gray-700 rounded-md border border-gray-300 hover:bg-gray-100 transition"
-                                    onClick={() => navigate(`/admin/resumes/edit/${item.resumeId}`)}
+                                    onClick={() => navigate(`/resumes/edit?resumeId=${item.resumeId}`)} // 절대 경로로 이동
                                 >
                                     수정
                                 </button>

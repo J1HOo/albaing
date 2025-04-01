@@ -86,7 +86,7 @@ const AdminCompanies = () => {
                     <button
                         className="px-4 py-1.5 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition"
                         onClick={onSearch}
-                        style={{whiteSpace: 'nowrap'}}
+                        style={{ whiteSpace: 'nowrap' }}
                     >
                         검색
                     </button>
@@ -111,7 +111,7 @@ const AdminCompanies = () => {
                             <td className="px-6 py-4 text-center">
                                 <button
                                     className="px-4 py-2 bg-white text-gray-700 rounded-md border border-gray-300 hover:bg-gray-100 transition"
-                                    onClick={() => navigate(`/admin/companies/edit/${item.companyId}`)}
+                                    onClick={() => navigate(`/company/edit/${item.companyId}`)} // 수정 버튼 클릭 시 /company/edit/:companyId로 이동
                                 >
                                     수정
                                 </button>
