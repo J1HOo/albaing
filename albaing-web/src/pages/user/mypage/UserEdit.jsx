@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import defaultProfileImage from "../mypage/default-profile.png";
 import { useModal, AlertModal } from "../../../components";
 import axios from "axios";
+import KakaoPostcodeModal from "../../auth/register/KakaoPostcodeModal";
 
 const EditUserPage = () => {
     const { userId } = useParams();
@@ -12,8 +13,11 @@ const EditUserPage = () => {
     const [loading, setLoading] = useState(true);
     const [profileImagePreview, setProfileImagePreview] = useState(null);
     const [profileImageFile, setProfileImageFile] = useState(null);
+    const [isPostcodeOpen, setIsPostcodeOpen] = useState(false);
+    const [detailAddress, setDetailAddress] = useState('');
+    const [userAddress, setUserAddress] = useState("");
 
-    const [user, setUserData] = useState({
+        const [user, setUserData] = useState({
         userName: "",
         userEmail: "",
         userPassword: "",
@@ -43,7 +47,6 @@ const EditUserPage = () => {
                 alertModal.openModal({
                     title: '오류',
                     message: '사용자 정보를 불러오는데 실패했습니다.',
-                    type: 'error'
                 });
                 setLoading(false);
             });
@@ -105,7 +108,7 @@ const EditUserPage = () => {
                     title: '성공',
                     message: '사용자 정보가 성공적으로 수정되었습니다!',
                     type: 'success',
-                    onClose: () => navigate(-1)
+                    onClose: () => navigate(`/mypage/${userId}`)
                 });
                 setUserData(res.data);
             })
@@ -303,14 +306,15 @@ const EditUserPage = () => {
                     {/* 주소 */}
                     <div className="md:col-span-2">
                         <label className="block text-sm font-semibold mb-2 text-gray-700">주소</label>
+
                         <div className="relative">
                             <input
                                 type="text"
-                                name="userAddress"
+                                placeholder="상세 주소를 입력하세요"
                                 value={user.userAddress}
-                                onChange={handleInputChange}
+                                onClick={() => setIsPostcodeOpen(true)}
+                                onChange={(e) => setDetailAddress(e.target.value)}
                                 className="w-full p-3 pl-10 border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
-                                placeholder="주소를 입력하세요"
                             />
                             <svg xmlns="http://www.w3.org/2000/svg"
                                  className="h-5 w-5 text-gray-400 absolute left-3 top-3.5" viewBox="0 0 20 20"
@@ -321,6 +325,18 @@ const EditUserPage = () => {
                             </svg>
                         </div>
                     </div>
+
+                    <KakaoPostcodeModal
+                        isOpen={isPostcodeOpen}
+                        onClose={() => setIsPostcodeOpen(false)}
+                        onComplete={(selectedAddress) => {
+                            setUserAddress(selectedAddress);
+                            setUserData(prevUser => ({
+                                ...prevUser,
+                                userAddress: selectedAddress
+                            }));
+                        }}
+                    />
                 </div>
 
                 {/* 버튼 섹션 */}
@@ -335,6 +351,7 @@ const EditUserPage = () => {
                     <button
                         type="submit"
                         className="py-3 px-6 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition shadow-md"
+                        onClick={handleSubmit}
                     >
                         수정 완료
                     </button>

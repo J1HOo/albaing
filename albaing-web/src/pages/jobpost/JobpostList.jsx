@@ -291,11 +291,6 @@ export default function JobpostList() {
                     const scrapIds = updatedScraps.map(post => post.jobPostId);
                     localStorage.setItem("scrapedPosts", JSON.stringify(scrapIds))
 
-                    alertModal.openModal({
-                        title: '스크랩 취소',
-                        message: '스크랩에서 제거되었습니다.',
-                        type: 'success'
-                    });
 
                 })
                 .catch((err) => {
@@ -314,11 +309,6 @@ export default function JobpostList() {
                     return apiScrapService.getScrapsByUser(userData.userId, setScrapedPosts);
                 })
                 .then(() => {
-                    alertModal.openModal({
-                        title: '스크랩 추가',
-                        message: '스크랩에 추가되었습니다.',
-                        type: 'success'
-                    });
                 })
                 .catch((err) => {
                     console.error("스크랩 추가 실패", err);

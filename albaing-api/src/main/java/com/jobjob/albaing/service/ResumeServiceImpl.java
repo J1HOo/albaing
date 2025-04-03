@@ -89,17 +89,14 @@ public class ResumeServiceImpl implements ResumeService {
     @Override
     public void updateResume(ResumeUpdateRequest resumeUpdateRequest) {
         try {
-            // 이력서 기본 정보 업데이트
             if (resumeUpdateRequest.getResume() != null) {
                 resumeMapper.updateResume(resumeUpdateRequest.getResume());
             }
 
-            // 학력 정보 업데이트
             if (resumeUpdateRequest.getEducationHistory() != null) {
                 EducationHistory existingEdu = resumeMapper.getEducationHistoryByResumeId(resumeUpdateRequest.getResume().getResumeId());
 
                 if (existingEdu != null) {
-                    // EducationHistory 객체 직접 전달
                     resumeUpdateRequest.getEducationHistory().setResumeId(resumeUpdateRequest.getResume().getResumeId());
                     resumeMapper.updateEducation(resumeUpdateRequest.getEducationHistory());
                 } else {
@@ -108,42 +105,68 @@ public class ResumeServiceImpl implements ResumeService {
                 }
             }
 
-            // 경력 정보 업데이트 - 여러 항목 처리
             if (resumeUpdateRequest.getCareerHistory() != null && !resumeUpdateRequest.getCareerHistory().isEmpty()) {
                 int resumeId = resumeUpdateRequest.getResume().getResumeId();
 
-                // 1. 기존 경력 정보 전체 조회
-                List<CareerHistory> existingCareers = resumeMapper.getCareerHistoryByResumeId(resumeId);
-                Map<Integer, CareerHistory> existingCareerMap = new HashMap<>();
-                for (CareerHistory career : existingCareers) {
-                    if (career.getCareerId() != null) {
-                        existingCareerMap.put(career.getCareerId(), career);
-                    }
-                }
-
-                // 2. 각 경력 정보 처리
+                boolean isNewbieMode = false;
                 for (CareerHistory career : resumeUpdateRequest.getCareerHistory()) {
-                    career.setResumeId(resumeId);
-
-                    if (career.getCareerId() == null || career.getCareerId() == 0) {
-                        // 새 경력 정보 추가
-                        resumeMapper.createDefaultCareer(career);
-                    } else if (existingCareerMap.containsKey(career.getCareerId())) {
-                        // 기존 경력 정보 업데이트
-                        resumeMapper.updateCareer(career);
-                        existingCareerMap.remove(career.getCareerId());
-                    } else {
-                        // ID가 있지만 존재하지 않는 경우 새로 생성
-                        career.setCareerId(null); // ID 재설정
-                        resumeMapper.createDefaultCareer(career);
+                    if ("신입".equals(career.getCareerIsCareer())) {
+                        isNewbieMode = true;
+                        break;
                     }
                 }
-                // 3. 클라이언트에서 삭제한 경력 정보 처리 (맵에 남아있는 항목들)
-                for (Integer careerId : existingCareerMap.keySet()) {
-                    resumeMapper.deleteCareer(careerId,resumeId);
+
+                List<CareerHistory> existingCareers = resumeMapper.getCareerHistoryByResumeId(resumeId);
+
+                if (isNewbieMode) {
+                    for (CareerHistory career : existingCareers) {
+                        if (career.getCareerId() != null) {
+                            resumeMapper.deleteCareer(career.getCareerId(), resumeId);
+                        }
+                    }
+
+                    CareerHistory newbieCareer = null;
+                    for (CareerHistory career : resumeUpdateRequest.getCareerHistory()) {
+                        if ("신입".equals(career.getCareerIsCareer())) {
+                            newbieCareer = career;
+                            break;
+                        }
+                    }
+
+                    if (newbieCareer != null) {
+                        newbieCareer.setResumeId(resumeId);
+                        newbieCareer.setCareerId(null);
+                        resumeMapper.createDefaultCareer(newbieCareer);
+                    }
+                } else {
+                    Map<Integer, CareerHistory> existingCareerMap = new HashMap<>();
+                    for (CareerHistory career : existingCareers) {
+                        if (career.getCareerId() != null) {
+                            existingCareerMap.put(career.getCareerId(), career);
+                        }
+                    }
+
+                    for (CareerHistory career : resumeUpdateRequest.getCareerHistory()) {
+                        if (!"신입".equals(career.getCareerIsCareer())) {
+                            career.setResumeId(resumeId);
+
+                            if (career.getCareerId() == null || career.getCareerId() == 0) {
+                                resumeMapper.createDefaultCareer(career);
+                            } else if (existingCareerMap.containsKey(career.getCareerId())) {
+                                resumeMapper.updateCareer(career);
+                                existingCareerMap.remove(career.getCareerId());
+                            } else {
+                                career.setCareerId(null);
+                                resumeMapper.createDefaultCareer(career);
+                            }
+                        }
+                    }
+
+                    for (Integer careerId : existingCareerMap.keySet()) {
+                        resumeMapper.deleteCareer(careerId, resumeId);
+                    }
                 }
             }
-
         } catch (Exception e) {
             throw new RuntimeException("이력서 수정 중 오류가 발생했습니다.", e);
         }
@@ -172,12 +195,14 @@ public class ResumeServiceImpl implements ResumeService {
     }
 
     @Override
-    public void deleteCareer(Integer careerId, int resumeId) {
+    public int deleteCareer(Integer careerId, int resumeId) {
         // 삭제 전 검증 로직 추가
         // 예: 해당 careerId가 존재하는지, 사용자가 이 경력 정보에 접근 권한이 있는지 등
         int existCareer = resumeMapper.deleteCareer(careerId,resumeId);
         if (existCareer == 0) {
             throw new EntityNotFoundException("해당 경력 정보를 찾을 수 없습니다: " + careerId);
+        } else {
+            return existCareer;
         }
     }
 

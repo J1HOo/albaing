@@ -13,7 +13,6 @@ const ScrapPage = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const alertModal = useModal();
-
     // 페이지네이션 상태
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage] = useState(9); // 3x3 그리드에 맞게 9개로 설정
@@ -119,11 +118,6 @@ const ScrapPage = () => {
                         const scrapIds = updatedScraps.map(job => job.jobPostId);
                         localStorage.setItem("scrapedPosts", JSON.stringify(scrapIds));
 
-                        alertModal.openModal({
-                            title: '삭제 완료',
-                            message: '스크랩에서 제거되었습니다.',
-                            type: 'success'
-                        });
                     })
                     .catch((err) => {
                         console.error("스크랩 삭제 오류", error);

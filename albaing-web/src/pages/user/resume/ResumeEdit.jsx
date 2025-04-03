@@ -11,6 +11,8 @@ import ResumeEducation from "./ResumeEducation";
 import ResumeSkills from "./ResumeSkills";
 import ResumeIntroduction from "./ResumeIntroduction";
 import ResumeBasicInfo from "./ResumeBasicInfo";
+import { ConfirmModal, AlertModal } from '../../../components';
+import useModal from '../../../components/modals/useModal';
 
 const ResumeEdit = () => {
     const [resumeData, setResumeData] = useState({
@@ -40,6 +42,11 @@ const ResumeEdit = () => {
     const [activeSection, setActiveSection] = useState('basic');
     const [currentCareer, setCurrentCareer] = useState(null);
     const [showCareerModal, setShowCareerModal] = useState(false);
+
+    // 모달 관련 상태
+    const confirmModal = useModal();
+    const alertModal = useModal();
+    const [careerToDelete, setCareerToDelete] = useState(null);
 
     const location = useLocation();
     const {userData} = useAuth();
@@ -77,6 +84,7 @@ const ResumeEdit = () => {
                 apiResumeService.getResumeByUserId(userData.userId)
                     .then(data => {
                         setResumeData(data || resumeData);
+                        setPreferredLocation(data.resumeLocation || "");
                         setLoading(false);
                     })
                     .catch(error => {
@@ -111,10 +119,23 @@ const ResumeEdit = () => {
         }));
         setShowEducationModal(false);
     };
+
     const handleCareerUpdate = (careerData) => {
         setResumeData(prev => {
+            if (careerData.careerIsCareer === '신입') {
+                const updatedData = {
+                    ...prev,
+                    careerHistory: [{
+                        ...careerData,
+                        careerId: careerData.careerId || `temp-${Date.now()}`,
+                        resumeId: prev.resumeId
+                    }]
+                };
+                return updatedData;
+            }
+
             const existingCareerHistory = Array.isArray(prev.careerHistory)
-                ? prev.careerHistory
+                ? prev.careerHistory.filter(c => c.careerIsCareer !== '신입')
                 : [];
 
             const updatedCareerHistory = careerData.careerId && existingCareerHistory.some(c => c.careerId === careerData.careerId)
@@ -123,7 +144,7 @@ const ResumeEdit = () => {
                 )
                 : [
                     ...existingCareerHistory,
-                    { ...careerData, careerId: `temp-${Date.now()}`, resumeId: prev.resumeId }
+                    { ...careerData, careerId: careerData.careerId || `temp-${Date.now()}`, resumeId: prev.resumeId }
                 ];
 
             return {
@@ -136,12 +157,6 @@ const ResumeEdit = () => {
         setShowCareerModal(false);
     };
 
-
-
-
-
-
-
     const handleEditCareer = (careerId) => {
         const list = Array.isArray(resumeData.careerHistory)
             ? resumeData.careerHistory
@@ -152,35 +167,108 @@ const ResumeEdit = () => {
         const foundCareer = list.find(c => c.careerId === careerId);
 
         if (foundCareer) {
-            console.log("✅ 수정 대상 경력:", foundCareer);
             setCurrentCareer(foundCareer);
             setShowCareerModal(true);
         } else {
-            console.warn("❌ 수정하려는 경력 항목을 찾을 수 없습니다.", careerId);
+            alertModal.openModal({
+                title: '오류',
+                message: '수정하려는 경력 항목을 찾을 수 없습니다.',
+                type: 'error'
+            });
         }
     };
 
-
     const handleAddCareer = () => {
-        setCurrentCareer(null);
+        const isCurrentlyNewbie = resumeData.careerHistory?.some(c => c.careerIsCareer === '신입');
+
+        if (isCurrentlyNewbie) {
+            setCurrentCareer({
+                careerIsCareer: '경력',
+                careerCompanyName: '',
+                careerJoinDate: '',
+                careerQuitDate: '',
+                careerJobDescription: ''
+            });
+        } else {
+            setCurrentCareer(null);
+        }
+
         setShowCareerModal(true);
     };
 
+    const confirmDeleteCareer = (index) => {
+        confirmModal.openModal({
+            title: '경력 삭제',
+            message: '이 경력 항목을 삭제하시겠습니까?',
+            type: 'warning',
+            onConfirm: () => handleDeleteCareer(index)
+        });
+    };
+
     const handleDeleteCareer = (index) => {
-        if (!window.confirm('이 경력 항목을 삭제하시겠습니까?')) return;
+        if (index === null || index === undefined) return;
+
         const careerToDelete = resumeData.careerHistory[index];
-        if (!careerToDelete?.careerId || !resumeId) return alert("삭제할 수 없습니다.");
-        apiResumeService.deleteCareer(careerToDelete.careerId, Number(resumeId))
-            .then(() => {
+
+        if (typeof careerToDelete?.careerId === 'string' && careerToDelete.careerId.startsWith('temp-')) {
+            if (resumeData.careerHistory.length === 1) {
+                setResumeData(prev => ({
+                    ...prev,
+                    careerHistory: [{
+                        careerIsCareer: '신입',
+                        careerCompanyName: '',
+                        careerJoinDate: '',
+                        careerQuitDate: '',
+                        careerJobDescription: '',
+                        careerId: `temp-${Math.random().toString(36).substr(2, 9)}`,
+                        resumeId: prev.resumeId
+                    }]
+                }));
+            } else {
                 setResumeData(prev => ({
                     ...prev,
                     careerHistory: prev.careerHistory.filter((_, i) => i !== index)
                 }));
-            })
-            .catch(error => {
-                console.error("경력 삭제 중 오류:", error);
-                alert("삭제 중 오류가 발생했습니다.");
+            }
+        }
+        else if (careerToDelete?.careerId && resumeId) {
+            apiResumeService.deleteCareer(careerToDelete.careerId, Number(resumeId))
+                .then(() => {
+                    if (resumeData.careerHistory.length === 1) {
+                        setResumeData(prev => ({
+                            ...prev,
+                            careerHistory: [{
+                                careerIsCareer: '신입',
+                                careerCompanyName: '',
+                                careerJoinDate: '',
+                                careerQuitDate: '',
+                                careerJobDescription: '',
+                                careerId: `temp-${Math.random().toString(36).substr(2, 9)}`,
+                                resumeId: prev.resumeId
+                            }]
+                        }));
+                    } else {
+                        setResumeData(prev => ({
+                            ...prev,
+                            careerHistory: prev.careerHistory.filter((_, i) => i !== index)
+                        }));
+                    }
+                })
+                .catch(error => {
+                    alertModal.openModal({
+                        title: '삭제 오류',
+                        message: '경력 정보 삭제 중 오류가 발생했습니다.',
+                        type: 'error'
+                    });
+                });
+        }
+        else {
+            alertModal.openModal({
+                title: '삭제 오류',
+                message: '삭제할 수 없는 경력 정보입니다.',
+                type: 'error'
             });
+        }
     };
 
     const handleSaveResume = () => {
@@ -198,10 +286,6 @@ const ResumeEdit = () => {
             }
             return processedCareer;
         });
-
-
-
-        console.log("💾 최종 저장될 careerHistory:", careerHistoryData);
 
         const requestData = {
             resume: {
@@ -238,29 +322,38 @@ const ResumeEdit = () => {
     return (
         <div className="max-w-5xl mx-auto p-6">
             <h1 className="text-3xl font-bold mb-6 text-center">이력서 수정</h1>
-
             {error && <ErrorMessage message={error}/>}
             {success && <SuccessMessage message="이력서가 저장되었습니다."/>}
 
-            <div className="mb-6 flex justify-between space-x-2">
-                {['basic', 'education', 'career', 'skills', 'introduction'].map(section => (
-                    <button
-                        key={section}
-                        onClick={() => setActiveSection(section)}
-                        className={`flex-1 py-2 rounded ${activeSection === section ? 'bg-blue-500 text-white' : 'bg-white border'}`}
-                    >
-                        {{
-                            basic: '기본 정보',
-                            education: '학력 정보',
-                            career: '경력 정보',
-                            skills: '보유 스킬',
-                            introduction: '자기소개'
-                        }[section]}
-                    </button>
-                ))}
+            {/* 탭 네비게이션 - 개선된 디자인 */}
+            <div className="mb-8">
+                <div className="bg-white rounded-lg shadow-md overflow-hidden">
+                    <div className="flex flex-wrap">
+                        {[
+                            { id: 'basic', label: '기본 정보', icon: '📝' },
+                            { id: 'education', label: '학력 정보', icon: '🎓' },
+                            { id: 'career', label: '경력 정보', icon: '💼' },
+                            { id: 'skills', label: '보유 스킬', icon: '🛠️' },
+                            { id: 'introduction', label: '자기소개', icon: '✨' }
+                        ].map((section) => (
+                            <button
+                                key={section.id}
+                                onClick={() => setActiveSection(section.id)}
+                                className={`flex items-center justify-center py-4 px-3 flex-1 min-w-[100px] transition-all
+                                    ${activeSection === section.id
+                                    ? 'bg-blue-500 text-white font-medium'
+                                    : 'bg-white text-gray-700 hover:bg-gray-50'}`}
+                            >
+                                <span className="mr-2">{section.icon}</span>
+                                <span>{section.label}</span>
+                            </button>
+                        ))}
+                    </div>
+                </div>
             </div>
 
-            <div className="bg-white rounded shadow-md">
+            {/* 콘텐츠 영역 */}
+            <div className="bg-white rounded-lg shadow-md mb-8">
                 {activeSection === 'basic' && (
                     <ResumeBasicInfo
                         resumeData={resumeData}
@@ -286,7 +379,7 @@ const ResumeEdit = () => {
                         careerHistory={resumeData.careerHistory}
                         onAdd={handleAddCareer}
                         onEdit={handleEditCareer}
-                        onDelete={handleDeleteCareer}
+                        onDelete={confirmDeleteCareer}
                     />
                 )}
                 {activeSection === 'skills' && (
@@ -301,17 +394,37 @@ const ResumeEdit = () => {
                         onChange={handleChange}
                     />
                 )}
-                <div className="p-6 text-right">
-                    <button
-                        onClick={handleSaveResume}
-                        disabled={saving}
-                        className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
-                    >
-                        {saving ? '저장 중...' : '이력서 저장'}
-                    </button>
-                </div>
             </div>
 
+            {/* 하단 저장 버튼 - 고정 위치 */}
+            <div className="mt-8 flex justify-center">
+                <button
+                    onClick={handleSaveResume}
+                    disabled={saving}
+                    className="px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700
+                         disabled:opacity-50 flex items-center justify-center shadow-lg
+                         transition-all duration-300 font-medium min-w-[200px]"
+                >
+                    {saving ? (
+                        <>
+                            <svg className="animate-spin h-5 w-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            저장 중...
+                        </>
+                    ) : (
+                        <>
+                            <svg className="h-5 w-5 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                <path fillRule="evenodd" d="M5 13l4 4L19 7" clipRule="evenodd" />
+                            </svg>
+                            이력서 저장
+                        </>
+                    )}
+                </button>
+            </div>
+
+            {/* 모달 컴포넌트들 */}
             {showAddressModal && (
                 <AddressModal
                     onComplete={handleAddressComplete}
@@ -339,6 +452,22 @@ const ResumeEdit = () => {
                 />
             )}
 
+            <ConfirmModal
+                isOpen={confirmModal.isOpen}
+                onClose={confirmModal.closeModal}
+                onConfirm={() => confirmModal.modalProps.onConfirm && confirmModal.modalProps.onConfirm()}
+                title={confirmModal.modalProps.title}
+                message={confirmModal.modalProps.message}
+                type={confirmModal.modalProps.type}
+            />
+
+            <AlertModal
+                isOpen={alertModal.isOpen}
+                onClose={alertModal.closeModal}
+                title={alertModal.modalProps.title}
+                message={alertModal.modalProps.message}
+                type={alertModal.modalProps.type}
+            />
         </div>
     );
 };

@@ -28,8 +28,14 @@ const KakaoPostcodeModal = ({ isOpen, onClose, onComplete }) => {
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-30 z-50 flex justify-center items-center">
-            <div className="w-full max-w-md h-[500px] bg-white rounded-lg overflow-hidden relative">
+        <div
+            className="fixed inset-0 bg-black bg-opacity-30 z-50 flex justify-center items-center"
+            onClick={onClose} // 바깥 클릭 시 닫기
+        >
+            <div
+                className="w-full max-w-md h-[500px] bg-white rounded-lg overflow-hidden relative"
+                onClick={(e) => e.stopPropagation()} // 내부 클릭 시 닫히지 않도록 방지
+            >
                 <button
                     className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
                     onClick={onClose}

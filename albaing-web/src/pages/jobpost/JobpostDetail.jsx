@@ -244,11 +244,6 @@ export default function JobPostDetail() {
                     scrapedPosts = scrapedPosts.filter(id => id !== Number(jobPostId));
                     localStorage.setItem("scrapedPosts", JSON.stringify(scrapedPosts));
 
-                    alertModal.openModal({
-                        title: '스크랩 취소',
-                        message: '스크랩에서 제거되었습니다.',
-                        type: 'success'
-                    });
                 })
                 .catch((err) => {
                     console.error("스크랩 삭제 실패", err);
@@ -269,11 +264,6 @@ export default function JobPostDetail() {
                     scrapedPosts.push(Number(jobPostId));
                     localStorage.setItem("scrapedPosts", JSON.stringify(scrapedPosts));
 
-                    alertModal.openModal({
-                        title: '스크랩 추가',
-                        message: '스크랩에 추가되었습니다.',
-                        type: 'success'
-                    });
                 })
                 .catch((err) => {
                     console.error("스크랩 추가 실패", err);

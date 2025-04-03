@@ -333,19 +333,28 @@ const Resume = () => {
                     {resume?.careerHistory?.length > 0 ? (
                         resume.careerHistory.map((career, index) => (
                             <div key={index} className="bg-gray-50 p-4 rounded-md mb-4">
-                                <p className="text-lg font-semibold">{career.careerCompanyName || "미입력"}</p>
-                                <p className="text-sm text-gray-600">
-                                    {career.careerJoinDate} ~ {career.careerQuitDate || "재직중"}
-                                </p>
-
-                                {/* 직무 내용이 있을 경우만 렌더링 */}
-                                {career.careerJobDescription && (
-                                    <div className="mt-4 p-3 bg-white rounded-md border border-gray-100">
-                                        <div className="text-sm text-gray-500 mb-1">직무 내용</div>
-                                        <div className="whitespace-pre-line">
-                                            {career.careerJobDescription}
-                                        </div>
+                                {career.careerIsCareer === '신입' ? (
+                                    <div className="text-center py-4">
+                                        <span className="text-3xl mb-2 inline-block">🌱</span>
+                                        <p className="text-lg font-semibold text-blue-700">신입</p>
                                     </div>
+                                ) : (
+                                    <>
+                                        <p className="text-lg font-semibold">{career.careerCompanyName || "미입력"}</p>
+                                        <p className="text-sm text-gray-600">
+                                            {career.careerJoinDate} {career.careerJoinDate && career.careerQuitDate ? '~' : ''} {career.careerQuitDate || (career.careerJoinDate ? "재직중" : "")}
+                                        </p>
+
+                                        {/* 직무 내용이 있을 경우만 렌더링 */}
+                                        {career.careerJobDescription && (
+                                            <div className="mt-4 p-3 bg-white rounded-md border border-gray-100">
+                                                <div className="text-sm text-gray-500 mb-1">직무 내용</div>
+                                                <div className="whitespace-pre-line">
+                                                    {career.careerJobDescription}
+                                                </div>
+                                            </div>
+                                        )}
+                                    </>
                                 )}
                             </div>
                         ))
@@ -353,7 +362,6 @@ const Resume = () => {
                         <p className="text-gray-500">등록된 경력 정보가 없습니다.</p>
                     )}
                 </div>
-
 
 
                 {/* 보유 스킬 */}

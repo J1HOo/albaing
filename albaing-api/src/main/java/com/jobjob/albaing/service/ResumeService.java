@@ -18,7 +18,7 @@ public interface ResumeService {
         // 이력서 조회 (유저아이디)
         Resume getResumeByUserId(int userId);
 
-        void deleteCareer(Integer careerId, int resumeId);
+        int deleteCareer(Integer careerId, int resumeId);
 
         List<ResumeSummary> getAllResumeSummaries();
 

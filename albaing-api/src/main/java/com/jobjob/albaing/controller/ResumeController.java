@@ -44,13 +44,14 @@ public class ResumeController {
         resumeService.createResumeForUser(user);
     }
 
+
     //경력 삭제 delete
     @DeleteMapping("{userId}/careers/{careerId}")
     public void deleteCareer(@PathVariable Integer careerId, @PathVariable int userId) {
         resumeService.deleteCareer(careerId, userId);
     }
 
-
+    //인재 정보
     @GetMapping("/list")
     public ResponseEntity<List<ResumeSummary>> listResumes() {
         List<ResumeSummary> result = resumeService.getAllResumeSummaries();
