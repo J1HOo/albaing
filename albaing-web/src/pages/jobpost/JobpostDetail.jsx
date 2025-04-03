@@ -20,6 +20,7 @@ export default function JobPostDetail() {
     const [applicationResult, setApplicationResult] = useState(null);
     const [companyName, setCompanyName] = useState("");
     const [companyLogo, setCompanyLogo] = useState("");
+    const [scrapedPosts, setScrapedPosts] = useState([]);
 
     const alertModal = useModal();
     const confirmModal = useModal();
@@ -39,6 +40,22 @@ export default function JobPostDetail() {
 
         loadJobPostData();
     }, [jobPostId, isLoggedIn, userType, userData]);
+
+    // 스크랩된 공고 목록 로드
+    useEffect(() => {
+        if (isLoggedIn && userType === "personal" && userData && userData.userId) {
+            apiScrapService.getScrapsByUser(userData.userId, (posts) => {
+                setScrapedPosts(posts);
+
+                if (posts.some(post => post.jobPostId === Number(jobPostId))) {
+                    setIsScraped(true);
+                }
+            });
+        } else {
+            setScrapedPosts([]);
+            setIsScraped(false);
+        }
+    }, [isLoggedIn, userType, userData, jobPostId]);
 
     function loadJobPostData() {
         setLoading(true);
