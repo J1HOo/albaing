@@ -43,7 +43,7 @@ const JobPostSearchResults = () => {
     }, [window.location.search]);
 
     const handleCardClick = (jobPostId) => {
-        navigate(`/job-posts/${jobPostId}`);
+        navigate(`/jobs/${jobPostId}`);
     };
 
     if (loading) return <p className="text-center text-gray-500">로딩 중...</p>;
