@@ -10,6 +10,7 @@ import CompanyManage from '../pages/company/manage/CompanyManage';
 import ReviewDetail from '../pages/review/ReviewDetail';
 import JobpostAdd from '../pages/company/manage/jobposts/JobpostAdd';
 import JobpostDetail from '../pages/jobpost/JobpostDetail';
+import KakaoMap from '../pages/jobpost/KakaoMap';
 import JobpostEdit from '../pages/company/manage/jobposts/JobpostEdit';
 import JobpostList from '../pages/jobpost/JobpostList';
 import Login from '../pages/auth/login/Login';
@@ -106,6 +107,7 @@ function PathRoute() {
                     <Route path="/companies/:companyId" element={<MainLayout><CompanyDetail/></MainLayout>}/> {/* 회사 상세 정보 페이지 */}
                     <Route path="/jobs" element={<MainLayout><JobpostList/></MainLayout>}/> {/* 채용공고 목록 페이지 */}
                     <Route path="/jobs/:jobPostId" element={<MainLayout><JobpostDetail/></MainLayout>}/> {/* 채용공고 상세 페이지 */}
+                    <Route path="/jobs/:jobPostId/map" element={<MainLayout><KakaoMap/></MainLayout>}/> {/* 채용공고 상세 페이지 */}
                     <Route path="/companies/:companyId/reviews/:reviewId" element={<MainLayout><ReviewDetail/></MainLayout>}/> {/* 회사 리뷰 목록 페이지 */}
                 </Route>
 

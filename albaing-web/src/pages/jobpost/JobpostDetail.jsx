@@ -1,3 +1,5 @@
+// JobPostDetail.js
+
 import { useEffect, useState, useRef } from "react";
 import {useParams, useNavigate, Link} from "react-router-dom";
 import axios from "axios";
@@ -26,6 +28,11 @@ export default function JobPostDetail() {
     const confirmModal = useModal();
     const resumeConfirmModal = useModal();
     const resultModal = useModal();
+
+    // 지도 렌더링에 필요한 ref
+    const mapContainerRef = useRef(null);
+
+
 
     useEffect(() => {
         window.scrollTo(0, 0);
@@ -116,7 +123,7 @@ export default function JobPostDetail() {
                     setResumeId(null);
                 }
             })
-            .catch((error) => {
+            .catch(() => {
                 setResumeId(null);
             });
     }
@@ -225,6 +232,7 @@ export default function JobPostDetail() {
                 });
             });
     };
+
     // 이력서 작성 페이지로 이동
     const goToResumeCreation = () => {
         resumeConfirmModal.closeModal();
@@ -307,6 +315,66 @@ export default function JobPostDetail() {
         } catch (e) {
             return dateString;
         }
+    };
+
+    useEffect(() => {
+        if (!jobPost?.jobPostWorkPlace) return;
+
+        const existingScript = document.getElementById('kakao-map-script');
+        if (!existingScript) {
+            const script = document.createElement('script');
+            script.id = 'kakao-map-script';
+            script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${process.env.REACT_APP_KAKAO_API_KEY}&libraries=services&autoload=false`;
+            script.async = true;
+            document.head.appendChild(script);
+
+            script.onload = () => {
+                window.kakao.maps.load(() => {
+                    initMap();
+                });
+            };
+        } else {
+            if (window.kakao && window.kakao.maps) {
+                window.kakao.maps.load(() => {
+                    initMap();
+                });
+            }
+        }
+    }, [jobPost?.jobPostWorkPlace]);
+
+    // 지도 초기화 함수
+    const initMap = () => {
+        if (!mapContainerRef.current || !jobPost?.jobPostWorkPlace) return;
+
+        const kakao = window.kakao;
+        const container = mapContainerRef.current;
+
+        // 지도 생성 옵션
+        const options = {
+            center: new kakao.maps.LatLng(37.5665, 126.9780), // 초기 서울 좌표
+            level: 3
+        };
+
+        // 지도 생성
+        const map = new kakao.maps.Map(container, options);
+
+        // 주소로 좌표를 검색하기 위해 Geocoder 사용
+        const geocoder = new kakao.maps.services.Geocoder();
+        geocoder.addressSearch(jobPost.jobPostWorkPlace, (result, status) => {
+            if (status === kakao.maps.services.Status.OK) {
+                const coords = new kakao.maps.LatLng(result[0].y, result[0].x);
+                // 지도의 중심을 결과값으로 이동
+                map.setCenter(coords);
+
+                // 마커 생성
+                new kakao.maps.Marker({
+                    map: map,
+                    position: coords
+                });
+            } else {
+                console.warn('주소 검색 결과가 없습니다.');
+            }
+        });
     };
 
     if (loading) return <LoadingSpinner message="채용 공고를 불러오는 중..." />
@@ -456,6 +524,28 @@ export default function JobPostDetail() {
                     </div>
                 </div>
 
+                {/* 근무지 지도 섹션 */}
+                {jobPost.jobPostWorkPlace && (
+                    <div className="bg-white rounded-lg shadow-md overflow-hidden mb-8">
+                        <div className="p-6 border-b border-gray-200">
+                            <h2 className="text-xl font-bold text-gray-900 mb-4">근무지 지도</h2>
+                            <p className="text-sm text-gray-500">
+                                {jobPost.jobPostWorkPlace} 근무지 위치 (카카오 지도)
+                            </p>
+                            <p>
+                                <Link to={`/jobs/${jobPostId}/map`}>지도에서 내 주소와 함께 보기</Link>
+                            </p>
+                        </div>
+                        <div className="p-6">
+                        {/* 지도 표시 영역 */}
+                            <div
+                                ref={mapContainerRef}
+                                style={{ width: '100%', height: '400px' }}
+                            />
+                        </div>
+                    </div>
+                )}
+
                 {/* 상세 내용 섹션 */}
                 {jobPost.jobPostOptionalImage && (
                     <div className="bg-white rounded-lg shadow-md overflow-hidden mb-8">
@@ -469,7 +559,6 @@ export default function JobPostDetail() {
                                 className="w-full h-auto rounded"
                                 onError={(e) => {
                                     e.target.onerror = null;
-                                    e.target.src = "https://via.placeholder.com/800x400?text=이미지를+불러올+수+없습니다";
                                 }}
                             />
                         </div>
@@ -494,8 +583,7 @@ export default function JobPostDetail() {
                 </div>
             </div>
 
-            {/* 모달 */}
-            {/* 알림 모달 */}
+            {/* 모달들 */}
             <AlertModal
                 isOpen={alertModal.isOpen}
                 onClose={alertModal.closeModal}
@@ -505,7 +593,6 @@ export default function JobPostDetail() {
                 type={alertModal.modalProps.type || 'info'}
             />
 
-            {/* 지원 확인 모달 */}
             <ConfirmModal
                 isOpen={confirmModal.isOpen}
                 onClose={confirmModal.closeModal}
@@ -516,7 +603,6 @@ export default function JobPostDetail() {
                 cancelText="아니오"
             />
 
-            {/* 이력서 확인 모달 */}
             <ConfirmModal
                 isOpen={resumeConfirmModal.isOpen}
                 onClose={resumeConfirmModal.closeModal}
@@ -527,7 +613,6 @@ export default function JobPostDetail() {
                 cancelText="아니오"
             />
 
-            {/* 결과 모달 */}
             <Modal
                 isOpen={resultModal.isOpen}
                 onClose={resultModal.closeModal}
@@ -546,7 +631,6 @@ export default function JobPostDetail() {
                     </button>
                 </div>
             </Modal>
-
         </div>
     );
 }
