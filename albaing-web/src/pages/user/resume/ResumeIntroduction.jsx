@@ -3,7 +3,7 @@ import React from 'react';
 const ResumeIntroduction = ({ introduction, onChange }) => {
     return (
         <div className="p-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">자기소개</h2>
+            <h2 className="text-xl font-semibold text-gray-900 mb-4">✨ 자기소개</h2>
             <textarea
                 name="resumeIntroduction"
                 value={introduction}

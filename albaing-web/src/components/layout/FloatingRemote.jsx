@@ -175,11 +175,11 @@ const FloatingRemote = () => {
                         </button>
                         <div className="pt-2 border-t mt-2">
                             <a
-                                href="/salary-calculator"
+                                href="/calculator"
                                 className="flex justify-between items-center text-blue-600 hover:text-blue-800"
                                 onClick={(e) => {
                                     e.preventDefault();
-                                    navigate('/salary-calculator');
+                                    navigate('/calculator');
                                     setIsMenuOpen(false);
                                     trackUsage('salary-page');
                                 }}

@@ -13,6 +13,7 @@ const ScrapPage = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const alertModal = useModal();
+
     // 페이지네이션 상태
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage] = useState(9); // 3x3 그리드에 맞게 9개로 설정
@@ -38,7 +39,12 @@ const ScrapPage = () => {
         if (scrapedPosts.length > 0) {
             fetchCompanyInfo();
         }
-    }, [scrapedPosts]);
+    }, [scrapedPosts,companyInfo]);
+
+    //현재 회사 정보 확인용 로그
+    useEffect(() => {
+        console.log('현재 회사 정보 상태:', companyInfo);
+    }, [companyInfo]);
 
     // 회사 정보 데이터 조회
     const fetchCompanyInfo = () => {
@@ -53,33 +59,32 @@ const ScrapPage = () => {
 
         if (idsToFetch.length === 0) return;
 
-        // 회사 정보 조회
-        const newCompanyInfo = {...companyInfo};
-
         Promise.all(
-            idsToFetch.map(companyId => {
-                return axios.get(`/api/companies/${companyId}`, {withCredentials: true})
-                    .then(response => {
-                        if (response.data) {
-                            newCompanyInfo[companyId] = {
-                                companyName: response.data.companyName || "회사명 미지정",
-                                companyLogo: response.data.companyLogo || null
-                            };
-                        }
-                        return companyId;
-                    })
-                    .catch(() => {
-                        // 회사 정보 조회 실패 시 처리하지 않음
-                        newCompanyInfo[companyId] = {
-                            companyName: "회사명 미지정",
-                            companyLogo: null
-                        };
-                        return companyId;
-                    });
-            })
+            idsToFetch.map(companyId =>
+                axios.get(`/api/companies/${companyId}`, { withCredentials: true })
+                    .then(response => ({
+                        id: companyId,
+                        companyName: response.data.companyName || "회사명 미지정",
+                        companyLogo: response.data.companyLogo || null
+                    }))
+                    .catch(() => ({
+                        id: companyId,
+                        companyName: "회사명 미지정",
+                        companyLogo: null
+                    }))
+            )
         )
-            .then(() => {
-                setCompanyInfo(newCompanyInfo);
+            .then((companies) => {
+                setCompanyInfo(prevCompanyInfo => {
+                    const updatedCompanyInfo = { ...prevCompanyInfo };
+                    companies.forEach(company => {
+                        updatedCompanyInfo[company.id] = {
+                            companyName: company.companyName,
+                            companyLogo: company.companyLogo
+                        };
+                    });
+                    return updatedCompanyInfo;
+                });
             });
     };
 
@@ -89,7 +94,7 @@ const ScrapPage = () => {
         if (job.companyName) {
             return {
                 companyName: job.companyName,
-                companyLogo: null
+                companyLogo: job.companyLogo || null
             };
         }
 
@@ -214,26 +219,19 @@ const ScrapPage = () => {
                                                     <div className="flex items-start">
                                                         {/* 회사 로고 영역 */}
                                                         <div className="mr-3">
-                                                            {company.companyLogo ? (
                                                                 <img
-                                                                    src={company.companyLogo}
-                                                                    alt={company.companyName}
+                                                                    src={companyInfo[job.companyId]?.companyLogo}
+                                                                    alt={companyInfo[job.companyId]?.companyName || '회사 로고'}
                                                                     className="h-12 w-12 object-cover rounded-md"
                                                                 />
-                                                            ) : (
-                                                                <div className="h-12 w-12 bg-blue-100 rounded-md flex items-center justify-center">
-                                                                    <span className="text-blue-600 font-bold text-xl">
-                                                                        {company.companyName.substring(0, 1)}
-                                                                    </span>
-                                                                </div>
-                                                            )}
+
                                                         </div>
 
                                                         {/* 공고 정보 */}
                                                         <div className="flex-1 truncate">
                                                             <Link
                                                                 to={`/jobs/${job.jobPostId}`}
-                                                                className="text-lg font-medium text-blue-600 hover:text-blue-800 truncate block"
+                                                                className="text-lg font-semibold hover:text-blue-800 hover:font-bold truncate block"
                                                             >
                                                                 {job.jobPostTitle}
                                                             </Link>
@@ -262,7 +260,7 @@ const ScrapPage = () => {
                                                     <div className="mt-4 pt-4 border-t border-gray-200">
                                                         <Link
                                                             to={`/jobs/${job.jobPostId}`}
-                                                            className="inline-flex items-center font-medium text-blue-600 hover:text-blue-800"
+                                                            className="inline-flex items-center font-medium text-blue-600 hover:text-blue-800 hover:font-bold"
                                                         >
                                                             공고 상세보기
                                                             <svg xmlns="http://www.w3.org/2000/svg" className="ml-1 h-4 w-4" viewBox="0 0 20 20" fill="currentColor">

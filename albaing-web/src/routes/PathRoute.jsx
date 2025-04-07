@@ -82,7 +82,7 @@ function PathRoute() {
                 <Route path="/" element={<MainLayout><Home /></MainLayout>} /> {/* 메인 홈페이지 */}
                 <Route path="/about" element={<MainLayout><About /></MainLayout>} /> {/* 회사 소개 페이지 */}
                 <Route path="/customer/faq" element={<MainLayout><FAQ /></MainLayout>} /> {/* 자주 하는 문의 페이지 */}
-                <Route path="/calculator" element={<CalculatorPage />} /> {/* 연봉 계산기 페이지 */}
+                <Route path="/calculator" element={<MainLayout><CalculatorPage /> </MainLayout>} /> {/* 연봉 계산기 페이지 */}
                 <Route path="/customer/contact" element={<MainLayout><Contact /></MainLayout>} /> {/* 문의 페이지 */}
                 <Route path="/notices" element={<MainLayout><Notice /></MainLayout>} /> {/* 공지사항 페이지 */}
                 <Route path="/terms" element={<MainLayout><Terms /></MainLayout>} /> {/* 이용약관 페이지 */}

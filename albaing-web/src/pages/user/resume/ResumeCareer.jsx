@@ -12,7 +12,7 @@ const ResumeCareer = ({ careerHistory, onAdd, onEdit, onDelete }) => {
     return (
         <div className="p-6">
             <div className="flex justify-between items-center mb-6 border-b pb-2">
-                <h2 className="text-xl font-semibold text-gray-900">경력 정보</h2>
+                <h2 className="text-xl font-semibold text-gray-900">💼 경력 정보</h2>
                 <button
                     onClick={onAdd}
                     className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-colors flex items-center"

@@ -220,6 +220,8 @@
                     JOB_POSTS.job_post_title LIKE CONCAT('%', #{searchKeyword}, '%')
                     OR JOB_POSTS.job_post_contact_number LIKE CONCAT('%', #{searchKeyword}, '%')
                     OR COMPANIES.company_name LIKE CONCAT('%', #{searchKeyword}, '%')
+                    OR JOB_POSTS.job_post_work_place LIKE CONCAT('%', #{searchKeyword}, '%')
+                    OR JOB_POSTS.job_post_job_category LIKE CONCAT('%', #{searchKeyword}, '%')
                     )
                 </if>
             </trim>
