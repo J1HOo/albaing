@@ -1,5 +1,5 @@
 import Banner from "../../components/layout/Banner";
-import JobpostList from "../jobpost/JobpostList";
+import JobpostList from "../jobpost/JobpostHome";
 
 const Home = () => {
     return (

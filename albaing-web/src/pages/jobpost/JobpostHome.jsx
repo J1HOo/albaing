@@ -332,64 +332,64 @@ export default function JobpostList() {
                     </p>
                 </div>
 
-                {/*/!* 검색 필터 *!/*/}
-                {/*<div className="bg-white shadow rounded-lg mb-8 p-6 transition transform hover:shadow-lg">*/}
-                {/*    <div className="grid grid-cols-1 gap-6 sm:grid-cols-4">*/}
-                {/*        <div className="sm:col-span-2">*/}
-                {/*            <label htmlFor="search" className="block text-sm font-medium text-gray-700 mb-1">검색어</label>*/}
-                {/*            <input*/}
-                {/*                type="text"*/}
-                {/*                id="search"*/}
-                {/*                placeholder="직무, 회사명, 지역명 등"*/}
-                {/*                className="block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 transition-all"*/}
-                {/*                value={searchQuery}*/}
-                {/*                onChange={(e) => setSearchQuery(e.target.value)}*/}
-                {/*                onKeyPress={handleKeyPress}*/}
-                {/*            />*/}
-                {/*        </div>*/}
-                {/*        <div>*/}
-                {/*            <label htmlFor="category"*/}
-                {/*                   className="block text-sm font-medium text-gray-700 mb-1">직종</label>*/}
-                {/*            <select*/}
-                {/*                id="category"*/}
-                {/*                className="block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 transition-all"*/}
-                {/*                value={selectedCategory}*/}
-                {/*                onChange={(e) => setSelectedCategory(e.target.value)}*/}
-                {/*            >*/}
-                {/*                {categories.map((category) => (*/}
-                {/*                    <option key={category.value} value={category.value}>*/}
-                {/*                        {category.name}*/}
-                {/*                    </option>*/}
-                {/*                ))}*/}
-                {/*            </select>*/}
-                {/*        </div>*/}
-                {/*        <div>*/}
-                {/*            <label htmlFor="location"*/}
-                {/*                   className="block text-sm font-medium text-gray-700 mb-1">지역</label>*/}
-                {/*            <select*/}
-                {/*                id="location"*/}
-                {/*                className="block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 transition-all"*/}
-                {/*                value={selectedLocation}*/}
-                {/*                onChange={(e) => setSelectedLocation(e.target.value)}*/}
-                {/*            >*/}
-                {/*                {locations.map((location) => (*/}
-                {/*                    <option key={location.value} value={location.value}>*/}
-                {/*                        {location.name}*/}
-                {/*                    </option>*/}
-                {/*                ))}*/}
-                {/*            </select>*/}
-                {/*        </div>*/}
-                {/*    </div>*/}
-                {/*    <div className="mt-4 flex justify-end">*/}
-                {/*        <button*/}
-                {/*            type="button"*/}
-                {/*            onClick={handleSearch}*/}
-                {/*            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all"*/}
-                {/*        >*/}
-                {/*            검색하기*/}
-                {/*        </button>*/}
-                {/*    </div>*/}
-                {/*</div>*/}
+                {/* 검색 필터 */}
+                <div className="bg-white shadow rounded-lg mb-8 p-6 transition transform hover:shadow-lg">
+                    <div className="grid grid-cols-1 gap-6 sm:grid-cols-4">
+                        <div className="sm:col-span-2">
+                            <label htmlFor="search" className="block text-sm font-medium text-gray-700 mb-1">검색어</label>
+                            <input
+                                type="text"
+                                id="search"
+                                placeholder="직무, 회사명, 지역명 등"
+                                className="block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 transition-all"
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                onKeyPress={handleKeyPress}
+                            />
+                        </div>
+                        <div>
+                            <label htmlFor="category"
+                                   className="block text-sm font-medium text-gray-700 mb-1">직종</label>
+                            <select
+                                id="category"
+                                className="block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 transition-all"
+                                value={selectedCategory}
+                                onChange={(e) => setSelectedCategory(e.target.value)}
+                            >
+                                {categories.map((category) => (
+                                    <option key={category.value} value={category.value}>
+                                        {category.name}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                        <div>
+                            <label htmlFor="location"
+                                   className="block text-sm font-medium text-gray-700 mb-1">지역</label>
+                            <select
+                                id="location"
+                                className="block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 transition-all"
+                                value={selectedLocation}
+                                onChange={(e) => setSelectedLocation(e.target.value)}
+                            >
+                                {locations.map((location) => (
+                                    <option key={location.value} value={location.value}>
+                                        {location.name}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                    </div>
+                    <div className="mt-4 flex justify-end">
+                        <button
+                            type="button"
+                            onClick={handleSearch}
+                            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all"
+                        >
+                            검색하기
+                        </button>
+                    </div>
+                </div>
 
                 {/* 로딩 및 에러 상태 */}
                 {/*{loading && <LoadingSpinner message="채용 공고를 불러오는 중..." fullScreen={false} className="py-10"/>}*/}
