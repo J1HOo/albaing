@@ -48,7 +48,7 @@ export default function JobpostList() {
 
     // 상태 관리
     const [jobListings, setJobListings] = useState([]);
-    const [companyInfo, setCompanyInfo] = useState({});  // 회사 정보(이름, 이미지)
+    const [companyInfo, setCompanyInfo] = useState({});
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [selectedCategory, setSelectedCategory] = useState('');
@@ -63,19 +63,26 @@ export default function JobpostList() {
     const [newPosts, setNewPosts] = useState([]);
     const [randomPosts, setRandomPosts] = useState([]);
 
+    // 근접 공고 관련 상태 추가
+    const [nearbyPosts, setNearbyPosts] = useState([]);
+    const [userCoordinates, setUserCoordinates] = useState(null);
+    const [jobCoordinates, setJobCoordinates] = useState({});
+    const [isNearbyLoading, setIsNearbyLoading] = useState(false);
+    const [userAddress, setUserAddress] = useState("");
+
     useEffect(() => {
         axios.get("/api/jobs/mainPage/imminentPosts")
             .then((response) => {
                 setImminentPosts(response.data);
             })
         axios.get("/api/jobs/mainPage/newPosts")
-        .then((response) => {
-            setNewPosts(response.data);
-        })
+            .then((response) => {
+                setNewPosts(response.data);
+            })
         axios.get("/api/jobs/mainPage/randomPosts")
-        .then((response) => {
-            setRandomPosts(response.data);
-        })
+            .then((response) => {
+                setRandomPosts(response.data);
+            })
     }, [])
 
     useEffect(() => {
@@ -89,12 +96,185 @@ export default function JobpostList() {
         }
     }, [jobListings]);
 
-// 스크랩된 공고 목록 로드
+    // 사용자 주소 정보 로드
+    useEffect(() => {
+        if (isLoggedIn && userType === "personal" && userData && userData.userId) {
+            setUserAddress(userData.userAddress || "");
+
+            // 사용자 주소가 있는 경우 좌표로 변환
+            if (userData.userAddress) {
+                setIsNearbyLoading(true);
+                getUserCoordinates(userData.userAddress);
+            }
+        } else {
+            setUserAddress("");
+            setUserCoordinates(null);
+        }
+    }, [isLoggedIn, userType, userData]);
+
+    // 근접 공고 계산 (사용자 좌표가 있고, 새로운 공고가 로드되었을 때)
+    useEffect(() => {
+        if (userCoordinates && (newPosts.length > 0 || imminentPosts.length > 0 || randomPosts.length > 0)) {
+            const allPosts = [...newPosts, ...imminentPosts, ...randomPosts];
+            const uniquePosts = Array.from(new Set(allPosts.map(post => post.jobPostId)))
+                .map(id => allPosts.find(post => post.jobPostId === id));
+
+            calculateNearbyPosts(uniquePosts);
+        }
+    }, [userCoordinates, newPosts, imminentPosts, randomPosts]);
+
+    // 카카오맵 API 로드
+    const loadKakaoMapScript = (callback) => {
+        if (window.kakao && window.kakao.maps) {
+            callback();
+            return;
+        }
+
+        const script = document.createElement('script');
+        script.id = 'kakao-map-script';
+        script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${process.env.REACT_APP_KAKAO_API_KEY}&libraries=services&autoload=false`;
+        script.async = true;
+        document.head.appendChild(script);
+
+        script.onload = () => {
+            window.kakao.maps.load(() => {
+                callback();
+            });
+        };
+    };
+
+    // 주소를 좌표로 변환하는 함수
+    const getUserCoordinates = (address) => {
+        loadKakaoMapScript(() => {
+            const geocoder = new window.kakao.maps.services.Geocoder();
+
+            geocoder.addressSearch(address, (result, status) => {
+                if (status === window.kakao.maps.services.Status.OK) {
+                    const coords = {
+                        lat: parseFloat(result[0].y),
+                        lng: parseFloat(result[0].x)
+                    };
+
+                    setUserCoordinates(coords);
+                } else {
+                    console.warn('사용자 주소 변환 실패:', address);
+                }
+
+                setIsNearbyLoading(false);
+            });
+        });
+    };
+
+    // 공고 주소를 좌표로 변환하는 함수
+    const getJobCoordinates = (job) => {
+        return new Promise((resolve) => {
+            if (!job.jobPostWorkPlace) {
+                resolve(null);
+                return;
+            }
+
+            if (jobCoordinates[job.jobPostId]) {
+                resolve(jobCoordinates[job.jobPostId]);
+                return;
+            }
+
+            const geocoder = new window.kakao.maps.services.Geocoder();
+            geocoder.addressSearch(job.jobPostWorkPlace, (result, status) => {
+                if (status === window.kakao.maps.services.Status.OK) {
+                    const coords = {
+                        lat: parseFloat(result[0].y),
+                        lng: parseFloat(result[0].x)
+                    };
+
+                    setJobCoordinates(prev => ({
+                        ...prev,
+                        [job.jobPostId]: coords
+                    }));
+
+                    resolve(coords);
+                } else {
+                    resolve(null);
+                }
+            });
+        });
+    };
+
+    // 두 좌표 간의 거리를 계산하는 함수 (미터 단위)
+    const calculateDistance = (point1, point2) => {
+        if (!point1 || !point2) return Infinity;
+
+        // 지구의 반지름 (미터)
+        const R = 6371000;
+
+        // 위도와 경도를 라디안으로 변환
+        const lat1 = degToRad(point1.lat);
+        const lon1 = degToRad(point1.lng);
+        const lat2 = degToRad(point2.lat);
+        const lon2 = degToRad(point2.lng);
+
+        // Haversine 공식
+        const dLat = lat2 - lat1;
+        const dLon = lon2 - lon1;
+        const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+            Math.cos(lat1) * Math.cos(lat2) *
+            Math.sin(dLon/2) * Math.sin(dLon/2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        const distance = R * c;
+
+        return distance;
+    };
+
+    // 각도를 라디안으로 변환하는 함수
+    const degToRad = (deg) => {
+        return deg * (Math.PI / 180);
+    };
+
+    // 가까운 공고 계산
+    const calculateNearbyPosts = async (posts) => {
+        if (!userCoordinates || !posts || posts.length === 0) return;
+
+        setIsNearbyLoading(true);
+
+        // 공고 주소를 좌표로 변환하고 거리 계산
+        const postsWithDistance = await Promise.all(
+            posts.map(async (post) => {
+                const coords = await getJobCoordinates(post);
+                const distance = calculateDistance(userCoordinates, coords);
+
+                return {
+                    ...post,
+                    distance: distance,
+                    distanceText: formatDistance(distance)
+                };
+            })
+        );
+
+        // 거리 기준으로 정렬
+        const sortedPosts = postsWithDistance
+            .filter(post => post.distance !== Infinity) // 좌표 변환에 실패한 공고 제외
+            .sort((a, b) => a.distance - b.distance);
+
+        // 가까운 공고 10개 설정
+        setNearbyPosts(sortedPosts.slice(0, 10));
+        setIsNearbyLoading(false);
+    };
+
+    // 거리 포맷팅 함수
+    const formatDistance = (distance) => {
+        if (distance === Infinity || distance === null) return "거리 정보 없음";
+
+        if (distance < 1000) {
+            return `${Math.round(distance)}m`;
+        } else {
+            return `${(distance / 1000).toFixed(1)}km`;
+        }
+    };
+
+    // 스크랩된 공고 목록 로드
     useEffect(() => {
         if (isLoggedIn && userType === "personal" && userData && userData.userId) {
             apiScrapService.getScrapsByUser(userData.userId, setScrapedPosts);
         } else {
-            // 로그인 상태가 아니면 빈 배열로 초기화
             setScrapedPosts([]);
         }
     }, [isLoggedIn, userType, userData]);
@@ -190,36 +370,36 @@ export default function JobpostList() {
         }
 
         // API 요청 실행
-        // axios.get(endpoint, {
-        //     params,
-        //     withCredentials: true
-        // })
-        //     .then(response => {
-        //         if (response.data) {
-        //             const jobPosts = Array.isArray(response.data) ? response.data :
-        //                 (response.data.content ? response.data.content : []);
-        //
-        //             setJobListings(jobPosts);
-        //
-        //             // 총 아이템 수 설정 (페이지네이션용)
-        //             const total = response.data.totalElements ||
-        //                 response.data.totalItems ||
-        //                 response.headers['x-total-count'] ||
-        //                 jobPosts.length;
-        //
-        //             setTotalItems(Number(total));
-        //         } else {
-        //             setJobListings([]);
-        //             setTotalItems(0);
-        //         }
-        //         setLoading(false);
-        //     })
-        //     .catch(() => {
-        //         setError('채용 공고를 불러오는 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
-        //         setJobListings([]);
-        //         setTotalItems(0);
-        //         setLoading(false);
-        //     });
+        axios.get(endpoint, {
+            params,
+            withCredentials: true
+        })
+            .then(response => {
+                if (response.data) {
+                    const jobPosts = Array.isArray(response.data) ? response.data :
+                        (response.data.content ? response.data.content : []);
+
+                    setJobListings(jobPosts);
+
+                    // 총 아이템 수 설정 (페이지네이션용)
+                    const total = response.data.totalElements ||
+                        response.data.totalItems ||
+                        response.headers['x-total-count'] ||
+                        jobPosts.length;
+
+                    setTotalItems(Number(total));
+                } else {
+                    setJobListings([]);
+                    setTotalItems(0);
+                }
+                setLoading(false);
+            })
+            .catch(() => {
+                setError('채용 공고를 불러오는 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+                setJobListings([]);
+                setTotalItems(0);
+                setLoading(false);
+            });
     };
 
     // 검색하기 버튼 클릭 시
@@ -257,7 +437,6 @@ export default function JobpostList() {
 
     // 스크랩 토글 함수
     const toggleScrap = (jobPostId) => {
-
         if (!isLoggedIn) {
             alertModal.openModal({
                 title: '로그인 필요',
@@ -281,7 +460,6 @@ export default function JobpostList() {
                 (typeof scrap === 'number' && scrap === jobPostId)
         );
 
-
         if (isCurrentlyScraped) {
             apiScrapService.removeScrap(userData.userId, jobPostId)
                 .then(() => {
@@ -290,14 +468,12 @@ export default function JobpostList() {
 
                     const scrapIds = updatedScraps.map(post => post.jobPostId);
                     localStorage.setItem("scrapedPosts", JSON.stringify(scrapIds))
-
-
                 })
                 .catch((err) => {
-                    console.error("스크랩 삭제 실패", error);
+                    console.error("스크랩 삭제 실패", err);
                     alertModal.openModal({
                         title: '오류',
-                        message: '스크랩 추가 중 오류가 발생했습니다.',
+                        message: '스크랩 삭제 중 오류가 발생했습니다.',
                         type: 'error'
                     });
                 })
@@ -319,7 +495,6 @@ export default function JobpostList() {
                     });
                 });
         }
-
     };
 
     return (
@@ -391,156 +566,157 @@ export default function JobpostList() {
                     </div>
                 </div>
 
-                {/* 로딩 및 에러 상태 */}
-                {/*{loading && <LoadingSpinner message="채용 공고를 불러오는 중..." fullScreen={false} className="py-10"/>}*/}
-                {/*{error && <ErrorMessage message={error}/>}*/}
+                {/* 근접 공고 섹션 - 사용자가 로그인했을 때만 */}
+                {isLoggedIn && userType === "personal" && userAddress && (
+                    <div className="bg-white shadow rounded-lg mb-8 overflow-hidden">
+                        <div className="bg-blue-50 p-4 border-b border-blue-100">
+                            <h2 className="text-xl font-bold text-blue-800">내 위치 근처 공고</h2>
+                            <p className="text-sm text-blue-600 mt-1">
+                                내 주소({userAddress})와 가까운 거리에 있는 채용 공고입니다.
+                            </p>
+                        </div>
 
-                {/* 채용 공고 목록 - 카드 형식 */}
-                {/*{!loading && !error && (*/}
-                {/*    <div>*/}
-                {/*        {jobListings.length === 0 ? (*/}
-                {/*            <div className="text-center py-10 bg-white rounded-lg shadow">*/}
-                {/*                <p className="text-gray-500">검색 결과가 없습니다.</p>*/}
-                {/*            </div>*/}
-                {/*        ) : (*/}
-                {/*            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">*/}
-                {/*                {jobListings.map((job) => {*/}
-                {/*                    const company = getCompanyInfo(job);*/}
-                {/*                    const isScraped = Array.isArray(scrapedPosts) && scrapedPosts.some(*/}
-                {/*                        scrap => (typeof scrap === 'object' && scrap.jobPostId === job.jobPostId) ||*/}
-                {/*                            (typeof scrap === 'number' && scrap === job.jobPostId)*/}
-                {/*                    );*/}
+                        <div className="p-4">
+                            {isNearbyLoading ? (
+                                <LoadingSpinner message="근처 공고를 찾는 중..." fullScreen={false} className="py-10"/>
+                            ) : (
+                                <>
+                                    {nearbyPosts.length === 0 ? (
+                                        <div className="text-center py-10">
+                                            <p className="text-gray-500">근처에 공고가 없습니다.</p>
+                                        </div>
+                                    ) : (
+                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                            {nearbyPosts.map((job) => {
+                                                const company = getCompanyInfo(job);
+                                                const isScraped = scrapedPosts.some(
+                                                    scrap => (typeof scrap === 'object' && scrap.jobPostId === job.jobPostId) ||
+                                                        (typeof scrap === 'number' && scrap === job.jobPostId)
+                                                );
 
-                {/*                    return (*/}
-                {/*                        <JobCard*/}
-                {/*                            key={job.jobPostId}*/}
-                {/*                            job={job}*/}
-                {/*                            company={company}*/}
-                {/*                            isScraped={isScraped}*/}
-                {/*                            isLoggedIn={isLoggedIn}*/}
-                {/*                            userType={userType}*/}
-                {/*                            toggleScrap={toggleScrap}*/}
-                {/*                            formatDate={formatDate}*/}
-                {/*                        />*/}
-                {/*                    );*/}
-                {/*                })}*/}
-                {/*            </div>*/}
-                {/*        )}*/}
+                                                return (
+                                                    <div key={job.jobPostId} className="relative">
+                                                        <div className="absolute top-2 right-2 z-10 bg-blue-600 text-white px-2 py-1 rounded-full text-xs">
+                                                            {job.distanceText}
+                                                        </div>
+                                                        <JobCard
+                                                            job={job}
+                                                            company={company}
+                                                            isScraped={isScraped}
+                                                            isLoggedIn={isLoggedIn}
+                                                            userType={userType}
+                                                            toggleScrap={toggleScrap}
+                                                            formatDate={formatDate}
+                                                        />
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    )}
+                                </>
+                            )}
+                        </div>
+                    </div>
+                )}
 
-                {/*        /!* 페이지네이션 *!/*/}
-                {/*        {totalItems > 0 && (*/}
-                {/*            <div className="mt-8">*/}
-                {/*                <Pagination*/}
-                {/*                    totalItems={totalItems}*/}
-                {/*                    itemsPerPage={itemsPerPage}*/}
-                {/*                    currentPage={currentPage}*/}
-                {/*                    setCurrentPage={setCurrentPage}*/}
-                {/*                />*/}
-                {/*            </div>*/}
-                {/*        )}*/}
-                {/*    </div>*/}
-                {/*)}*/}
-            </div>
+                <div>
+                    <h2 className="text-2xl font-bold text-gray-900 mb-6">마감 임박 공고</h2>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {imminentPosts.map((job) => {
+                            const company = getCompanyInfo(job);
+                            const isScraped = Array.isArray(scrapedPosts) && scrapedPosts.some(
+                                scrap => (typeof scrap === 'object' && scrap.jobPostId === job.jobPostId) ||
+                                    (typeof scrap === 'number' && scrap === job.jobPostId)
+                            );
 
-            <div>
-                <br/>
-                <h1> 마감 임박 공고 </h1>
-                <br/>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {imminentPosts.map((job) => {
-                        const company = getCompanyInfo(job);
-                        const isScraped = Array.isArray(scrapedPosts) && scrapedPosts.some(
-                            scrap => (typeof scrap === 'object' && scrap.jobPostId === job.jobPostId) ||
-                                (typeof scrap === 'number' && scrap === job.jobPostId)
-                        );
-
-                        return (
-                            <JobCard
-                                key={job.jobPostId}
-                                job={job}
-                                company={company}
-                                isScraped={isScraped}
-                                isLoggedIn={isLoggedIn}
-                                userType={userType}
-                                toggleScrap={toggleScrap}
-                                formatDate={formatDate}
-                            />
-                        );
-                    })}
+                            return (
+                                <JobCard
+                                    key={job.jobPostId}
+                                    job={job}
+                                    company={company}
+                                    isScraped={isScraped}
+                                    isLoggedIn={isLoggedIn}
+                                    userType={userType}
+                                    toggleScrap={toggleScrap}
+                                    formatDate={formatDate}
+                                />
+                            );
+                        })}
+                    </div>
                 </div>
-                <br/>
-            </div>
 
+                <div className="mt-12">
+                    <h2 className="text-2xl font-bold text-gray-900 mb-6">최신 공고</h2>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {newPosts.map((job) => {
+                            const company = getCompanyInfo(job);
+                            const isScraped = Array.isArray(scrapedPosts) && scrapedPosts.some(
+                                scrap => (typeof scrap === 'object' && scrap.jobPostId === job.jobPostId) ||
+                                    (typeof scrap === 'number' && scrap === job.jobPostId)
+                            );
 
-            <div>
-                <br/>
-                <h1> 최신 공고 </h1>
-                <br/>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {newPosts.map((job) => {
-                        const company = getCompanyInfo(job);
-                        const isScraped = Array.isArray(scrapedPosts) && scrapedPosts.some(
-                            scrap => (typeof scrap === 'object' && scrap.jobPostId === job.jobPostId) ||
-                                (typeof scrap === 'number' && scrap === job.jobPostId)
-                        );
-
-                        return (
-                            <JobCard
-                                key={job.jobPostId}
-                                job={job}
-                                company={company}
-                                isScraped={isScraped}
-                                isLoggedIn={isLoggedIn}
-                                userType={userType}
-                                toggleScrap={toggleScrap}
-                                formatDate={formatDate}
-                            />
-                        );
-                    })}
+                            return (
+                                <JobCard
+                                    key={job.jobPostId}
+                                    job={job}
+                                    company={company}
+                                    isScraped={isScraped}
+                                    isLoggedIn={isLoggedIn}
+                                    userType={userType}
+                                    toggleScrap={toggleScrap}
+                                    formatDate={formatDate}
+                                />
+                            );
+                        })}
+                    </div>
                 </div>
-                <br/>
-            </div>
 
-            <div>
-                <br/>
-                <h1> 랜덤 공고 </h1>
-                <br/>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {randomPosts.map((job) => {
-                        const company = getCompanyInfo(job);
-                        const isScraped = Array.isArray(scrapedPosts) && scrapedPosts.some(
-                            scrap => (typeof scrap === 'object' && scrap.jobPostId === job.jobPostId) ||
-                                (typeof scrap === 'number' && scrap === job.jobPostId)
-                        );
+                <div className="mt-12">
+                    <h2 className="text-2xl font-bold text-gray-900 mb-6">추천 공고</h2>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {randomPosts.map((job) => {
+                            const company = getCompanyInfo(job);
+                            const isScraped = Array.isArray(scrapedPosts) && scrapedPosts.some(
+                                scrap => (typeof scrap === 'object' && scrap.jobPostId === job.jobPostId) ||
+                                    (typeof scrap === 'number' && scrap === job.jobPostId)
+                            );
 
-                        return (
-                            <JobCard
-                                key={job.jobPostId}
-                                job={job}
-                                company={company}
-                                isScraped={isScraped}
-                                isLoggedIn={isLoggedIn}
-                                userType={userType}
-                                toggleScrap={toggleScrap}
-                                formatDate={formatDate}
-                            />
-                        );
-                    })}
+                            return (
+                                <JobCard
+                                    key={job.jobPostId}
+                                    job={job}
+                                    company={company}
+                                    isScraped={isScraped}
+                                    isLoggedIn={isLoggedIn}
+                                    userType={userType}
+                                    toggleScrap={toggleScrap}
+                                    formatDate={formatDate}
+                                />
+                            );
+                        })}
+                    </div>
                 </div>
-                <br/>
             </div>
-            <br/>
+
             {/* 모달 */}
             <AlertModal
                 isOpen={alertModal.isOpen}
                 onClose={alertModal.closeModal}
                 title={alertModal.modalProps.title || '알림'}
                 message={alertModal.modalProps.message}
-                confirmText={alertModal.modalProps.confirmText || '확인'}
                 type={alertModal.modalProps.type || 'info'}
+                confirmText={alertModal.modalProps.confirmText || '확인'}
             />
+
+            {/* 페이지네이션 컴포넌트 */}
+            <div className="mt-10">
+                <Pagination
+                    currentPage={currentPage}
+                    totalItems={totalItems}
+                    itemsPerPage={itemsPerPage}
+                    onPageChange={setCurrentPage}
+                />
+            </div>
         </div>
-
-
     );
 }
